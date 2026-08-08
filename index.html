@@ -1,355 +1,1479 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Maniaxe Academy | Learn. Build. Grow.</title>
-  <meta name="description" content="Online courses, free YouTube lessons and premium learning programs.">
-  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <link rel="stylesheet" href="style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Maniaxe Academy | Learn. Build. Grow.</title>
+
+    <meta
+        name="description"
+        content="Online courses, free YouTube lessons and premium learning programs."
+    >
+
+    <!-- W3.CSS -->
+    <link
+        rel="stylesheet"
+        href="https://www.w3schools.com/w3css/4/w3.css"
+    >
+
+    <!-- Your CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 </head>
 
+
 <body>
-  <!-- NAVBAR -->
-  <nav class="w3-bar site-nav w3-padding">
-    <div class="w3-content nav-inner">
-      <a href="#home" class="brand w3-bar-item">Maniaxe<span>Academy</span></a>
-      <div class="desktop-nav">
-        <a href="#courses" class="w3-bar-item nav-link">Courses</a>
-        <a href="#videos" class="w3-bar-item nav-link">YouTube</a>
-        <a href="#about" class="w3-bar-item nav-link">About</a>
-        <a href="#contact" class="w3-bar-item nav-link">Contact</a>
-        <a href="#courses" class="w3-button primary-btn nav-buy">Get a Course</a>
-      </div>
-      <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+
+    <!-- =========================
+         NAVBAR
+    ========================== -->
+
+    <nav class="w3-bar site-nav w3-padding">
+
+        <div class="w3-content nav-inner">
+
+            <a
+                href="#home"
+                class="brand w3-bar-item"
+            >
+                Maniaxe<span>Academy</span>
+            </a>
+
+
+            <div class="desktop-nav">
+
+                <a
+                    href="#courses"
+                    class="w3-bar-item nav-link"
+                >
+                    Courses
+                </a>
+
+                <a
+                    href="#videos"
+                    class="w3-bar-item nav-link"
+                >
+                    YouTube
+                </a>
+
+                <a
+                    href="#about"
+                    class="w3-bar-item nav-link"
+                >
+                    About
+                </a>
+
+                <a
+                    href="#contact"
+                    class="w3-bar-item nav-link"
+                >
+                    Contact
+                </a>
+
+                <a
+                    href="#courses"
+                    class="w3-button primary-btn nav-buy"
+                >
+                    Get a Course
+                </a>
+
+            </div>
+
+
+            <button
+                class="mobile-menu-btn"
+                onclick="toggleMenu()"
+            >
+                ☰
+            </button>
+
+        </div>
+
+
+        <div
+            id="mobileMenu"
+            class="mobile-menu"
+        >
+
+            <a
+                href="#courses"
+                onclick="toggleMenu()"
+            >
+                Courses
+            </a>
+
+            <a
+                href="#videos"
+                onclick="toggleMenu()"
+            >
+                YouTube
+            </a>
+
+            <a
+                href="#about"
+                onclick="toggleMenu()"
+            >
+                About
+            </a>
+
+            <a
+                href="#contact"
+                onclick="toggleMenu()"
+            >
+                Contact
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <!-- =========================
+         HERO
+    ========================== -->
+
+    <header
+        id="home"
+        class="hero"
+    >
+
+        <div class="w3-content hero-grid">
+
+            <div>
+
+                <div class="eyebrow">
+                    🚀 LEARN • BUILD • GROW
+                </div>
+
+
+                <h1>
+                    Turn your skills into your
+                    <span>future.</span>
+                </h1>
+
+
+                <p class="hero-text">
+                    Practical courses, beginner-friendly lessons
+                    and premium learning resources designed to help
+                    you learn real-world skills.
+                </p>
+
+
+                <div class="hero-actions">
+
+                    <a
+                        href="#courses"
+                        class="w3-button primary-btn"
+                    >
+                        Explore Courses →
+                    </a>
+
+                    <a
+                        href="#videos"
+                        class="w3-button secondary-btn"
+                    >
+                        Watch Free Videos
+                    </a>
+
+                </div>
+
+
+                <div class="stats">
+
+                    <div>
+                        <strong>10+</strong>
+                        <small>Courses</small>
+                    </div>
+
+                    <div>
+                        <strong>50+</strong>
+                        <small>Free Videos</small>
+                    </div>
+
+                    <div>
+                        <strong>1K+</strong>
+                        <small>Learners</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="hero-card">
+
+                <div class="floating-badge">
+                    ⭐ Best Seller
+                </div>
+
+
+                <div class="course-preview">
+
+                    <div class="preview-icon">
+                        💻
+                    </div>
+
+
+                    <div>
+
+                        <span class="mini-label">
+                            FEATURED COURSE
+                        </span>
+
+                        <h3>
+                            Web Development Masterclass
+                        </h3>
+
+                        <p>
+                            HTML • CSS • JavaScript • Projects
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="progress-line">
+                    <span></span>
+                </div>
+
+
+                <div class="preview-bottom">
+
+                    <span>
+                        32 lessons
+                    </span>
+
+                    <span>
+                        Beginner → Advanced
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =========================
+         COURSES
+    ========================== -->
+
+    <section
+        id="courses"
+        class="section"
+    >
+
+        <div class="w3-content">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-tag">
+                        PREMIUM COURSES
+                    </span>
+
+                    <h2>
+                        Choose your next skill
+                    </h2>
+
+                    <p>
+                        Buy a course and start learning at your own pace.
+                    </p>
+
+                </div>
+
+
+                <div class="filters">
+
+                    <button
+                        class="filter active"
+                        onclick="filterCourses('all', this)"
+                    >
+                        All
+                    </button>
+
+                    <button
+                        class="filter"
+                        onclick="filterCourses('web', this)"
+                    >
+                        Web
+                    </button>
+
+                    <button
+                        class="filter"
+                        onclick="filterCourses('security', this)"
+                    >
+                        Security
+                    </button>
+
+                    <button
+                        class="filter"
+                        onclick="filterCourses('career', this)"
+                    >
+                        Career
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="w3-row-padding course-grid"
+                id="courseGrid"
+            >
+
+                <!-- COURSE 1 -->
+
+                <div
+                    class="w3-third course-item"
+                    data-category="web"
+                >
+
+                    <article class="course-card">
+
+                        <div class="course-image web-gradient">
+
+                            <span class="course-badge">
+                                BEST SELLER
+                            </span>
+
+                            <span class="course-icon">
+                                🌐
+                            </span>
+
+                        </div>
+
+
+                        <div class="course-body">
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>(128)</span>
+                            </div>
+
+                            <h3>
+                                Complete Web Development
+                            </h3>
+
+                            <p>
+                                Learn HTML, CSS, JavaScript and
+                                build real websites from scratch.
+                            </p>
+
+
+                            <div class="course-meta">
+
+                                <span>
+                                    📚 42 Lessons
+                                </span>
+
+                                <span>
+                                    ⏱ 18 Hours
+                                </span>
+
+                            </div>
+
+
+                            <div class="price-row">
+
+                                <div>
+                                    <strong>₹999</strong>
+                                    <del>₹2,499</del>
+                                </div>
+
+
+                                <button
+                                    class="w3-button buy-btn"
+                                    type="button"
+                                    onclick="openPurchase(
+                                        'Complete Web Development',
+                                        '₹999'
+                                    )"
+                                >
+                                    Buy Now
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <!-- COURSE 2 -->
+
+                <div
+                    class="w3-third course-item"
+                    data-category="security"
+                >
+
+                    <article class="course-card">
+
+                        <div class="course-image security-gradient">
+
+                            <span class="course-badge">
+                                POPULAR
+                            </span>
+
+                            <span class="course-icon">
+                                🔐
+                            </span>
+
+                        </div>
+
+
+                        <div class="course-body">
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>(96)</span>
+                            </div>
+
+                            <h3>
+                                Ethical Hacking Fundamentals
+                            </h3>
+
+                            <p>
+                                Understand cybersecurity concepts,
+                                tools, labs and ethical security practices.
+                            </p>
+
+
+                            <div class="course-meta">
+
+                                <span>
+                                    📚 35 Lessons
+                                </span>
+
+                                <span>
+                                    ⏱ 14 Hours
+                                </span>
+
+                            </div>
+
+
+                            <div class="price-row">
+
+                                <div>
+                                    <strong>₹1,499</strong>
+                                    <del>₹3,999</del>
+                                </div>
+
+
+                                <button
+                                    class="w3-button buy-btn"
+                                    type="button"
+                                    onclick="openPurchase(
+                                        'Ethical Hacking Fundamentals',
+                                        '₹1,499'
+                                    )"
+                                >
+                                    Buy Now
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <!-- COURSE 3 -->
+
+                <div
+                    class="w3-third course-item"
+                    data-category="career"
+                >
+
+                    <article class="course-card">
+
+                        <div class="course-image career-gradient">
+
+                            <span class="course-badge">
+                                NEW
+                            </span>
+
+                            <span class="course-icon">
+                                📈
+                            </span>
+
+                        </div>
+
+
+                        <div class="course-body">
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>(42)</span>
+                            </div>
+
+                            <h3>
+                                Digital Skills & Career Starter
+                            </h3>
+
+                            <p>
+                                Build a strong digital foundation
+                                and learn how to start your online career.
+                            </p>
+
+
+                            <div class="course-meta">
+
+                                <span>
+                                    📚 24 Lessons
+                                </span>
+
+                                <span>
+                                    ⏱ 8 Hours
+                                </span>
+
+                            </div>
+
+
+                            <div class="price-row">
+
+                                <div>
+                                    <strong>₹699</strong>
+                                    <del>₹1,499</del>
+                                </div>
+
+
+                                <button
+                                    class="w3-button buy-btn"
+                                    type="button"
+                                    onclick="openPurchase(
+                                        'Digital Skills & Career Starter',
+                                        '₹699'
+                                    )"
+                                >
+                                    Buy Now
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <!-- COURSE 4 -->
+
+                <div
+                    class="w3-third course-item"
+                    data-category="web"
+                >
+
+                    <article class="course-card">
+
+                        <div class="course-image js-gradient">
+
+                            <span class="course-icon">
+                                ⚡
+                            </span>
+
+                        </div>
+
+
+                        <div class="course-body">
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>(67)</span>
+                            </div>
+
+                            <h3>
+                                JavaScript Projects
+                            </h3>
+
+                            <p>
+                                Move beyond theory by building
+                                interactive JavaScript projects.
+                            </p>
+
+
+                            <div class="course-meta">
+
+                                <span>
+                                    📚 28 Lessons
+                                </span>
+
+                                <span>
+                                    ⏱ 10 Hours
+                                </span>
+
+                            </div>
+
+
+                            <div class="price-row">
+
+                                <div>
+                                    <strong>₹799</strong>
+                                    <del>₹1,999</del>
+                                </div>
+
+
+                                <button
+                                    class="w3-button buy-btn"
+                                    type="button"
+                                    onclick="openPurchase(
+                                        'JavaScript Projects',
+                                        '₹799'
+                                    )"
+                                >
+                                    Buy Now
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <!-- COURSE 5 -->
+
+                <div
+                    class="w3-third course-item"
+                    data-category="security"
+                >
+
+                    <article class="course-card">
+
+                        <div class="course-image cyber-gradient">
+
+                            <span class="course-icon">
+                                🛡️
+                            </span>
+
+                        </div>
+
+
+                        <div class="course-body">
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>(51)</span>
+                            </div>
+
+                            <h3>
+                                Cyber Security Basics
+                            </h3>
+
+                            <p>
+                                Learn networking, threats, security
+                                principles and defensive practices.
+                            </p>
+
+
+                            <div class="course-meta">
+
+                                <span>
+                                    📚 30 Lessons
+                                </span>
+
+                                <span>
+                                    ⏱ 12 Hours
+                                </span>
+
+                            </div>
+
+
+                            <div class="price-row">
+
+                                <div>
+                                    <strong>₹1,199</strong>
+                                    <del>₹2,999</del>
+                                </div>
+
+
+                                <button
+                                    class="w3-button buy-btn"
+                                    type="button"
+                                    onclick="openPurchase(
+                                        'Cyber Security Basics',
+                                        '₹1,199'
+                                    )"
+                                >
+                                    Buy Now
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+
+                <!-- COURSE 6 -->
+
+                <div
+                    class="w3-third course-item"
+                    data-category="web"
+                >
+
+                    <article class="course-card">
+
+                        <div class="course-image html-gradient">
+
+                            <span class="course-icon">
+                                🎨
+                            </span>
+
+                        </div>
+
+
+                        <div class="course-body">
+
+                            <div class="rating">
+                                ★★★★★
+                                <span>(84)</span>
+                            </div>
+
+                            <h3>
+                                HTML & CSS From Zero
+                            </h3>
+
+                            <p>
+                                A simple start for complete beginners
+                                who want to create beautiful websites.
+                            </p>
+
+
+                            <div class="course-meta">
+
+                                <span>
+                                    📚 22 Lessons
+                                </span>
+
+                                <span>
+                                    ⏱ 7 Hours
+                                </span>
+
+                            </div>
+
+
+                            <div class="price-row">
+
+                                <div>
+                                    <strong>₹499</strong>
+                                    <del>₹999</del>
+                                </div>
+
+
+                                <button
+                                    class="w3-button buy-btn"
+                                    type="button"
+                                    onclick="openPurchase(
+                                        'HTML & CSS From Zero',
+                                        '₹499'
+                                    )"
+                                >
+                                    Buy Now
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         WHY US
+    ========================== -->
+
+    <section class="why-section">
+
+        <div class="w3-content">
+
+            <div class="center-heading">
+
+                <span class="section-tag">
+                    WHY LEARN HERE?
+                </span>
+
+                <h2>
+                    Everything you need to learn
+                </h2>
+
+            </div>
+
+
+            <div class="w3-row-padding feature-grid">
+
+                <div class="w3-quarter feature">
+
+                    <div class="feature-icon">
+                        🎯
+                    </div>
+
+                    <h3>
+                        Practical
+                    </h3>
+
+                    <p>
+                        Project-based lessons focused on useful skills.
+                    </p>
+
+                </div>
+
+
+                <div class="w3-quarter feature">
+
+                    <div class="feature-icon">
+                        🧑‍💻
+                    </div>
+
+                    <h3>
+                        Beginner Friendly
+                    </h3>
+
+                    <p>
+                        Simple explanations without unnecessary complexity.
+                    </p>
+
+                </div>
+
+
+                <div class="w3-quarter feature">
+
+                    <div class="feature-icon">
+                        ♾️
+                    </div>
+
+                    <h3>
+                        Lifetime Access
+                    </h3>
+
+                    <p>
+                        Learn at your pace and revisit lessons anytime.
+                    </p>
+
+                </div>
+
+
+                <div class="w3-quarter feature">
+
+                    <div class="feature-icon">
+                        💬
+                    </div>
+
+                    <h3>
+                        Support
+                    </h3>
+
+                    <p>
+                        Get help when you are stuck during your learning journey.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         YOUTUBE
+    ========================== -->
+
+    <section
+        id="videos"
+        class="section"
+    >
+
+        <div class="w3-content">
+
+            <div class="section-heading">
+
+                <div>
+
+                    <span class="section-tag">
+                        FREE CONTENT
+                    </span>
+
+                    <h2>
+                        Learn on YouTube
+                    </h2>
+
+                    <p>
+                        Try my free lessons before joining a premium course.
+                    </p>
+
+                </div>
+
+
+                <a
+                    class="w3-button youtube-btn"
+                    href="https://www.youtube.com/@avanish_005"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    Visit YouTube ↗
+                </a>
+
+            </div>
+
+
+            <div class="w3-row-padding video-grid">
+
+
+                <!-- VIDEO 1 -->
+
+                <div class="w3-third">
+
+                    <div class="video-card">
+
+                        <div class="video-wrap">
+
+                            <iframe
+                                src="https://www.youtube.com/embed/Edsxf_NBFrw"
+                                title="HTML Basics for Beginners"
+                                allowfullscreen>
+                            </iframe>
+
+                        </div>
+
+
+                        <div class="video-body">
+
+                            <span>
+                                WEB DEVELOPMENT
+                            </span>
+
+                            <h3>
+                                HTML Basics for Beginners
+                            </h3>
+
+                            <a
+                                href="https://youtu.be/Edsxf_NBFrw"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                Watch on YouTube →
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- VIDEO 2 -->
+
+                <div class="w3-third">
+
+                    <div class="video-card">
+
+                        <div class="video-wrap">
+
+                            <iframe
+                                src="https://www.youtube.com/embed/VlPiVmYuoqw"
+                                title="JavaScript Beginner Guide"
+                                allowfullscreen>
+                            </iframe>
+
+                        </div>
+
+
+                        <div class="video-body">
+
+                            <span>
+                                JAVASCRIPT
+                            </span>
+
+                            <h3>
+                                JavaScript Beginner Guide
+                            </h3>
+
+                            <a
+                                href="https://youtu.be/VlPiVmYuoqw"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                Watch on YouTube →
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- VIDEO 3 -->
+
+                <div class="w3-third">
+
+                    <div class="video-card">
+
+                        <div class="video-wrap">
+
+                            <iframe
+                                src="https://www.youtube.com/embed/UrsmFxEIp5k"
+                                title="Python Programming Explained"
+                                allowfullscreen>
+                            </iframe>
+
+                        </div>
+
+
+                        <div class="video-body">
+
+                            <span>
+                                PYTHON
+                            </span>
+
+                            <h3>
+                                Python Programming Explained
+                            </h3>
+
+                            <a
+                                href="https://youtu.be/UrsmFxEIp5k"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                Watch on YouTube →
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         CTA
+    ========================== -->
+
+    <section class="cta-section">
+
+        <div class="w3-content cta-box">
+
+            <div>
+
+                <span class="section-tag">
+                    READY TO START?
+                </span>
+
+                <h2>
+                    Your next skill is one course away.
+                </h2>
+
+                <p>
+                    Start learning today and build something
+                    you are proud of.
+                </p>
+
+            </div>
+
+
+            <a
+                href="#courses"
+                class="w3-button primary-btn"
+            >
+                Browse Courses →
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         ABOUT
+    ========================== -->
+
+    <section
+        id="about"
+        class="section about-section"
+    >
+
+        <div class="w3-content about-grid">
+
+            <div class="about-avatar">
+                AY
+            </div>
+
+
+            <div>
+
+                <span class="section-tag">
+                    ABOUT THE INSTRUCTOR
+                </span>
+
+                <h2>
+                    Learn from practical experience.
+                </h2>
+
+                <p>
+                    Hi, I'm <strong>Avanish</strong>.
+                    I create beginner-friendly educational
+                    content around web development, technology
+                    and digital skills.
+                </p>
+
+                <p>
+                    My goal is simple: explain complicated topics
+                    in a way that is easy to understand and
+                    immediately useful.
+                </p>
+
+                <a
+                    href="#contact"
+                    class="text-link"
+                >
+                    Get in touch →
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         CONTACT
+    ========================== -->
+
+    <section
+        id="contact"
+        class="contact-section"
+    >
+
+        <div class="w3-content contact-grid">
+
+
+            <div>
+
+                <span class="section-tag">
+                    CONTACT
+                </span>
+
+                <h2>
+                    Have a question?
+                </h2>
+
+                <p>
+                    Send a message and I'll get back to you.
+                </p>
+
+
+                <div class="contact-info">
+
+                    <p>
+                        📧
+                        <strong>Email:</strong>
+                        maniaxe005@gmail.com
+                    </p>
+
+                    <p>
+                        📱
+                        <strong>WhatsApp:</strong>
+                        +91 000000000
+                    </p>
+
+                    <p>
+                        ▶️
+                        <strong>YouTube:</strong>
+                        @maniaxe ninja
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <!-- EMAILJS CONTACT FORM -->
+
+            <form
+                id="contactForm"
+                class="contact-form"
+            >
+
+                <input
+                    class="w3-input"
+                    id="name"
+                    name="name"
+                    type="text"
+                    placeholder="Your name"
+                    required
+                >
+
+
+                <input
+                    class="w3-input"
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Your Gmail / Email"
+                    required
+                >
+
+
+                <textarea
+                    class="w3-input"
+                    id="message"
+                    name="message"
+                    rows="5"
+                    placeholder="Your message"
+                    required
+                ></textarea>
+
+
+                <button
+                    id="sendButton"
+                    class="w3-button primary-btn"
+                    type="submit"
+                >
+                    Send Message
+                </button>
+
+
+                <p
+                    id="formMessage"
+                    class="form-message"
+                    aria-live="polite"
+                ></p>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FOOTER
+    ========================== -->
+
+    <footer class="footer">
+
+        <div class="w3-content footer-grid">
+
+            <div>
+
+                <a
+                    href="#home"
+                    class="brand"
+                >
+                    Maniaxe<span>Academy</span>
+                </a>
+
+                <p>
+                    Learn. Build. Grow.
+                </p>
+
+            </div>
+
+
+            <div>
+
+                <h4>
+                    Quick Links
+                </h4>
+
+                <a href="#courses">
+                    Courses
+                </a>
+
+                <a href="#videos">
+                    YouTube
+                </a>
+
+                <a href="#about">
+                    About
+                </a>
+
+            </div>
+
+
+            <div>
+
+                <h4>
+                    Social
+                </h4>
+
+                <a
+                    href="https://www.youtube.com/@avanish_005"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    YouTube
+                </a>
+
+                <a
+                    href="#"
+                    target="_blank"
+                >
+                    Instagram
+                </a>
+
+                <a
+                    href="#"
+                    target="_blank"
+                >
+                    Telegram
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="copyright">
+
+            ©
+            <span id="year"></span>
+            Maniaxe Academy.
+            All rights reserved.
+
+        </div>
+
+    </footer>
+
+
+    <!-- =========================
+         PURCHASE MODAL
+    ========================== -->
+
+    <div
+        id="purchaseModal"
+        class="modal"
+    >
+
+        <div class="modal-content">
+
+            <button
+                class="close-btn"
+                type="button"
+                onclick="closePurchase()"
+            >
+                ×
+            </button>
+
+
+            <span class="section-tag">
+                SECURE ENROLLMENT
+            </span>
+
+
+            <h2>
+                Buy Course
+            </h2>
+
+
+            <div class="selected-course">
+
+                <span id="selectedIcon">
+                    🎓
+                </span>
+
+
+                <div>
+
+                    <h3 id="selectedCourse">
+                        Course Name
+                    </h3>
+
+                    <strong id="selectedPrice">
+                        ₹999
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <p class="modal-note">
+
+                Click the payment button to continue.
+
+            </p>
+
+
+            <a
+                id="paymentLink"
+                href="#"
+                target="_blank"
+                rel="noopener"
+                class="w3-button primary-btn full-btn"
+            >
+                Proceed to Payment →
+            </a>
+
+
+            <button
+                class="w3-button cancel-btn"
+                type="button"
+                onclick="closePurchase()"
+            >
+                Cancel
+            </button>
+
+        </div>
+
     </div>
-    <div id="mobileMenu" class="mobile-menu">
-      <a href="#courses" onclick="toggleMenu()">Courses</a>
-      <a href="#videos" onclick="toggleMenu()">YouTube</a>
-      <a href="#about" onclick="toggleMenu()">About</a>
-      <a href="#contact" onclick="toggleMenu()">Contact</a>
-    </div>
-  </nav>
 
-  <!-- HERO -->
-  <header id="home" class="hero">
-    <div class="w3-content hero-grid">
-      <div>
-        <div class="eyebrow">🚀 LEARN • BUILD • GROW</div>
-        <h1>Turn your skills into your <span>future.</span></h1>
-        <p class="hero-text">
-          Practical courses, beginner-friendly lessons and premium learning resources
-          designed to help you learn real-world skills.
-        </p>
-        <div class="hero-actions">
-          <a href="#courses" class="w3-button primary-btn">Explore Courses →</a>
-          <a href="#videos" class="w3-button secondary-btn">Watch Free Videos</a>
-        </div>
-        <div class="stats">
-          <div><strong>10+</strong><small>Courses</small></div>
-          <div><strong>50+</strong><small>Free Videos</small></div>
-          <div><strong>1K+</strong><small>Learners</small></div>
-        </div>
-      </div>
-      <div class="hero-card">
-        <div class="floating-badge">⭐ Best Seller</div>
-        <div class="course-preview">
-          <div class="preview-icon">💻</div>
-          <div>
-            <span class="mini-label">FEATURED COURSE</span>
-            <h3>Web Development Masterclass</h3>
-            <p>HTML • CSS • JavaScript • Projects</p>
-          </div>
-        </div>
-        <div class="progress-line"><span></span></div>
-        <div class="preview-bottom">
-          <span>32 lessons</span>
-          <span>Beginner → Advanced</span>
-        </div>
-      </div>
-    </div>
-  </header>
 
-  <!-- COURSE SECTION -->
-  <section id="courses" class="section">
-    <div class="w3-content">
-      <div class="section-heading">
-        <div>
-          <span class="section-tag">PREMIUM COURSES</span>
-          <h2>Choose your next skill</h2>
-          <p>Buy a course and start learning at your own pace.</p>
-        </div>
-        <div class="filters">
-          <button class="filter active" onclick="filterCourses('all', this)">All</button>
-          <button class="filter" onclick="filterCourses('web', this)">Web</button>
-          <button class="filter" onclick="filterCourses('security', this)">Security</button>
-          <button class="filter" onclick="filterCourses('career', this)">Career</button>
-        </div>
-      </div>
+    <!-- JAVASCRIPT -->
+    <script src="script.js"></script>
 
-      <div class="w3-row-padding course-grid" id="courseGrid">
-        <!-- Course 1 -->
-        <div class="w3-third course-item" data-category="web">
-          <article class="course-card">
-            <div class="course-image web-gradient">
-              <span class="course-badge">BEST SELLER</span>
-              <span class="course-icon">🌐</span>
-            </div>
-            <div class="course-body">
-              <div class="rating">★★★★★ <span>(128)</span></div>
-              <h3>Complete Web Development</h3>
-              <p>Learn HTML, CSS, JavaScript and build real websites from scratch.</p>
-              <div class="course-meta"><span>📚 42 Lessons</span><span>⏱ 18 Hours</span></div>
-              <div class="price-row">
-                <div><strong>₹999999/strong><del>₹2,499999</del></div>
-                <button class="w3-button buy-btn" onclick="openPurchase('Complete Web Development', '₹999999')">Buy Now</button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- Course 2 -->
-        <div class="w3-third course-item" data-category="security">
-          <article class="course-card">
-            <div class="course-image security-gradient">
-              <span class="course-badge">POPULAR</span>
-              <span class="course-icon">🔐</span>
-            </div>
-            <div class="course-body">
-              <div class="rating">★★★★★ <span>(96)</span></div>
-              <h3>Ethical Hacking Fundamentals</h3>
-              <p>Understand cybersecurity concepts, tools, labs and ethical security practices.</p>
-              <div class="course-meta"><span>📚 35 Lessons</span><span>⏱ 14 Hours</span></div>
-              <div class="price-row">
-                <div><strong>₹1,49999</strong><del>₹3,99999</del></div>
-                <button class="w3-button buy-btn" onclick="openPurchase('Ethical Hacking Fundamentals', '₹1,49999')">Buy Now</button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- Course 3 -->
-        <div class="w3-third course-item" data-category="career">
-          <article class="course-card">
-            <div class="course-image career-gradient">
-              <span class="course-badge">NEW</span>
-              <span class="course-icon">📈</span>
-            </div>
-            <div class="course-body">
-              <div class="rating">★★★★★ <span>(42)</span></div>
-              <h3>Digital Skills & Career Starter</h3>
-              <p>Build a strong digital foundation and learn how to start your online career.</p>
-              <div class="course-meta"><span>📚 24 Lessons</span><span>⏱ 8 Hours</span></div>
-              <div class="price-row">
-                <div><strong>₹699999</strong><del>₹1,489999</del></div>
-                <button class="w3-button buy-btn" onclick="openPurchase('Digital Skills & Career Starter', '₹699999')">Buy Now</button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- Course 4 -->
-        <div class="w3-third course-item" data-category="web">
-          <article class="course-card">
-            <div class="course-image js-gradient">
-              <span class="course-icon">⚡</span>
-            </div>
-            <div class="course-body">
-              <div class="rating">★★★★★ <span>(67)</span></div>
-              <h3>JavaScript Projects</h3>
-              <p>Move beyond theory by building interactive JavaScript projects.</p>
-              <div class="course-meta"><span>📚 28 Lessons</span><span>⏱ 10 Hours</span></div>
-              <div class="price-row">
-                <div><strong>₹799999</strong><del>₹7999999</del></div>
-                <button class="w3-button buy-btn" onclick="openPurchase('JavaScript Projects', '₹799999')">Buy Now</button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- Course 5 -->
-        <div class="w3-third course-item" data-category="security">
-          <article class="course-card">
-            <div class="course-image cyber-gradient">
-              <span class="course-icon">🛡️</span>
-            </div>
-            <div class="course-body">
-              <div class="rating">★★★★★ <span>(51)</span></div>
-              <h3>Cyber Security Basics</h3>
-              <p>Learn networking, threats, security principles and defensive practices.</p>
-              <div class="course-meta"><span>📚 30 Lessons</span><span>⏱ 12 Hours</span></div>
-              <div class="price-row">
-                <div><strong>₹1,19999</strong><del>₹2,199999</del></div>
-                <button class="w3-button buy-btn" onclick="openPurchase('Cyber Security Basics', '₹1,1999999 ')">Buy Now</button>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <!-- Course 6 -->
-        <div class="w3-third course-item" data-category="web">
-          <article class="course-card">
-            <div class="course-image html-gradient">
-              <span class="course-icon">🎨</span>
-            </div>
-            <div class="course-body">
-              <div class="rating">★★★★★ <span>(84)</span></div>
-              <h3>HTML & CSS From Zero</h3>
-              <p>A simple start for complete beginners who want to create beautiful websites.</p>
-              <div class="course-meta"><span>📚 22 Lessons</span><span>⏱ 7 Hours</span></div>
-              <div class="price-row">
-                <div><strong>₹4999999</strong><del>₹₹4999999</del></div>
-                <button class="w3-button buy-btn" onclick="openPurchase('HTML & CSS From Zero', '₹4999999')">Buy Now</button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHY US -->
-  <section class="why-section">
-    <div class="w3-content">
-      <div class="center-heading">
-        <span class="section-tag">WHY LEARN HERE?</span>
-        <h2>Everything you need to learn</h2>
-      </div>
-      <div class="w3-row-padding feature-grid">
-        <div class="w3-quarter feature"><div class="feature-icon">🎯</div><h3>Practical</h3><p>Project-based lessons focused on useful skills.</p></div>
-        <div class="w3-quarter feature"><div class="feature-icon">🧑‍💻</div><h3>Beginner Friendly</h3><p>Simple explanations without unnecessary complexity.</p></div>
-        <div class="w3-quarter feature"><div class="feature-icon">♾️</div><h3>Lifetime Access</h3><p>Learn at your pace and revisit lessons anytime.</p></div>
-        <div class="w3-quarter feature"><div class="feature-icon">💬</div><h3>Support</h3><p>Get help when you are stuck during your learning journey.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- YOUTUBE -->
-  <section id="videos" class="section">
-    <div class="w3-content">
-      <div class="section-heading">
-        <div>
-          <span class="section-tag">FREE CONTENT</span>
-          <h2>Learn on YouTube</h2>
-          <p>Try my free lessons before joining a premium course.</p>
-        </div>
-        <a class="w3-button youtube-btn" href="https://www.youtube.com/@avanish_005" target="_blank" rel="noopener">Visit YouTube ↗</a>
-      </div>
-
-      <div class="w3-row-padding video-grid">
-        <!-- Replace the YouTube IDs below with your own video IDs -->
-        <div class="w3-third">
-          <div class="video-card">
-            <div class="video-wrap">
-              <iframe src="https://youtu.be/Edsxf_NBFrw?si=odUrX1xoK3nAvf5c/" title="YouTube video" allowfullscreen></iframe>
-            </div>
-            <div class="video-body"><span>WEB DEVELOPMENT</span><h3>HTML Basics for Beginners</h3><a href="https://youtu.be/Edsxf_NBFrw?si=odUrX1xoK3nAvf5c/" target="_blank">Watch on YouTube →</a></div>
-          </div>
-        </div>
-        <div class="w3-third">
-          <div class="video-card">
-            <div class="video-wrap">
-              <iframe src="https://youtu.be/VlPiVmYuoqw?si=9-LAEhZVN-jWaSFe" title="YouTube video" allowfullscreen></iframe>
-            </div>
-            <div class="video-body"><span>JAVASCRIPT</span><h3>JavaScript Beginner Guide</h3><a href="https://youtu.be/VlPiVmYuoqw?si=9-LAEhZVN-jWaSFe" target="_blank">Watch on YouTube →</a></div>
-          </div>
-        </div>
-        <div class="w3-third">
-          <div class="video-card">
-            <div class="video-wrap">
-              <iframe src="https://youtu.be/UrsmFxEIp5k?si=Es61H-ijYw8XVePt" title="YouTube video" allowfullscreen></iframe>
-            </div>
-            <div class="video-body"><span>PYTHON</span><h3>Python Programming Explained</h3><a href="https://youtu.be/UrsmFxEIp5k?si=Es61H-ijYw8XVePt/" target="_blank">Watch on YouTube →</a></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="w3-content cta-box">
-      <div>
-        <span class="section-tag">READY TO START?</span>
-        <h2>Your next skill is one course away.</h2>
-        <p>Start learning today and build something you are proud of.</p>
-      </div>
-      <a href="#courses" class="w3-button primary-btn">Browse Courses →</a>
-    </div>
-  </section>
-
-  <!-- ABOUT -->
-  <section id="about" class="section about-section">
-    <div class="w3-content about-grid">
-      <div class="about-avatar">AY</div>
-      <div>
-        <span class="section-tag">ABOUT THE INSTRUCTOR</span>
-        <h2>Learn from practical experience.</h2>
-        <p>
-          Hi, I'm <strong>Avanish</strong>. I create beginner-friendly educational
-          content around web development, technology and digital skills.
-        </p>
-        <p>
-          My goal is simple: explain complicated topics in a way that is easy to
-          understand and immediately useful.
-        </p>
-        <a href="#contact" class="text-link">Get in touch →</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section id="contact" class="contact-section">
-    <div class="w3-content contact-grid">
-      <div>
-        <span class="section-tag">CONTACT</span>
-        <h2>Have a question?</h2>
-        <p>Send a message and I'll get back to you.</p>
-        <div class="contact-info">
-          <p>📧 <strong>Email:</strong> maniaxe005@gmail.com</p>
-          <p>📱 <strong>WhatsApp:</strong> +91 00000000000</p>
-          <p>▶️ <strong>YouTube:</strong> @maniaxe</p>
-        </div>
-      </div>
-      <form class="contact-form" onsubmit="submitContact(event)">
-        <input class="w3-input" id="name" type="text" placeholder="Your name" required>
-        <input class="w3-input" id="email" type="email" placeholder="Email address" required>
-        <textarea class="w3-input" id="message" rows="5" placeholder="Your message" required></textarea>
-        <button class="w3-button primary-btn" type="submit">Send Message</button>
-        <p id="formMessage" class="form-message"></p>
-      </form>
-    </div>
-  </section>
-
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="w3-content footer-grid">
-      <div><a href="#home" class="brand">Maniaxe<span>Academy</span></a><p>Learn. Build. Grow.</p></div>
-      <div><h4>Quick Links</h4><a href="#courses">Courses</a><a href="#videos">YouTube</a><a href="#about">About</a></div>
-      <div><h4>Social</h4><a href="https://www.youtube.com/" target="_blank">YouTube</a><a href="#" target="_blank">Instagram</a><a href="#" target="_blank">Telegram</a></div>
-    </div>
-    <div class="copyright"> copyright holders © <span id="year"></span> Maniaxe Academy |code with harry | apna school @ All rights reserved.</div>
-  </footer>
-
-  <!-- PURCHASE MODAL -->
-  <div id="purchaseModal" class="modal">
-    <div class="modal-content">
-      <button class="close-btn" onclick="closePurchase()">×</button>
-      <span class="section-tag">SECURE ENROLLMENT</span>
-      <h2>Buy Course</h2>
-      <div class="selected-course">
-        <span id="selectedIcon">🎓</span>
-        <div><h3 id="selectedCourse">Course Name</h3><strong id="selectedPrice">₹999</strong></div>
-      </div>
-      <p class="modal-note">Replace the payment URL in <code>script.js</code> with your Razorpay, Stripe, UPI or other checkout link.</p>
-      <a id="paymentLink" href="#" target="_blank" rel="noopener" class="w3-button primary-btn full-btn">Proceed to Payment →</a>
-      <button class="w3-button cancel-btn" onclick="closePurchase()">Cancel</button>
-    </div>
-  </div>
-
-  <script src="script.js"></script>
 </body>
+
+</html>
 </html>
