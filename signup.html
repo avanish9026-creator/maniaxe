@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Create Account | Maniaxe Academy</title>
+
+    <link
+        rel="stylesheet"
+        href="https://www.w3schools.com/w3css/4/w3.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="auth.css"
+    >
+
+</head>
+
+
+<body>
+
+    <div class="auth-page">
+
+        <div class="auth-card">
+
+            <a
+                href="login.html"
+                class="auth-logo"
+            >
+                Maniaxe<span>Academy</span>
+            </a>
+
+
+            <div class="auth-icon">
+                🚀
+            </div>
+
+
+            <h1>
+                Create Account
+            </h1>
+
+
+            <p class="auth-subtitle">
+                Join Maniaxe Academy and start learning.
+            </p>
+
+
+            <form
+                id="signupForm"
+                onsubmit="signUpUser(); return false;"
+            >
+
+                <label for="signupName">
+                    Username
+                </label>
+
+                <input
+                    id="signupName"
+                    type="text"
+                    placeholder="Choose a username"
+                    autocomplete="name"
+                    required
+                >
+
+
+                <label for="signupEmail">
+                    Email
+                </label>
+
+                <input
+                    id="signupEmail"
+                    type="email"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                    required
+                >
+
+
+                <label for="signupPassword">
+                    Password
+                </label>
+
+                <input
+                    id="signupPassword"
+                    type="password"
+                    placeholder="Create a password"
+                    autocomplete="new-password"
+                    minlength="6"
+                    required
+                >
+
+
+                <button
+                    class="auth-button"
+                    type="submit"
+                >
+                    Create Account
+                </button>
+
+            </form>
+
+
+            <button
+                class="google-button"
+                onclick="googleLogin()"
+                type="button"
+            >
+                <span>G</span>
+                Continue with Google
+            </button>
+
+
+            <p
+                id="authMessage"
+                class="auth-message"
+            ></p>
+
+
+            <div class="auth-divider">
+                <span>Already have an account?</span>
+            </div>
+
+
+            <a
+                href="login.html"
+                class="signup-link"
+            >
+                Login
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <script
+        type="module"
+        src="firebase-auth.js"
+    ></script>
+
+</body>
+
+</html>

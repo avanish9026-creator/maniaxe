@@ -1,0 +1,412 @@
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+
+    margin: 0;
+
+    font-family:
+        Inter,
+        Arial,
+        sans-serif;
+
+}
+
+
+/* =================================
+   PAGE
+================================= */
+
+.auth-page {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 25px;
+
+    background:
+
+        radial-gradient(
+            circle at top left,
+            #ddd6fe,
+            transparent 35%
+        ),
+
+        radial-gradient(
+            circle at bottom right,
+            #dbeafe,
+            transparent 35%
+        ),
+
+        linear-gradient(
+            135deg,
+            #f8faff,
+            #eef2ff
+        );
+
+}
+
+
+/* =================================
+   CARD
+================================= */
+
+.auth-card {
+
+    width: 100%;
+
+    max-width: 450px;
+
+    background: white;
+
+    padding: 42px;
+
+    border-radius: 25px;
+
+    box-shadow:
+        0 25px 70px
+        rgba(31, 41, 55, 0.15);
+
+    text-align: center;
+
+}
+
+
+/* =================================
+   LOGO
+================================= */
+
+.auth-logo {
+
+    display: inline-block;
+
+    text-decoration: none;
+
+    font-size: 26px;
+
+    font-weight: 800;
+
+    color: #111827;
+
+    margin-bottom: 25px;
+
+}
+
+.auth-logo span {
+
+    color: #6366f1;
+
+}
+
+
+/* =================================
+   ICON
+================================= */
+
+.auth-icon {
+
+    width: 75px;
+
+    height: 75px;
+
+    margin: auto;
+
+    border-radius: 22px;
+
+    display: grid;
+
+    place-items: center;
+
+    font-size: 34px;
+
+    background: #eef2ff;
+
+}
+
+
+/* =================================
+   HEADING
+================================= */
+
+.auth-card h1 {
+
+    margin: 20px 0 8px;
+
+    font-size: 32px;
+
+    font-weight: 800;
+
+    color: #111827;
+
+}
+
+
+.auth-subtitle {
+
+    color: #6b7280;
+
+    margin-bottom: 25px;
+
+}
+
+
+/* =================================
+   FORM
+================================= */
+
+.auth-card form {
+
+    text-align: left;
+
+}
+
+
+.auth-card label {
+
+    display: block;
+
+    margin: 16px 0 7px;
+
+    font-weight: 700;
+
+    font-size: 14px;
+
+    color: #374151;
+
+}
+
+
+.auth-card input {
+
+    width: 100%;
+
+    padding: 14px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    font-size: 15px;
+
+    transition: .2s;
+
+}
+
+
+.auth-card input:focus {
+
+    border-color: #6366f1;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(99, 102, 241, 0.12);
+
+}
+
+
+/* =================================
+   LOGIN BUTTON
+================================= */
+
+.auth-button {
+
+    width: 100%;
+
+    margin-top: 22px;
+
+    padding: 14px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background: #6366f1;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s;
+
+}
+
+
+.auth-button:hover {
+
+    background: #4f46e5;
+
+    transform: translateY(-1px);
+
+}
+
+
+/* =================================
+   GOOGLE BUTTON
+================================= */
+
+.google-button {
+
+    width: 100%;
+
+    margin-top: 13px;
+
+    padding: 13px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 11px;
+
+    background: white;
+
+    color: #111827;
+
+    font-size: 15px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition: .2s;
+
+}
+
+
+.google-button:hover {
+
+    background: #f9fafb;
+
+    transform: translateY(-1px);
+
+}
+
+
+.google-button span {
+
+    color: #4285f4;
+
+    margin-right: 8px;
+
+    font-size: 18px;
+
+}
+
+
+/* =================================
+   FORGOT PASSWORD
+================================= */
+
+.forgot-button {
+
+    background: none;
+
+    border: none;
+
+    color: #6366f1;
+
+    cursor: pointer;
+
+    margin-top: 16px;
+
+    font-weight: 600;
+
+}
+
+
+/* =================================
+   MESSAGE
+================================= */
+
+.auth-message {
+
+    min-height: 22px;
+
+    margin-top: 15px;
+
+    font-size: 14px;
+
+    font-weight: 600;
+
+}
+
+
+/* =================================
+   DIVIDER
+================================= */
+
+.auth-divider {
+
+    margin: 25px 0 15px;
+
+    color: #9ca3af;
+
+    font-size: 13px;
+
+}
+
+
+/* =================================
+   SIGNUP / LOGIN LINK
+================================= */
+
+.signup-link {
+
+    display: block;
+
+    text-decoration: none;
+
+    color: #6366f1;
+
+    font-weight: 800;
+
+}
+
+
+.signup-link:hover {
+
+    text-decoration: underline;
+
+}
+
+
+/* =================================
+   MOBILE
+================================= */
+
+@media (max-width: 500px) {
+
+    .auth-page {
+
+        padding: 15px;
+
+    }
+
+
+    .auth-card {
+
+        padding: 30px 22px;
+
+        border-radius: 20px;
+
+    }
+
+
+    .auth-card h1 {
+
+        font-size: 27px;
+
+    }
+
+}

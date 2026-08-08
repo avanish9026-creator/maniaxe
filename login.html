@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Login | Maniaxe Academy</title>
+
+    <link
+        rel="stylesheet"
+        href="https://www.w3schools.com/w3css/4/w3.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="auth.css"
+    >
+
+</head>
+
+
+<body>
+
+    <div class="auth-page">
+
+        <div class="auth-card">
+
+            <a
+                href="index.html"
+                class="auth-logo"
+            >
+                Maniaxe<span>Academy</span>
+            </a>
+
+
+            <div class="auth-icon">
+                🎓
+            </div>
+
+
+            <h1>
+                Welcome Back
+            </h1>
+
+
+            <p class="auth-subtitle">
+                Login to continue your learning journey.
+            </p>
+
+
+            <form
+                id="loginForm"
+                onsubmit="loginUser(); return false;"
+            >
+
+                <label for="loginEmail">
+                    Email
+                </label>
+
+                <input
+                    id="loginEmail"
+                    type="email"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                    required
+                >
+
+
+                <label for="loginPassword">
+                    Password
+                </label>
+
+                <input
+                    id="loginPassword"
+                    type="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+
+                <button
+                    class="auth-button"
+                    type="submit"
+                >
+                    Login
+                </button>
+
+            </form>
+
+
+            <button
+                class="google-button"
+                onclick="googleLogin()"
+                type="button"
+            >
+                <span>G</span>
+                Continue with Google
+            </button>
+
+
+            <button
+                class="forgot-button"
+                onclick="resetPassword()"
+                type="button"
+            >
+                Forgot Password?
+            </button>
+
+
+            <p
+                id="authMessage"
+                class="auth-message"
+            ></p>
+
+
+            <div class="auth-divider">
+                <span>New to Maniaxe Academy?</span>
+            </div>
+
+
+            <a
+                href="signup.html"
+                class="signup-link"
+            >
+                Create an Account
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <script
+        type="module"
+        src="firebase-auth.js"
+    ></script>
+
+
+    <script>
+
+        window.addEventListener(
+            "load",
+            function () {
+
+                setTimeout(
+                    function () {
+
+                        if (
+                            typeof checkLoginPage ===
+                            "function"
+                        ) {
+
+                            checkLoginPage();
+
+                        }
+
+                    },
+                    100
+                );
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
