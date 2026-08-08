@@ -23,13 +23,13 @@ const PAYMENT_URL =
 // ======================================================
 
 const EMAILJS_PUBLIC_KEY =
-    "QnjWP1ydiTza7HaRz";
+    "WZEM5PYoMJmw7VoZo";
 
 const EMAILJS_SERVICE_ID =
-    "service_30ok35c";
+    "service_hzq5qsl";
 
 const EMAILJS_TEMPLATE_ID =
-    "template_fc7eonh";
+    "template_m6fg0y8";
 
 
 // ======================================================
