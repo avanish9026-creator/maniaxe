@@ -78,7 +78,7 @@
 
                 <a
                     href="#about"
-                    class="w3-bar-item nav-link"
+                    class="w3-button primary-btn nav-buy"
                 >
                     About
                 </a>
@@ -276,6 +276,2074 @@
 
     </header>
 
+   <!-- =========================================================
+     PREMIUM BIRTHDAY CARD
+     BEFORE + ON BIRTHDAY TRANSFORMATION
+     GIFT POPUP + COUPON + CONFETTI
+========================================================= -->
+
+<style>
+
+  /* =========================================================
+     MAIN WRAPPER
+  ========================================================= */
+
+  .birthday-wrap {
+    width: 100%;
+    padding: 10px;
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+
+
+  /* =========================================================
+     MAIN CARD
+  ========================================================= */
+
+  .birthday-card {
+
+    width: 100%;
+    max-width: 1250px;
+    min-height: 215px;
+
+    margin: auto;
+
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+
+    padding: 22px 34px;
+
+    border-radius: 22px;
+
+    color: white;
+
+    background:
+      radial-gradient(
+        circle at 8% 50%,
+        rgba(255, 87, 163, 0.23),
+        transparent 25%
+      ),
+      radial-gradient(
+        circle at 90% 10%,
+        rgba(93, 108, 255, 0.25),
+        transparent 30%
+      ),
+      linear-gradient(
+        110deg,
+        #160b2c,
+        #251344,
+        #12152f
+      );
+
+    border: 1px solid rgba(255,255,255,0.12);
+
+    box-shadow:
+      0 15px 45px rgba(0,0,0,0.25),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+
+    transition:
+      background 1s ease,
+      box-shadow 1s ease,
+      transform .5s ease;
+  }
+
+
+  /* =========================================================
+     BIRTHDAY DAY CARD
+  ========================================================= */
+
+  .birthday-card.birthday-today {
+
+    background:
+
+      radial-gradient(
+        circle at 15% 20%,
+        rgba(0, 204, 255, .30),
+        transparent 27%
+      ),
+
+      radial-gradient(
+        circle at 85% 75%,
+        rgba(119, 83, 255, .38),
+        transparent 32%
+      ),
+
+      radial-gradient(
+        circle at 50% 0%,
+        rgba(255, 105, 190, .18),
+        transparent 35%
+      ),
+
+      linear-gradient(
+        120deg,
+        #091f52,
+        #123d82 48%,
+        #171758
+      );
+
+    box-shadow:
+
+      0 18px 55px rgba(25,90,190,.35),
+
+      inset 0 1px 0 rgba(255,255,255,.16);
+
+    border-color:
+      rgba(120,200,255,.25);
+  }
+
+
+  /* =========================================================
+     BACKGROUND GLOW
+  ========================================================= */
+
+  .birthday-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 230px;
+    height: 230px;
+
+    left: -100px;
+    top: -100px;
+
+    border-radius: 50%;
+
+    background: #ff4c9a;
+
+    opacity: .12;
+
+    filter: blur(35px);
+
+    transition:
+      background 1s ease,
+      opacity 1s ease;
+  }
+
+
+  .birthday-card.birthday-today::before {
+
+    background: #24baff;
+
+    opacity: .20;
+  }
+
+
+  .birthday-card::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 250px;
+    height: 250px;
+
+    right: -120px;
+    bottom: -130px;
+
+    border-radius: 50%;
+
+    background: #6f6cff;
+
+    opacity: .14;
+
+    filter: blur(40px);
+
+    transition:
+      background 1s ease,
+      opacity 1s ease;
+  }
+
+
+  .birthday-card.birthday-today::after {
+
+    background: #3b8dff;
+
+    opacity: .24;
+  }
+
+
+  /* =========================================================
+     CONTENT
+  ========================================================= */
+
+  .birthday-inner {
+
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+
+    gap: 30px;
+
+    position: relative;
+
+    z-index: 2;
+  }
+
+
+  /* =========================================================
+     PHOTO
+  ========================================================= */
+
+  .birthday-logo {
+
+    width: 155px;
+    height: 155px;
+
+    flex-shrink: 0;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+
+    border:
+      5px solid rgba(255,255,255,.92);
+
+    box-shadow:
+
+      0 0 0 7px rgba(255,255,255,.05),
+
+      0 0 35px rgba(255,70,160,.48);
+
+    transition:
+
+      .5s ease;
+  }
+
+
+  .birthday-card.birthday-today
+  .birthday-logo {
+
+    box-shadow:
+
+      0 0 0 8px rgba(255,255,255,.08),
+
+      0 0 45px rgba(66,190,255,.75);
+
+    animation:
+      birthdayPhotoGlow 2s ease-in-out infinite;
+  }
+
+
+  @keyframes birthdayPhotoGlow {
+
+    0%,100% {
+
+      box-shadow:
+
+        0 0 0 8px rgba(255,255,255,.07),
+
+        0 0 35px rgba(66,190,255,.55);
+    }
+
+    50% {
+
+      box-shadow:
+
+        0 0 0 11px rgba(255,255,255,.11),
+
+        0 0 55px rgba(66,190,255,.90);
+    }
+
+  }
+
+
+  /* =========================================================
+     TEXT
+  ========================================================= */
+
+  .birthday-text {
+
+    flex: 1;
+
+    min-width: 0;
+  }
+
+
+  .birthday-label {
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 3px;
+
+    color: #ff91c7;
+
+    font-weight: 700;
+
+    margin-bottom: 7px;
+
+    transition:
+      color .6s ease;
+  }
+
+
+  .birthday-card.birthday-today
+  .birthday-label {
+
+    color: #8bdcff;
+
+    animation:
+      labelGlow 2s ease-in-out infinite;
+  }
+
+
+  @keyframes labelGlow {
+
+    0%,100% {
+      opacity: .75;
+    }
+
+    50% {
+      opacity: 1;
+    }
+  }
+
+
+  /* =========================================================
+     NORMAL NAME
+  ========================================================= */
+
+  .birthday-name {
+
+    margin: 0;
+
+    font-size: clamp(30px, 4vw, 46px);
+
+    line-height: 1.05;
+
+    font-weight: 800;
+
+    letter-spacing: -1px;
+
+    background:
+
+      linear-gradient(
+        90deg,
+        #ffffff,
+        #ffc4e3,
+        #aaa4ff
+      );
+
+    -webkit-background-clip: text;
+
+    background-clip: text;
+
+    color: transparent;
+
+    transition:
+      .6s ease;
+  }
+
+
+  /* =========================================================
+     BIRTHDAY NAME
+  ========================================================= */
+
+  .birthday-card.birthday-today
+  .birthday-name {
+
+    background:
+
+      linear-gradient(
+        90deg,
+        #ffffff,
+        #a9eaff,
+        #ffffff,
+        #d6c8ff
+      );
+
+    background-size:
+      200% auto;
+
+    -webkit-background-clip: text;
+
+    background-clip: text;
+
+    animation:
+      birthdayTextShine 4s linear infinite;
+  }
+
+
+  @keyframes birthdayTextShine {
+
+    0% {
+      background-position: 0% center;
+    }
+
+    100% {
+      background-position: 200% center;
+    }
+
+  }
+
+
+  .birthday-message {
+
+    margin: 9px 0 0;
+
+    color:
+      rgba(255,255,255,.65);
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    transition:
+      .5s ease;
+  }
+
+
+  .birthday-card.birthday-today
+  .birthday-message {
+
+    color:
+      rgba(255,255,255,.82);
+  }
+
+
+  /* =========================================================
+     DATE
+  ========================================================= */
+
+  .birthday-date {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 13px;
+
+    padding: 7px 13px;
+
+    border-radius: 30px;
+
+    background:
+      rgba(255,255,255,.07);
+
+    border:
+      1px solid rgba(255,255,255,.12);
+
+    color:
+      rgba(255,255,255,.85);
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    transition:
+      .5s ease;
+  }
+
+
+  .birthday-card.birthday-today
+  .birthday-date {
+
+    background:
+      rgba(255,255,255,.13);
+
+    border-color:
+      rgba(150,220,255,.28);
+
+    box-shadow:
+      0 5px 20px rgba(0,0,0,.10);
+  }
+
+
+  /* =========================================================
+     GIFT SECTION
+     REMAINS SAME
+  ========================================================= */
+
+  .gift-section {
+
+    width: 205px;
+
+    flex-shrink: 0;
+
+    padding: 17px;
+
+    text-align: center;
+
+    border-radius: 17px;
+
+    background:
+
+      linear-gradient(
+        145deg,
+        rgba(255,255,255,.11),
+        rgba(255,255,255,.035)
+      );
+
+    border:
+      1px solid rgba(255,255,255,.13);
+
+    backdrop-filter:
+      blur(12px);
+  }
+
+
+  .gift-icon {
+
+    font-size: 28px;
+
+    margin-bottom: 3px;
+
+    animation:
+      giftFloat 2.2s ease-in-out infinite;
+  }
+
+
+  @keyframes giftFloat {
+
+    0%,100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-6px);
+    }
+
+  }
+
+
+  .gift-title {
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    margin-bottom: 10px;
+  }
+
+
+  .gift-button {
+
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    padding: 11px 15px;
+
+    border-radius: 11px;
+
+    border: none;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    transition:
+      all .25s ease;
+
+    cursor: pointer;
+  }
+
+
+  .gift-button.locked {
+
+    background:
+      rgba(255,255,255,.07);
+
+    color:
+      rgba(255,255,255,.40);
+
+    cursor:
+      not-allowed;
+
+    border:
+      1px solid rgba(255,255,255,.07);
+  }
+
+
+  .gift-button.active {
+
+    background:
+
+      linear-gradient(
+        135deg,
+        #ff4e9b,
+        #806fff
+      );
+
+    color: white;
+
+    box-shadow:
+      0 8px 24px rgba(255,70,155,.30);
+  }
+
+
+  .gift-button.active:hover {
+
+    transform:
+      translateY(-2px);
+
+    box-shadow:
+      0 12px 30px rgba(255,70,155,.48);
+  }
+
+
+  .gift-status {
+
+    margin-top: 7px;
+
+    font-size: 9px;
+
+    color:
+      rgba(255,255,255,.40);
+  }
+
+
+  /* =========================================================
+     BIRTHDAY DECORATIONS
+  ========================================================= */
+
+  .birthday-decorations {
+
+    position: absolute;
+
+    inset: 0;
+
+    z-index: 1;
+
+    pointer-events: none;
+
+    opacity: 0;
+
+    transition:
+      opacity .8s ease;
+  }
+
+
+  .birthday-card.birthday-today
+  .birthday-decorations {
+
+    opacity: 1;
+  }
+
+
+  .balloon {
+
+    position: absolute;
+
+    width: 22px;
+    height: 28px;
+
+    border-radius:
+      50% 50% 45% 45%;
+
+    opacity: .75;
+
+    animation:
+      balloonFloat 3s ease-in-out infinite;
+  }
+
+
+  .balloon::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 1px;
+
+    height: 30px;
+
+    top: 27px;
+
+    left: 50%;
+
+    background:
+      rgba(255,255,255,.35);
+  }
+
+
+  .balloon.one {
+
+    right: 31%;
+
+    top: 12px;
+
+    background: #ff70b8;
+
+  }
+
+
+  .balloon.two {
+
+    right: 27%;
+
+    bottom: 10px;
+
+    background: #55c9ff;
+
+    animation-delay:
+      .7s;
+  }
+
+
+  .balloon.three {
+
+    left: 31%;
+
+    top: 12px;
+
+    background: #8c7bff;
+
+    animation-delay:
+      1.2s;
+  }
+
+
+  @keyframes balloonFloat {
+
+    0%,100% {
+      transform:
+        translateY(0)
+        rotate(-3deg);
+    }
+
+    50% {
+      transform:
+        translateY(-9px)
+        rotate(4deg);
+    }
+
+  }
+
+
+  /* =========================================================
+     SPARKLES
+  ========================================================= */
+
+  .sparkle {
+
+    position: absolute;
+
+    color:
+      rgba(255,255,255,.55);
+
+    z-index: 3;
+
+    animation:
+      sparkle 2.5s ease-in-out infinite;
+  }
+
+
+  .sparkle.one {
+
+    top: 18px;
+
+    right: 31%;
+
+    font-size: 15px;
+  }
+
+
+  .sparkle.two {
+
+    bottom: 18px;
+
+    left: 40%;
+
+    font-size: 11px;
+
+    animation-delay:
+      .8s;
+  }
+
+
+  .sparkle.three {
+
+    top: 25px;
+
+    right: 15px;
+
+    font-size: 12px;
+
+    animation-delay:
+      1.2s;
+  }
+
+
+  @keyframes sparkle {
+
+    0%,100% {
+
+      opacity: .25;
+
+      transform:
+        scale(.8)
+        rotate(0);
+    }
+
+    50% {
+
+      opacity: 1;
+
+      transform:
+        scale(1.2)
+        rotate(20deg);
+    }
+
+  }
+
+
+  /* =========================================================
+     POPUP
+  ========================================================= */
+
+  .birthday-popup-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 99999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    background:
+      rgba(5,12,40,.72);
+
+    backdrop-filter:
+      blur(8px);
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transition:
+      .3s ease;
+  }
+
+
+  .birthday-popup-overlay.show {
+
+    opacity: 1;
+
+    visibility: visible;
+  }
+
+
+  .birthday-popup {
+
+    width: 100%;
+
+    max-width: 460px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    text-align: center;
+
+    padding: 38px 30px 30px;
+
+    border-radius: 28px;
+
+    color: white;
+
+    background:
+
+      radial-gradient(
+        circle at 50% -10%,
+        rgba(70,150,255,.50),
+        transparent 42%
+      ),
+
+      radial-gradient(
+        circle at 10% 90%,
+        rgba(80,100,255,.25),
+        transparent 35%
+      ),
+
+      linear-gradient(
+        145deg,
+        #102d68,
+        #123d88 48%,
+        #111d55
+      );
+
+    border:
+      1px solid rgba(255,255,255,.20);
+
+    box-shadow:
+      0 30px 100px rgba(0,0,0,.55),
+
+      inset 0 1px 0 rgba(255,255,255,.18);
+
+    transform:
+      scale(.85)
+      translateY(20px);
+
+    transition:
+      .35s cubic-bezier(.2,.8,.2,1);
+  }
+
+
+  .birthday-popup-overlay.show
+  .birthday-popup {
+
+    transform:
+      scale(1)
+      translateY(0);
+  }
+
+
+  .popup-close {
+
+    position: absolute;
+
+    top: 14px;
+    right: 15px;
+
+    width: 32px;
+    height: 32px;
+
+    border-radius: 50%;
+
+    border:
+      1px solid rgba(255,255,255,.15);
+
+    background:
+      rgba(255,255,255,.08);
+
+    color: white;
+
+    font-size: 18px;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    transition: .2s;
+  }
+
+
+  .popup-close:hover {
+
+    background:
+      rgba(255,255,255,.18);
+
+    transform:
+      rotate(90deg);
+  }
+
+
+  .popup-birthday-icon {
+
+    width: 78px;
+    height: 78px;
+
+    margin:
+      0 auto 15px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+      rgba(255,255,255,.12);
+
+    border:
+      1px solid rgba(255,255,255,.20);
+
+    font-size: 38px;
+
+    animation:
+      popupIcon 2s ease-in-out infinite;
+  }
+
+
+  @keyframes popupIcon {
+
+    0%,100% {
+      transform:
+        translateY(0)
+        rotate(0);
+    }
+
+    50% {
+      transform:
+        translateY(-7px)
+        rotate(3deg);
+    }
+
+  }
+
+
+  .popup-small-title {
+
+    font-size: 11px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 3px;
+
+    color: #9ecbff;
+
+    font-weight: 700;
+
+    margin-bottom: 8px;
+  }
+
+
+  .popup-title {
+
+    margin: 0;
+
+    font-size: 34px;
+
+    line-height: 1.1;
+
+    font-weight: 800;
+
+    background:
+
+      linear-gradient(
+        90deg,
+        #ffffff,
+        #c7e1ff,
+        #ffffff
+      );
+
+    -webkit-background-clip: text;
+
+    background-clip: text;
+
+    color: transparent;
+  }
+
+
+  .popup-message {
+
+    margin:
+      13px auto 20px;
+
+    max-width: 370px;
+
+    color:
+      rgba(255,255,255,.78);
+
+    font-size: 14px;
+
+    line-height: 1.65;
+  }
+
+
+  /* =========================================================
+     COUPON
+  ========================================================= */
+
+  .coupon-box {
+
+    padding: 14px;
+
+    border-radius: 16px;
+
+    background:
+      rgba(255,255,255,.09);
+
+    border:
+      1px dashed rgba(255,255,255,.30);
+
+    margin-bottom: 14px;
+  }
+
+
+  .coupon-label {
+
+    font-size: 9px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 2px;
+
+    color:
+      rgba(255,255,255,.55);
+
+    margin-bottom: 6px;
+  }
+
+
+  .coupon-code {
+
+    font-size: 23px;
+
+    font-weight: 800;
+
+    letter-spacing: 3px;
+
+    color: white;
+
+    word-break: break-all;
+  }
+
+
+  .copy-coupon {
+
+    width: 100%;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background: white;
+
+    color: #12316b;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    transition: .2s;
+  }
+
+
+  .copy-coupon:hover {
+
+    transform:
+      translateY(-2px);
+
+    box-shadow:
+      0 8px 20px rgba(0,0,0,.20);
+  }
+
+
+  .popup-footer {
+
+    margin-top: 14px;
+
+    font-size: 10px;
+
+    color:
+      rgba(255,255,255,.42);
+  }
+
+
+  /* =========================================================
+     CONFETTI
+  ========================================================= */
+
+  .confetti {
+
+    position: fixed;
+
+    top: -20px;
+
+    z-index: 100000;
+
+    width: 8px;
+    height: 14px;
+
+    pointer-events: none;
+
+    animation:
+      confettiFall linear forwards;
+  }
+
+
+  @keyframes confettiFall {
+
+    0% {
+
+      transform:
+        translateY(-20px)
+        rotate(0deg);
+
+      opacity: 1;
+    }
+
+    100% {
+
+      transform:
+        translateY(110vh)
+        rotate(720deg);
+
+      opacity: 0;
+    }
+
+  }
+
+
+  /* =========================================================
+     MOBILE
+  ========================================================= */
+
+  @media (max-width: 650px) {
+
+    .birthday-wrap {
+      padding: 7px;
+    }
+
+    .birthday-card {
+
+      padding:
+        25px 18px;
+
+      min-height:
+        auto;
+
+      border-radius:
+        20px;
+    }
+
+    .birthday-inner {
+
+      flex-direction:
+        column;
+
+      text-align:
+        center;
+
+      gap:
+        18px;
+    }
+
+    .birthday-logo {
+
+      width:
+        145px;
+
+      height:
+        145px;
+    }
+
+    .birthday-text {
+
+      width:
+        100%;
+    }
+
+    .birthday-label {
+
+      font-size:
+        10px;
+
+      letter-spacing:
+        2.5px;
+    }
+
+    .birthday-name {
+
+      font-size:
+        31px;
+    }
+
+    .birthday-message {
+
+      font-size:
+        13px;
+    }
+
+    .birthday-date {
+
+      margin-top:
+        11px;
+    }
+
+    .gift-section {
+
+      width:
+        100%;
+
+      max-width:
+        300px;
+
+      padding:
+        17px;
+    }
+
+    .birthday-decorations {
+
+      display:
+        none;
+    }
+
+    .sparkle.one {
+
+      right:
+        15px;
+    }
+
+
+    /* Popup mobile */
+
+    .birthday-popup {
+
+      padding:
+        35px 20px 25px;
+
+      border-radius:
+        24px;
+    }
+
+    .popup-title {
+
+      font-size:
+        29px;
+    }
+
+    .popup-message {
+
+      font-size:
+        13px;
+    }
+
+    .coupon-code {
+
+      font-size:
+        20px;
+
+      letter-spacing:
+        2px;
+    }
+
+  }
+
+</style>
+
+
+
+<!-- =========================================================
+     MAIN BIRTHDAY CARD
+========================================================= -->
+
+<div class="birthday-wrap">
+
+  <div
+    id="birthdayCard"
+    class="birthday-card"
+  >
+
+    <!-- Birthday-only decorations -->
+
+    <div class="birthday-decorations">
+
+      <div class="balloon one"></div>
+
+      <div class="balloon two"></div>
+
+      <div class="balloon three"></div>
+
+    </div>
+
+
+    <!-- Sparkles -->
+
+    <div class="sparkle one">✦</div>
+
+    <div class="sparkle two">✧</div>
+
+    <div class="sparkle three">✦</div>
+
+
+    <div class="birthday-inner">
+
+
+      <!-- =====================================================
+           PHOTO
+      ====================================================== -->
+
+      <img
+        class="birthday-logo"
+        src="photo.jpg"
+        alt="Birthday Person"
+      >
+
+
+      <!-- =====================================================
+           TEXT AREA
+      ====================================================== -->
+
+      <div class="birthday-text">
+
+        <div
+          id="birthdayLabel"
+          class="birthday-label"
+        >
+          COMING SOON ✨
+        </div>
+
+
+        <h1
+          id="birthdayName"
+          class="birthday-name"
+        >
+          Avanish' Birthday
+        </h1>
+
+
+        <p
+          id="birthdayMessage"
+          class="birthday-message"
+        >
+          Special gift is waiting for Maniaxe! 🎂
+        </p>
+
+
+        <div
+          id="birthdayDate"
+          class="birthday-date"
+        >
+          🎂 &nbsp; 19 August 2026
+        </div>
+
+      </div>
+
+
+      <!-- =====================================================
+           GIFT SECTION
+      ====================================================== -->
+
+      <div class="gift-section">
+
+        <div class="gift-icon">
+          🎁
+        </div>
+
+        <div class="gift-title">
+          Your Gift Awaits
+        </div>
+
+
+        <button
+          id="giftButton"
+          class="gift-button locked"
+          onclick="collectGift()"
+        >
+          🔒 Gift Locked
+        </button>
+
+
+        <div
+          id="giftStatus"
+          class="gift-status"
+        >
+          Opens on 19 August
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     POPUP
+========================================================= -->
+
+<div
+  id="birthdayPopup"
+  class="birthday-popup-overlay"
+>
+
+  <div class="birthday-popup">
+
+
+    <button
+      class="popup-close"
+      onclick="closeBirthdayPopup()"
+    >
+      ×
+    </button>
+
+
+    <div class="popup-birthday-icon">
+      🎂
+    </div>
+
+
+    <div class="popup-small-title">
+      💙 Maniaxe day 💙
+    </div>
+
+
+    <h2 class="popup-title">
+      Happy Birthday Avanish! 🎉
+    </h2>
+
+
+    <p class="popup-message">
+
+      coupon code real hai bro ! 💙✨
+
+    </p>
+
+
+    <div class="coupon-box">
+
+      <div class="coupon-label">
+        Your Special Birthday Coupon
+      </div>
+
+      <div
+        id="couponCode"
+        class="coupon-code"
+      >
+        BDAY8X4K2P
+      </div>
+
+    </div>
+
+
+    <button
+      id="copyButton"
+      class="copy-coupon"
+      onclick="copyCoupon()"
+    >
+      📋 Copy Coupon Code
+    </button>
+
+
+    <div class="popup-footer ; popup-small-title">
+      
+        ✨ AVANISH | MANIAXE NINJA ✨
+      
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+  
+  const birthdayDate =
+    new Date(
+      "2026-08-19T00:00:00+05:30"
+    ).getTime();
+
+
+  /*
+   ===========================================================
+   COUPON
+   ===========================================================
+  */
+
+  const birthdayCoupon =
+    "BDAY8X4K2P";
+
+
+  /* =========================================================
+     CHANGE MAIN CARD CONTENT
+  ========================================================= */
+
+  function setBirthdayCard(isBirthday) {
+
+    const card =
+      document.getElementById(
+        "birthdayCard"
+      );
+
+    const label =
+      document.getElementById(
+        "birthdayLabel"
+      );
+
+    const name =
+      document.getElementById(
+        "birthdayName"
+      );
+
+    const message =
+      document.getElementById(
+        "birthdayMessage"
+      );
+
+    const date =
+      document.getElementById(
+        "birthdayDate"
+      );
+
+
+    /* =======================================================
+       BEFORE BIRTHDAY
+    ======================================================= */
+
+    if (!isBirthday) {
+
+      card.classList.remove(
+        "birthday-today"
+      );
+
+
+      label.innerHTML =
+        "COMING SOON ✨";
+
+
+      name.innerHTML =
+        "Avanish's Birthday";
+
+
+      message.innerHTML =
+        "Special gift is waiting for Maniaxe! 🎂";
+
+
+      date.innerHTML =
+        "🎂 &nbsp; 19 August 2026";
+
+      return;
+    }
+
+
+    /* =======================================================
+       BIRTHDAY DAY
+    ======================================================= */
+
+    card.classList.add(
+      "birthday-today"
+    );
+
+
+    label.innerHTML =
+      "🎉 TODAY IS THE DAY! 🎉";
+
+
+    name.innerHTML =
+      "Happy Birthday, MANIAXE!";
+
+
+    message.innerHTML =
+      "Wooohooo! srkr ka birthday hai. 🎂✨";
+
+
+    date.innerHTML =
+      "🎈 &nbsp; Happy Birthday • 19 August";
+  }
+
+
+  /* =========================================================
+     CHECK CURRENT DATE
+  ========================================================= */
+
+  function checkBirthdayStatus() {
+
+    const now =
+      new Date().getTime();
+
+
+    /*
+       Before birthday
+    */
+
+    if (now < birthdayDate) {
+
+      setBirthdayCard(false);
+
+      setGiftLocked();
+
+      return;
+    }
+
+
+    /*
+       Birthday has arrived
+    */
+
+    setBirthdayCard(true);
+
+    setGiftActive();
+  }
+
+
+  /* =========================================================
+     LOCKED GIFT
+  ========================================================= */
+
+  function setGiftLocked() {
+
+    const button =
+      document.getElementById(
+        "giftButton"
+      );
+
+    const status =
+      document.getElementById(
+        "giftStatus"
+      );
+
+
+    button.classList.remove(
+      "active"
+    );
+
+    button.classList.add(
+      "locked"
+    );
+
+    button.innerHTML =
+      "🔒 Gift Locked";
+
+    status.innerHTML =
+      "Opens on 19 August";
+  }
+
+
+  /* =========================================================
+     ACTIVE GIFT
+  ========================================================= */
+
+  function setGiftActive() {
+
+    const button =
+      document.getElementById(
+        "giftButton"
+      );
+
+    const status =
+      document.getElementById(
+        "giftStatus"
+      );
+
+
+    button.classList.remove(
+      "locked"
+    );
+
+    button.classList.add(
+      "active"
+    );
+
+    button.innerHTML =
+      "🎁 Collect Gift";
+
+    status.innerHTML =
+      "Your birthday gift is ready! 🎉";
+  }
+
+
+  /* =========================================================
+     COLLECT GIFT
+  ========================================================= */
+
+  function collectGift() {
+
+    const now =
+      new Date().getTime();
+
+
+    /*
+       Safety check
+    */
+
+    if (now < birthdayDate) {
+
+      alert(
+        "🎁 Your birthday gift will be available on 19 August!"
+      );
+
+      return;
+    }
+
+
+    /*
+       Put coupon into popup
+    */
+
+    document.getElementById(
+      "couponCode"
+    ).textContent =
+      birthdayCoupon;
+
+
+    /*
+       Open popup
+    */
+
+    document.getElementById(
+      "birthdayPopup"
+    ).classList.add(
+      "show"
+    );
+
+
+    /*
+       Confetti
+    */
+
+    createConfetti();
+  }
+
+
+  /* =========================================================
+     CLOSE POPUP
+  ========================================================= */
+
+  function closeBirthdayPopup() {
+
+    document.getElementById(
+      "birthdayPopup"
+    ).classList.remove(
+      "show"
+    );
+  }
+
+
+  /* =========================================================
+     COPY COUPON
+  ========================================================= */
+
+  function copyCoupon() {
+
+    const coupon =
+      document.getElementById(
+        "couponCode"
+      ).textContent;
+
+    const button =
+      document.getElementById(
+        "copyButton"
+      );
+
+
+    navigator.clipboard
+      .writeText(coupon)
+      .then(function() {
+
+        button.innerHTML =
+          "✓ Coupon Copied!";
+
+        setTimeout(
+          function() {
+
+            button.innerHTML =
+              "📋 Copy Coupon Code";
+
+          },
+          2000
+        );
+
+      })
+      .catch(function() {
+
+        const temporary =
+          document.createElement(
+            "textarea"
+          );
+
+        temporary.value =
+          coupon;
+
+        document.body.appendChild(
+          temporary
+        );
+
+        temporary.select();
+
+        document.execCommand(
+          "copy"
+        );
+
+        temporary.remove();
+
+        button.innerHTML =
+          "✓ Coupon Copied!";
+
+        setTimeout(
+          function() {
+
+            button.innerHTML =
+              "📋 Copy Coupon Code";
+
+          },
+          2000
+        );
+
+      });
+  }
+
+
+  /* =========================================================
+     CONFETTI
+  ========================================================= */
+
+  function createConfetti() {
+
+    const colors = [
+
+      "#ffffff",
+      "#70b7ff",
+      "#7c8cff",
+      "#ff73b7",
+      "#ffd166",
+      "#61e7ff"
+
+    ];
+
+
+    for (
+      let i = 0;
+      i < 70;
+      i++
+    ) {
+
+      const piece =
+        document.createElement(
+          "div"
+        );
+
+
+      piece.className =
+        "confetti";
+
+
+      piece.style.left =
+        Math.random() *
+        100 +
+        "%";
+
+
+      piece.style.background =
+        colors[
+          Math.floor(
+            Math.random() *
+            colors.length
+          )
+        ];
+
+
+      piece.style.width =
+        (5 + Math.random() * 6) +
+        "px";
+
+
+      piece.style.height =
+        (8 + Math.random() * 10) +
+        "px";
+
+
+      piece.style.animationDuration =
+        (2.5 + Math.random() * 3) +
+        "s";
+
+
+      piece.style.animationDelay =
+        Math.random() * .7 +
+        "s";
+
+
+      document.body.appendChild(
+        piece
+      );
+
+
+      setTimeout(
+        function() {
+
+          piece.remove();
+
+        },
+        6000
+      );
+    }
+  }
+
+
+  /* =========================================================
+     CLICK OUTSIDE POPUP
+  ========================================================= */
+
+  document
+    .getElementById(
+      "birthdayPopup"
+    )
+    .addEventListener(
+      "click",
+      function(event) {
+
+        if (
+          event.target === this
+        ) {
+
+          closeBirthdayPopup();
+
+        }
+
+      }
+    );
+
+
+  /* =========================================================
+     ESC CLOSE
+  ========================================================= */
+
+  document.addEventListener(
+    "keydown",
+    function(event) {
+
+      if (
+        event.key === "Escape"
+      ) {
+
+        closeBirthdayPopup();
+
+      }
+
+    }
+  );
+
+
+  /* =========================================================
+     START
+  ========================================================= */
+
+  checkBirthdayStatus();
+
+
+  /*
+     Check every second.
+
+     This is important because if someone
+     leaves the website open at 11:59 PM,
+     the card automatically transforms
+     at midnight.
+  */
+
+  setInterval(
+    checkBirthdayStatus,
+    1000
+  );
+
+</script>
 
     <!-- =========================
          COURSES
