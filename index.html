@@ -297,6 +297,202 @@
 ========================================================= -->
 
 <style>
+	/* =========================================
+   MANIAXE ACADEMY - FAQ SECTION
+   ========================================= */
+
+.faq-section {
+    background: #050505;
+    color: #ffffff;
+    padding: 100px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.faq-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+
+/* Heading */
+
+.faq-heading {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.faq-label {
+    display: inline-block;
+    color: #a8ff00;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+}
+
+.faq-heading h2 {
+    margin: 0 0 15px;
+    color: #ffffff;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.faq-heading p {
+    max-width: 620px;
+    margin: 0 auto;
+    color: #a6a6a6;
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+
+/* FAQ List */
+
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+
+/* Individual FAQ */
+
+.faq-item {
+    background: #0d0d0d;
+    border: 1px solid #242424;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: #3b3b3b;
+    background: #111111;
+}
+
+
+/* Question */
+
+.faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+
+    padding: 23px 25px;
+
+    color: #ffffff;
+    font-size: 17px;
+    font-weight: 600;
+
+    cursor: pointer;
+    list-style: none;
+}
+
+
+/* Remove default arrow */
+
+.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+.faq-item summary::marker {
+    display: none;
+}
+
+
+/* Plus Icon */
+
+.faq-icon {
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border: 1px solid #333333;
+    border-radius: 50%;
+
+    color: #a8ff00;
+    font-size: 21px;
+    font-weight: 400;
+
+    transition: transform 0.3s ease,
+                background 0.3s ease;
+}
+
+
+/* Answer */
+
+.faq-answer {
+    padding: 0 25px 23px;
+}
+
+.faq-answer p {
+    margin: 0;
+    max-width: 780px;
+
+    color: #9d9d9d;
+    font-size: 15px;
+    line-height: 1.8;
+}
+
+
+/* Open FAQ */
+
+.faq-item[open] {
+    border-color: #353535;
+}
+
+.faq-item[open] .faq-icon {
+    transform: rotate(45deg);
+    background: #a8ff00;
+    color: #050505;
+}
+
+
+/* Mobile */
+
+@media (max-width: 600px) {
+
+    .faq-section {
+        padding: 70px 16px;
+    }
+
+    .faq-heading {
+        margin-bottom: 35px;
+    }
+
+    .faq-heading h2 {
+        font-size: 34px;
+    }
+
+    .faq-item summary {
+        padding: 20px;
+        font-size: 15px;
+    }
+
+    .faq-answer {
+        padding: 0 20px 20px;
+    }
+
+    .faq-answer p {
+        font-size: 14px;
+    }
+
+    .faq-icon {
+        width: 29px;
+        height: 29px;
+        font-size: 19px;
+    }
+}
+
 
   /* =========================================================
      MAIN WRAPPER
