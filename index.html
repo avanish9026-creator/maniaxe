@@ -1569,99 +1569,161 @@
   }
 
 
-  /* =========================================================
-     COUPON
-  ========================================================= */
+/* =========================================================
+   PREMIUM MANIAXE GIFT BUTTON
+========================================================= */
 
-  .coupon-box {
-
-    padding: 14px;
-
-    border-radius: 16px;
-
-    background:
-      rgba(255,255,255,.09);
-
-    border:
-      1px dashed rgba(255,255,255,.30);
-
-    margin-bottom: 14px;
-  }
-
-
-  .coupon-label {
-
-    font-size: 9px;
-
-    text-transform: uppercase;
-
-    letter-spacing: 2px;
-
-    color:
-      rgba(255,255,255,.55);
-
-    margin-bottom: 6px;
-  }
-
-
-  .coupon-code {
-
-    font-size: 23px;
-
-    font-weight: 800;
-
-    letter-spacing: 3px;
-
-    color: white;
-
-    word-break: break-all;
-  }
-
-
-  .copy-coupon {
+.maniaxe-gift-button {
 
     width: 100%;
 
-    padding: 12px;
+    min-height: 54px;
 
-    border: none;
+    display: flex;
 
-    border-radius: 11px;
+    align-items: center;
 
-    background: white;
+    justify-content: center;
 
-    color: #12316b;
+    gap: 9px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    padding: 14px 20px;
+
+    border-radius: 14px;
+
+    border: 1px solid rgba(255,255,255,.28);
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #dcecff
+        );
+
+    color: #102d68;
+
+    text-decoration: none;
 
     font-size: 13px;
 
     font-weight: 800;
 
-    cursor: pointer;
-
-    transition: .2s;
-  }
-
-
-  .copy-coupon:hover {
-
-    transform:
-      translateY(-2px);
+    letter-spacing: .2px;
 
     box-shadow:
-      0 8px 20px rgba(0,0,0,.20);
-  }
+        0 10px 30px rgba(0,0,0,.22),
+        inset 0 1px 0 rgba(255,255,255,.9);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        background .25s ease;
+}
 
 
-  .popup-footer {
+/* Premium shine */
 
-    margin-top: 14px;
+.maniaxe-gift-button::before {
 
-    font-size: 10px;
+    content: "";
 
-    color:
-      rgba(255,255,255,.42);
-  }
+    position: absolute;
 
+    top: 0;
+    left: -120%;
+
+    width: 70%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255,255,255,.65),
+            transparent
+        );
+
+    transform: skewX(-20deg);
+
+    transition: left .7s ease;
+}
+
+
+.maniaxe-gift-button:hover::before {
+
+    left: 150%;
+}
+
+
+.maniaxe-gift-button:hover {
+
+    transform:
+        translateY(-3px);
+
+    background:
+        linear-gradient(
+            135deg,
+            #ffffff,
+            #c9e5ff
+        );
+
+    box-shadow:
+        0 15px 38px rgba(0,0,0,.30),
+        0 0 25px rgba(105,180,255,.20);
+}
+
+
+.maniaxe-gift-button:active {
+
+    transform:
+        translateY(-1px)
+        scale(.98);
+}
+
+
+.maniaxe-gift-button span {
+
+    position: relative;
+
+    z-index: 2;
+}
+
+
+.maniaxe-gift-button .gift-arrow {
+
+    font-size: 17px;
+
+    transition:
+        transform .25s ease;
+}
+
+
+.maniaxe-gift-button:hover .gift-arrow {
+
+    transform:
+        translateX(4px);
+}
+
+
+/* Mobile */
+
+@media (max-width: 650px) {
+
+    .maniaxe-gift-button {
+
+        min-height: 52px;
+
+        padding:
+            13px 15px;
+
+        font-size: 12px;
+    }
+
+}
 
   /* =========================================================
      CONFETTI
@@ -1975,8 +2037,10 @@
 
 
 
+
+
 <!-- =========================================================
-     POPUP
+     PREMIUM BIRTHDAY POPUP
 ========================================================= -->
 
 <div
@@ -1986,68 +2050,46 @@
 
   <div class="birthday-popup">
 
-
     <button
       class="popup-close"
       onclick="closeBirthdayPopup()"
+      aria-label="Close"
     >
       ×
     </button>
-
 
     <div class="popup-birthday-icon">
       🎂
     </div>
 
-
     <div class="popup-small-title">
-      💙 Maniaxe day 💙
+      💙 MANIAXE DAY 💙
     </div>
-
 
     <h2 class="popup-title">
-      Happy Birthday Avanish! 🎉
+      Happy Birthday Avanish Sarkar! 🎉
     </h2>
 
-
     <p class="popup-message">
-
-      coupon code real hai bro ! 💙✨
-
+     🎁💙✨
+      <br><br>
+      
     </p>
 
+    <!-- PREMIUM GIFT BUTTON -->
 
-    <div class="coupon-box">
-
-      <div class="coupon-label">
-        Your Special Birthday Coupon
-      </div>
-
-      <div
-        id="couponCode"
-        class="coupon-code"
-      >
-        BDAY8X4K2P
-      </div>
-
-    </div>
-
-
-    <button
-      id="copyButton"
-      class="copy-coupon"
-      onclick="copyCoupon()"
+    <a
+      href="https://myhubble.money/gift/VFTyQHxe8G"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="maniaxe-gift-button"
     >
-      📋 Copy Coupon Code
-    </button>
-
-
-    <div class="popup-footer ; popup-small-title">
       
-        ✨ AVANISH | MANIAXE NINJA ✨
-      
-    </div>
-
+      <span>💙 AVANISH | MANIAXE 💙</span>
+      <span class="gift-arrow">→</span>
+    </a><br>
+      <p>  </p>
+   
   </div>
 
 </div>
@@ -2068,9 +2110,6 @@
    COUPON
    ===========================================================
   */
-
-  const birthdayCoupon =
-    "BDAY8X4K2P";
 
 
   /* =========================================================
@@ -2278,7 +2317,7 @@
     if (now < birthdayDate) {
 
       alert(
-        "🎁 Your birthday gift will be available on 19 August!"
+        "🎁 opens at 12:00 AM !"
       );
 
       return;
@@ -2289,11 +2328,45 @@
        Put coupon into popup
     */
 
-    document.getElementById(
-      "couponCode"
-    ).textContent =
-      birthdayCoupon;
+  /* =========================================================
+   COLLECT GIFT
+========================================================= */
 
+function collectGift() {
+
+    const now =
+        new Date().getTime();
+
+
+    /*
+       Safety check
+    */
+
+    if (now < birthdayDate) {
+
+        alert(
+            "🎁 Your birthday gift will be available on 19 August!"
+        );
+
+        return;
+    }
+
+
+    /*
+       Open premium birthday popup
+    */
+
+    document
+        .getElementById("birthdayPopup")
+        .classList.add("show");
+
+
+    /*
+       Birthday celebration
+    */
+
+    createConfetti();
+}
 
     /*
        Open popup
@@ -2332,75 +2405,9 @@
      COPY COUPON
   ========================================================= */
 
-  function copyCoupon() {
 
-    const coupon =
-      document.getElementById(
-        "couponCode"
-      ).textContent;
-
-    const button =
-      document.getElementById(
-        "copyButton"
-      );
-
-
-    navigator.clipboard
-      .writeText(coupon)
-      .then(function() {
-
-        button.innerHTML =
-          "✓ Coupon Copied!";
-
-        setTimeout(
-          function() {
-
-            button.innerHTML =
-              "📋 Copy Coupon Code";
-
-          },
-          2000
-        );
-
-      })
-      .catch(function() {
-
-        const temporary =
-          document.createElement(
-            "textarea"
-          );
-
-        temporary.value =
-          coupon;
-
-        document.body.appendChild(
-          temporary
-        );
-
-        temporary.select();
-
-        document.execCommand(
-          "copy"
-        );
-
-        temporary.remove();
-
-        button.innerHTML =
-          "✓ Coupon Copied!";
-
-        setTimeout(
-          function() {
-
-            button.innerHTML =
-              "📋 Copy Coupon Code";
-
-          },
-          2000
-        );
-
-      });
-  }
-
+    
+    
 
   /* =========================================================
      CONFETTI
