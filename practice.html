@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Practice — Maniaxe Typing</title>
+<meta name="description" content="Practice typing with focused drills: home row, top row, bottom row, numbers, punctuation and common words.">
+<link rel="canonical" href="https://maniaxe.in/practice.html">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="practice">
+
+<header id="site-header"></header>
+
+<main>
+  <div class="page-head wrap">
+    <h1>Practice</h1>
+    <p>Short, focused drills. Pick a target area, then type — same scoring as the main test, without the pressure of a full run.</p>
+  </div>
+
+  <div class="test-shell" style="padding-top:0;">
+
+    <div class="config-bar" id="configBar">
+      <div class="config-group" id="drillGroup">
+        <button class="chip active" data-drill="common">common words</button>
+        <button class="chip" data-drill="home">home row</button>
+        <button class="chip" data-drill="top">top row</button>
+        <button class="chip" data-drill="bottom">bottom row</button>
+        <button class="chip" data-drill="numbers">numbers</button>
+        <button class="chip" data-drill="punctuation">punctuation</button>
+      </div>
+      <div class="config-sep"></div>
+      <div class="config-group" id="timeGroup">
+        <button class="chip active" data-time="15">15</button>
+        <button class="chip" data-time="30">30</button>
+        <button class="chip" data-time="60">60</button>
+        <input type="number" min="5" max="3600" class="custom-time-input" id="customTime" placeholder="custom">
+        <button class="chip chip-icon" id="infinityChip" title="Infinite time">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.6 8.6a4.6 4.6 0 1 0 0 6.8L12 12l-6.6 3.4a4.6 4.6 0 1 1 0-6.8L12 12l6.6-3.4z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="live-stats" id="liveStats"></div>
+
+    <div class="words-panel" id="wordsPanel">
+      <div class="words-inner" id="wordsInner"></div>
+      <div class="click-veil show" id="clickVeil">Click here or start typing</div>
+    </div>
+
+    <input class="hidden-input" id="hiddenInput" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Typing input">
+
+    <div class="results-panel" id="resultsPanel"></div>
+
+    <div class="test-footer-hint">
+      <span><kbd>esc</kbd> restart</span>
+      <span><kbd>tab</kbd> + <kbd>enter</kbd> restart</span>
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script type="module" src="js/firebase-auth.js"></script>
+<script src="js/languages.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/history.js"></script>
+<script src="js/results-ui.js"></script>
+<script src="js/app.js"></script>
+<script src="js/practice.js"></script>
+</body>
+</html>

@@ -1,175 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Login | Maniaxe Academy</title>
-
-    <link
-        rel="stylesheet"
-        href="https://www.w3schools.com/w3css/4/w3.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="auth.css"
-    >
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — Maniaxe Typing</title>
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("maniaxeTheme") || "dark");
+</script>
 </head>
-
-
 <body>
 
-    <div class="auth-page">
+<div class="auth-shell">
+  <div class="auth-card">
+    <a href="index.html" class="brand" style="justify-content:center; margin-bottom:22px;">
+      <img src="assets/logo-192.png" alt="Maniaxe Typing logo" style="width:26px;height:26px;border-radius:6px;">
+      Maniaxe<span class="tag">typing</span>
+    </a>
 
-        <div class="auth-card">
+    <h1>Welcome back</h1>
+    <p>Sign in to track your typing progress.</p>
 
-            <a
-                href="index.html"
-                class="auth-logo"
-            >
-                Maniaxe<span>Academy</span>
-            </a>
+    <form id="loginForm" onsubmit="loginUser(); return false;">
+      <div class="field">
+        <label for="loginEmail">Email</label>
+        <input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="loginPassword">Password</label>
+        <input id="loginPassword" type="password" placeholder="Your password" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+    </form>
 
+    <p id="authMessage" class="auth-message"></p>
 
-            <div class="auth-icon">
-                🎓
-            </div>
+    <button class="btn btn-ghost btn-block" onclick="resetPassword()" type="button" style="margin-top:4px;">Forgot password?</button>
 
+    <div class="auth-divider"><span>or</span></div>
 
-            <h1>
-                Welcome Back
-            </h1>
+    <button class="btn btn-ghost btn-block" onclick="googleLogin()" type="button">Continue with Google</button>
 
+    <p class="auth-switch">New to Maniaxe Typing? <a href="signup.html">Create an account</a></p>
+  </div>
+</div>
 
-            <p class="auth-subtitle">
-                Login to continue your learning journey.
-            </p>
-
-
-            <form
-                id="loginForm"
-                onsubmit="loginUser(); return false;"
-            >
-
-                <label for="loginEmail">
-                    Email
-                </label>
-
-                <input
-                    id="loginEmail"
-                    type="email"
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                    required
-                >
-
-
-                <label for="loginPassword">
-                    Password
-                </label>
-
-                <input
-                    id="loginPassword"
-                    type="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
-                >
-
-
-                <button
-                    class="auth-button"
-                    type="submit"
-                >
-                    Login
-                </button>
-
-            </form>
-
-
-            <button
-                class="google-button"
-                onclick="googleLogin()"
-                type="button"
-            >
-                <span>G</span>
-                Continue with Google
-            </button>
-
-
-            <button
-                class="forgot-button"
-                onclick="resetPassword()"
-                type="button"
-            >
-                Forgot Password?
-            </button>
-
-
-            <p
-                id="authMessage"
-                class="auth-message"
-            ></p>
-
-
-            <div class="auth-divider">
-                <span>New to Maniaxe Academy?</span>
-            </div>
-
-
-            <a
-                href="signup.html"
-                class="signup-link"
-            >
-                Create an Account
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <script
-        type="module"
-        src="firebase-auth.js"
-    ></script>
-
-
-    <script>
-
-        window.addEventListener(
-            "load",
-            function () {
-
-                setTimeout(
-                    function () {
-
-                        if (
-                            typeof checkLoginPage ===
-                            "function"
-                        ) {
-
-                            checkLoginPage();
-
-                        }
-
-                    },
-                    100
-                );
-
-            }
-        );
-
-    </script>
-
+<script type="module" src="js/firebase-auth.js"></script>
+<script>
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      if (typeof checkLoginPage === "function") checkLoginPage();
+    }, 100);
+  });
+</script>
 </body>
-
 </html>

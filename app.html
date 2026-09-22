@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trakey — Android app by Maniaxe</title>
+<meta name="description" content="Explore Trakey, the Android productivity, information and education app by Maniaxe. Download Trakey 1.1 from the published GitHub release.">
+<link rel="canonical" href="https://maniaxe.in/app.html">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="app">
+
+<header id="site-header"></header>
+
+<main class="app-page">
+  <section class="wrap app-store-wrap">
+    <div class="app-share-row">
+      <span class="app-breadcrumb">Maniaxe app</span>
+      <div class="app-share-wrap">
+        <button class="app-share-btn" id="shareAppBtn" type="button" aria-label="Share Trakey" title="Share Trakey" aria-haspopup="menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+            <path d="m8.6 13.5 6.8 3.8M15.4 6.7 8.6 10.5"></path>
+          </svg>
+        </button>
+        <div class="app-share-popover" id="shareAppMenu" role="menu" aria-label="Share Trakey options">
+          <div class="app-share-popover-title">Share Trakey</div>
+          <button type="button" class="app-share-option" id="sharePageOption" role="menuitem">
+            <span class="app-share-option-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"></path></svg>
+            </span>
+            <span><strong>Share App Page</strong><small>Maniaxe Trakey page</small></span>
+          </button>
+          <button type="button" class="app-share-option" id="shareApkOption" role="menuitem">
+            <span class="app-share-option-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M4 21h16"></path></svg>
+            </span>
+            <span><strong>Share Direct APK</strong><small>GitHub release download</small></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-store-card">
+      <div class="app-store-main">
+        <div class="app-icon-wrap">
+          <img src="assets/trakey-logo.png" alt="Trakey app logo">
+        </div>
+
+        <div class="app-store-info">
+          <h1>Trakey</h1>
+          <p class="app-byline">Productivity, information and education</p>
+          <p class="app-description">A focused Android app from Maniaxe for keeping useful everyday tools, learning content and personal progress together in one place.</p>
+
+          <div class="app-meta app-meta-store">
+            <div><b>1.1</b><span>version</span></div>
+            <div><b>Android 8+</b><span>requires</span></div>
+            <div><b>66 MB</b><span>size</span></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="store-card store-card-full" id="download-apk" type="button">
+        <span class="store-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 21h16"></path></svg>
+        </span>
+        <span class="store-text"><small>GitHub Release · Android APK</small><strong>Download Trakey APK</strong></span>
+        <svg class="download-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+      </button>
+
+      <div class="app-live-stats" aria-live="polite">
+        <div class="app-live-stat">
+          <div class="app-rating-line">
+            <strong id="appRatingValue">0.0</strong>
+            <span class="star-display" id="appRatingStars" aria-label="No ratings yet">☆ ☆ ☆ ☆ ☆</span>
+          </div>
+          <span><b id="appRatingCount">0</b> ratings</span>
+        </div>
+        <div class="app-live-stat">
+          <strong id="appDownloadCount">0</strong>
+          <span>downloads</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap app-showcase-section">
+    <div class="app-section-head">
+      <div><p class="section-kicker">Inside the app</p><h2>See what Trakey looks like</h2></div>
+      <p>Swipe through the preview cards. The strip stays horizontal on smaller screens so the layout does not collapse into a tall stack.</p>
+    </div>
+
+    <div class="app-shot-rail" aria-label="Trakey app preview images">
+      <article class="app-shot-card"><div class="app-shot-media app-shot-wide"><img src="assets/trakey-showcase-wide.png" alt="Trakey wide app preview" loading="lazy"></div><div class="app-shot-caption"><strong>Overview</strong><span>Wide preview · 16:9</span></div></article>
+      <article class="app-shot-card"><div class="app-shot-media app-shot-tall"><img src="assets/trakey-showcase-vertical-1.jpg" alt="Trakey vertical app preview" loading="lazy"></div><div class="app-shot-caption"><strong>App screen</strong><span>Vertical preview · 9:16</span></div></article>
+      <article class="app-shot-card"><div class="app-shot-media app-shot-tall"><img src="assets/trakey-showcase-vertical-2.jpg" alt="Trakey promotional app preview" loading="lazy"></div><div class="app-shot-caption"><strong>More to explore</strong><span>Vertical preview · 9:16</span></div></article>
+    </div>
+  </section>
+
+  <section class="wrap app-feedback-section">
+    <div class="app-section-head">
+      <div><p class="section-kicker">Community feedback</p><h2>Rate Trakey or leave feedback</h2></div>
+      <p>Sign in to submit a rating, feedback, or both. Your response is linked to your Maniaxe account.</p>
+    </div>
+
+    <div class="app-feedback-grid">
+      <article class="card app-feedback-form-card">
+        <div class="feedback-user-note" id="feedbackUserNote">Sign in to share your experience with Trakey.</div>
+        <label class="feedback-label">Your rating</label>
+        <div class="rating-picker" id="ratingPicker" role="radiogroup" aria-label="Choose a rating">
+          <button type="button" data-rating="1" aria-label="1 star">★</button>
+          <button type="button" data-rating="2" aria-label="2 stars">★</button>
+          <button type="button" data-rating="3" aria-label="3 stars">★</button>
+          <button type="button" data-rating="4" aria-label="4 stars">★</button>
+          <button type="button" data-rating="5" aria-label="5 stars">★</button>
+        </div>
+        <textarea id="feedbackText" class="feedback-textarea" maxlength="600" placeholder="Write your feedback about Trakey..." aria-label="Trakey feedback"></textarea>
+        <div class="feedback-form-footer">
+          <span id="feedbackFormMsg" class="feedback-form-msg"></span>
+          <button class="btn btn-primary" id="submitFeedbackBtn" type="button">Submit feedback</button>
+        </div>
+      </article>
+
+      <article class="card feedback-list-card">
+        <div class="feedback-list-head"><div><p class="section-kicker">What users say</p><h3>Recent feedback</h3></div><span id="feedbackCountLabel">0</span></div>
+        <div id="feedbackList" class="feedback-list"><div class="feedback-empty">No feedback yet. Be the first to share your experience.</div></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="wrap section app-feature-section">
+    <div class="app-feature-grid">
+      <div class="card"><h3>Built for everyday use</h3><p>Trakey brings practical productivity, information and learning-focused features together in one Android experience.</p></div>
+      <div class="card"><h3>Download directly</h3><p>Use the button above to download Trakey from its GitHub release. The share button gives you either the Maniaxe app page or the direct APK link.</p></div>
+      <div class="card"><h3>Made by Maniaxe</h3><p>Trakey is a separate Maniaxe product and is not part of the typing test or typing practice system.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script type="module" src="js/firebase-auth.js"></script>
+<script src="js/app.js"></script>
+<script type="module" src="js/app-feedback.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const downloadButton = document.getElementById("download-apk");
+    const shareButton = document.getElementById("shareAppBtn");
+    const shareMenu = document.getElementById("shareAppMenu");
+    const sharePageOption = document.getElementById("sharePageOption");
+    const shareApkOption = document.getElementById("shareApkOption");
+    const appPageUrl = "https://maniaxe.in/app.html";
+    const githubApkUrl = "https://github.com/avanish9026-creator/maniaxe/releases/latest/download/trakey.apk";
+
+    function closeShareMenu() {
+      if (!shareMenu || !shareButton) return;
+      shareMenu.classList.remove("open");
+      shareButton.setAttribute("aria-expanded", "false");
+    }
+
+    function openShareMenu() {
+      if (!shareMenu || !shareButton) return;
+      shareMenu.classList.toggle("open");
+      shareButton.setAttribute("aria-expanded", shareMenu.classList.contains("open") ? "true" : "false");
+    }
+
+    async function shareOrCopy(data, fallbackMessage) {
+      try {
+        if (navigator.share) {
+          await navigator.share(data);
+        } else if (navigator.clipboard) {
+          await navigator.clipboard.writeText(data.url);
+          showToast(fallbackMessage);
+        } else {
+          window.prompt("Copy this link:", data.url);
+        }
+      } catch (err) {
+        if (err && err.name !== "AbortError") showToast("Could not share the link");
+      }
+    }
+
+    if (downloadButton) {
+      downloadButton.addEventListener("click", async function () {
+        downloadButton.disabled = true;
+        try {
+          if (window.recordTrakeyDownload) await window.recordTrakeyDownload();
+        } finally {
+          window.location.href = githubApkUrl;
+          downloadButton.disabled = false;
+        }
+      });
+    }
+
+    if (shareButton) shareButton.addEventListener("click", function (e) {
+      e.stopPropagation();
+      openShareMenu();
+    });
+
+    if (sharePageOption) sharePageOption.addEventListener("click", async function () {
+      closeShareMenu();
+      await shareOrCopy({
+        title: "Trakey — Maniaxe",
+        text: "Explore and download Trakey for Android from Maniaxe Typing.",
+        url: appPageUrl
+      }, "App page link copied");
+    });
+
+    if (shareApkOption) shareApkOption.addEventListener("click", async function () {
+      closeShareMenu();
+      await shareOrCopy({
+        title: "Trakey APK — Maniaxe",
+        text: "Download the Trakey Android APK from the Maniaxe GitHub release.",
+        url: githubApkUrl
+      }, "Direct APK link copied");
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest(".app-share-wrap")) closeShareMenu();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeShareMenu();
+    });
+  });
+</script>
+</body>
+</html>

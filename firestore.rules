@@ -1,0 +1,31 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Public aggregate display data; only the signed-in owner can write their own review.
+    match /trakey_ratings/{userId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Public feedback list; only the signed-in owner can create/update/delete their own entry.
+    match /trakey_feedback/{userId} {
+      allow read: if true;
+      allow create, update, delete: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Download events contain no user data. Public read is needed for the live
+    // count query, while only authenticated Firebase sessions can create events.
+    match /trakey_downloads/{downloadId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if false;
+    }
+
+    // Everything else stays private by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
