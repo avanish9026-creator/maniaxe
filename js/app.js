@@ -82,7 +82,7 @@ function renderFooter() {
         <h4>Connect</h4>
         <ul>
           <li>
-            <a href="https://www.youtube.com/@maniaxe" target="_blank" rel="noopener">
+            <a href="https://www.youtube.com/@avanish_005" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23 12s0-3.6-.46-5.3a3 3 0 0 0-2.1-2.1C18.7 4 12 4 12 4s-6.7 0-8.44.6a3 3 0 0 0-2.1 2.1C1 8.4 1 12 1 12s0 3.6.46 5.3a3 3 0 0 0 2.1 2.1C5.3 20 12 20 12 20s6.7 0 8.44-.6a3 3 0 0 0 2.1-2.1C23 15.6 23 12 23 12z" stroke="none"/><path d="M10 9l6 3-6 3V9z" fill="var(--surface)" stroke="none"/></svg>
               YouTube
             </a>
