@@ -7,7 +7,7 @@
 const NAV_ITEMS = [
   { href: "index.html", label: "Test", page: "test" },
   { href: "practice.html", label: "Practice", page: "practice" },
-  { href: "learn.html", label: "Learn", page: "learn" },
+  { href: "custom.html", label: "Custom", page: "custom" },
   { href: "shortcuts.html", label: "Shortcuts", page: "shortcuts" },
   { href: "shot.html", label: "Shot", page: "shot" },
   { href: "app.html", label: "App", page: "app" },
@@ -73,7 +73,7 @@ function renderFooter() {
         <ul>
           <li><a href="index.html">Test</a></li>
           <li><a href="practice.html">Practice</a></li>
-          <li><a href="learn.html">Learn</a></li>
+          <li><a href="custom.html">Custom</a></li>
           <li><a href="shortcuts.html">Shortcuts</a></li>
         </ul>
       </div>
@@ -94,7 +94,7 @@ function renderFooter() {
             </a>
           </li>
           <li>
-            <a href="app.html#download-apk" id="footerApkLink">
+            <a href="app.html#app-download" id="footerApkLink">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 21h16"></path></svg>
               Trakey APK
             </a>
@@ -114,6 +114,22 @@ function renderFooter() {
         </form>
       </div>
     </div>
+
+    ${document.body.dataset.page === "test" ? `
+      <section class="footer-leaderboard" id="leaderboardFooter" aria-labelledby="footerLeaderboardTitle">
+        <div class="footer-leaderboard-head">
+          <div>
+            <p class="section-kicker">Public leaderboard</p>
+            <h3 id="footerLeaderboardTitle">Maniaxe Typing leaderboard</h3>
+            <p>Top public typing scores from signed-in Maniaxe users.</p>
+          </div>
+          <span class="leaderboard-game-badge">TOP TYPING</span>
+        </div>
+        <div class="leaderboard-list" id="leaderboardFooterList">
+          <div class="leaderboard-empty">Loading leaderboard…</div>
+        </div>
+      </section>
+    ` : ""}
 
     <div class="footer-bottom">
       <span>© <span id="year"></span> Maniaxe Typing</span>

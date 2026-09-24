@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom — Maniaxe Typing</title>
+<meta name="description" content="Create a custom typing test with your own text, time, word limit and exam-style pass or fail settings.">
+<link rel="canonical" href="https://maniaxe.in/custom.html">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="custom">
+<header id="site-header"></header>
+
+<main>
+  <div class="page-head wrap">
+    <h1>Custom</h1>
+    <p>Use your own paragraph, choose a time or word limit, and optionally turn it into an exam-style pass or fail test.</p>
+  </div>
+
+  <section class="wrap section-tight custom-builder">
+    <div class="card custom-form">
+      <div>
+        <label for="customText" style="display:block;color:var(--text-dim);font-size:.82rem;margin-bottom:8px;">Your text</label>
+        <textarea id="customText" placeholder="Paste or type the paragraph you want to practice…"></textarea>
+      </div>
+
+      <div class="custom-grid">
+        <div class="custom-setting">
+          <label for="customDuration">Time limit <span class="custom-help">seconds · 0 = none</span></label>
+          <input id="customDuration" type="number" min="0" max="7200" value="0">
+        </div>
+        <div class="custom-setting">
+          <label for="customWordLimit">Word limit <span class="custom-help">0 = all words</span></label>
+          <input id="customWordLimit" type="number" min="0" max="5000" value="0">
+        </div>
+      </div>
+
+      <div class="custom-grid">
+        <div class="custom-setting">
+          <label class="custom-check"><input type="checkbox" id="disableBackspace"> Disable Backspace</label>
+          <div class="custom-help">Useful for exam-style typing where corrections are not allowed.</div>
+        </div>
+        <div class="custom-setting">
+          <label class="custom-check"><input type="checkbox" id="enablePassFail"> Enable Pass / Fail</label>
+          <div class="custom-help">Set minimum WPM and accuracy criteria.</div>
+          <div class="custom-subsettings" id="passFailSettings">
+            <div>
+              <label for="minWpm">Minimum WPM</label>
+              <input id="minWpm" type="number" min="0" max="1000" value="30">
+            </div>
+            <div>
+              <label for="minAccuracy">Minimum accuracy %</label>
+              <input id="minAccuracy" type="number" min="0" max="100" value="90">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-test-note">Tip: set both a time and a word limit if you want the test to end at whichever condition is reached first.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="startCustomBtn" type="button">Start custom test</button>
+        <button class="btn btn-ghost" id="clearCustomBtn" type="button">Clear</button>
+      </div>
+      <div id="customMessage" class="custom-help"></div>
+    </div>
+  </section>
+
+  <div class="test-shell" id="customTestShell" style="display:none;padding-top:0;">
+    <div class="live-stats" id="liveStats"></div>
+    <div class="words-panel" id="wordsPanel">
+      <div class="words-inner" id="wordsInner"></div>
+      <div class="click-veil show" id="clickVeil">Click here or start typing</div>
+    </div>
+    <input class="hidden-input" id="hiddenInput" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="done" aria-label="Custom typing input">
+    <div class="results-panel" id="resultsPanel"></div>
+    <div class="test-footer-hint"><span><kbd>esc</kbd> restart</span><span><kbd>tab</kbd> + <kbd>enter</kbd> restart</span></div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script type="module" src="js/firebase-auth.js"></script>
+<script src="js/languages.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/history.js"></script>
+<script src="js/shot-utils.js"></script>
+<script src="js/results-ui.js"></script>
+<script src="js/app.js"></script>
+<script src="js/custom.js"></script>
+</body>
+</html>

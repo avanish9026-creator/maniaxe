@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Trakey Maniaxe Typing</title>
-<meta name="description" content="Explore Trakey, the Android productivity, information and education app by Maniaxe. Download Trakey 1.1 from the published GitHub release.">
+<meta name="description" content="Explore Trakey, the Android productivity, information and education app by Maniaxe. Download Trakey 1.1 from Uptodown or use the GitHub APK as a direct fallback.">
 <link rel="canonical" href="https://maniaxe.in/app.html">
 <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
@@ -34,6 +34,12 @@
         </button>
         <div class="app-share-popover" id="shareAppMenu" role="menu" aria-label="Share Trakey options">
           <div class="app-share-popover-title">Share Trakey</div>
+          <button type="button" class="app-share-option app-share-option-primary" id="shareUptodownOption" role="menuitem">
+            <span class="app-share-option-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M4 21h16"></path></svg>
+            </span>
+            <span><strong>Share Uptodown</strong><small>Official Trakey download page</small></span>
+          </button>
           <button type="button" class="app-share-option" id="sharePageOption" role="menuitem">
             <span class="app-share-option-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"></path></svg>
@@ -44,7 +50,7 @@
             <span class="app-share-option-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M4 21h16"></path></svg>
             </span>
-            <span><strong>Share Direct APK</strong><small>GitHub release download</small></span>
+            <span><strong>Share GitHub APK</strong><small>Direct APK fallback</small></span>
           </button>
         </div>
       </div>
@@ -69,25 +75,36 @@
         </div>
       </div>
 
-      <button class="store-card store-card-full" id="download-apk" type="button">
-        <span class="store-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 21h16"></path></svg>
+      <a class="uptodown-download-card" id="app-download" href="https://trakey.en.uptodown.com/android" target="_blank" rel="noopener" aria-label="Download Trakey from Uptodown">
+        <div class="uptodown-download-copy">
+          <span class="uptodown-kicker">Official download</span>
+          <strong>Get Trakey on Uptodown</strong>
+          <small>Official Trakey Android page · trusted download source</small>
+        </div>
+        <span class="uptodown-badge">
+          <img src="https://stc.utdstc.com/img/mediakit/download-gio-small.png" alt="Download Trakey on Uptodown">
         </span>
-        <span class="store-text"><small>GitHub Release · Android APK</small><strong>Download Trakey APK</strong></span>
         <svg class="download-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
-      </button>
+      </a>
+      <div class="github-fallback-row">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M4 21h16"></path></svg> Direct APK fallback</span>
+        <a href="https://github.com/avanish9026-creator/maniaxe/releases/latest/download/trakey.apk" target="_blank" rel="noopener">GitHub APK</a>
+      </div>
 
       <div class="app-live-stats" aria-live="polite">
+        <div class="app-live-stat">
+          <div class="app-rating-line">
+            <strong id="appDownloadCount">—</strong>
+            <span class="stat-icon-label">downloads</span>
+          </div>
+          <span>GitHub APK downloads</span>
+        </div>
         <div class="app-live-stat">
           <div class="app-rating-line">
             <strong id="appRatingValue">0.0</strong>
             <span class="star-display" id="appRatingStars" aria-label="No ratings yet">☆ ☆ ☆ ☆ ☆</span>
           </div>
           <span><b id="appRatingCount">0</b> ratings</span>
-        </div>
-        <div class="app-live-stat">
-          <strong id="appDownloadCount">0</strong>
-          <span>downloads</span>
         </div>
       </div>
     </div>
@@ -140,7 +157,7 @@
   <section class="wrap section app-feature-section">
     <div class="app-feature-grid">
       <div class="card"><h3>Built for everyday use</h3><p>Trakey brings practical productivity, information and learning-focused features together in one Android experience.</p></div>
-      <div class="card"><h3>Download directly</h3><p>Use the button above to download Trakey from its GitHub release. The share button gives you either the Maniaxe app page or the direct APK link.</p></div>
+      <div class="card"><h3>Download directly</h3><p>Use Uptodown as the primary download destination, with a small GitHub APK fallback for users who need a direct file. The share button keeps the Maniaxe page, GitHub APK, and Uptodown link available.</p></div>
       <div class="card"><h3>Made by Maniaxe</h3><p>Trakey is a separate Maniaxe product and is not part of the typing test or typing practice system.</p></div>
     </div>
   </section>
@@ -154,13 +171,15 @@
 <script type="module" src="js/app-feedback.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    const downloadButton = document.getElementById("download-apk");
+    const uptodownDownloadLink = document.getElementById("app-download");
     const shareButton = document.getElementById("shareAppBtn");
     const shareMenu = document.getElementById("shareAppMenu");
     const sharePageOption = document.getElementById("sharePageOption");
     const shareApkOption = document.getElementById("shareApkOption");
+    const shareUptodownOption = document.getElementById("shareUptodownOption");
     const appPageUrl = "https://maniaxe.in/app.html";
     const githubApkUrl = "https://github.com/avanish9026-creator/maniaxe/releases/latest/download/trakey.apk";
+    const uptodownUrl = "https://trakey.en.uptodown.com/android";
 
     function closeShareMenu() {
       if (!shareMenu || !shareButton) return;
@@ -189,15 +208,9 @@
       }
     }
 
-    if (downloadButton) {
-      downloadButton.addEventListener("click", async function () {
-        downloadButton.disabled = true;
-        try {
-          if (window.recordTrakeyDownload) await window.recordTrakeyDownload();
-        } finally {
-          window.location.href = githubApkUrl;
-          downloadButton.disabled = false;
-        }
+    if (uptodownDownloadLink) {
+      uptodownDownloadLink.addEventListener("click", function () {
+        try { localStorage.setItem("maniaxeLastTrakeyDownloadSource", "uptodown"); } catch (_) {}
       });
     }
 
@@ -222,6 +235,15 @@
         text: "Download the Trakey Android APK from the Maniaxe GitHub release.",
         url: githubApkUrl
       }, "Direct APK link copied");
+    });
+
+    if (shareUptodownOption) shareUptodownOption.addEventListener("click", async function () {
+      closeShareMenu();
+      await shareOrCopy({
+        title: "Trakey on Uptodown",
+        text: "Download Trakey for Android from Uptodown.",
+        url: uptodownUrl
+      }, "Uptodown link copied");
     });
 
     document.addEventListener("click", function (e) {

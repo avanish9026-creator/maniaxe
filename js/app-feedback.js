@@ -84,12 +84,25 @@ async function refreshRatingStats() {
 }
 
 async function refreshDownloadCount() {
-  if (!downloadsRef) return;
+  const countEl = document.getElementById("appDownloadCount");
+  if (!countEl) return;
+
+  // This metric intentionally reflects the real GitHub Release asset count,
+  // not a Firestore/site-click counter. GitHub maintains the authoritative
+  // download_count for the published APK asset.
   try {
-    const snap = await getCountFromServer(downloadsRef);
-    document.getElementById("appDownloadCount").textContent = snap.data().count;
+    const response = await fetch(
+      "https://api.github.com/repos/avanish9026-creator/maniaxe/releases/latest",
+      { headers: { Accept: "application/vnd.github+json" } }
+    );
+    if (!response.ok) throw new Error(`GitHub API returned ${response.status}`);
+
+    const release = await response.json();
+    const apk = (release.assets || []).find(asset => asset.name === "trakey.apk");
+    countEl.textContent = apk ? Number(apk.download_count || 0).toLocaleString() : "0";
   } catch (e) {
-    console.warn("Could not load Trakey download count", e);
+    console.warn("Could not load GitHub Trakey download count", e);
+    countEl.textContent = "—";
   }
 }
 
@@ -164,31 +177,7 @@ async function submitReview() {
   }
 }
 
-window.recordTrakeyDownload = async function () {
-  if (!downloadsRef) return;
-  let temporary = false;
-  try {
-    let user = window.maniaxeCurrentUser || null;
-    if (!user) {
-      if (typeof window.ensureDownloadAuth !== "function") throw new Error("Download authentication is unavailable.");
-      const session = await window.ensureDownloadAuth();
-      user = session.user;
-      temporary = !!session.temporary;
-    }
-
-    // Store only an empty event document: the live counter needs the document count,
-    // but there is no reason to expose a user's ID, email, or timestamp.
-    await addDoc(downloadsRef, {});
-    await refreshDownloadCount();
-  } catch (e) {
-    console.warn("Download count could not be recorded", e);
-    showToast("Download started; count could not be updated");
-  } finally {
-    if (temporary && typeof window.endTemporaryDownloadAuth === "function") {
-      try { await window.endTemporaryDownloadAuth(); } catch (e) { console.warn("Temporary download session cleanup failed", e); }
-    }
-  }
-};
+/* GitHub release downloads are read directly from the GitHub Release asset. */
 
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("#ratingPicker button").forEach(btn => {
@@ -214,8 +203,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("submitFeedbackBtn")?.addEventListener("click", submitReview);
 
   document.addEventListener("maniaxe-auth-ready", e => loadUserReview(e.detail.user).catch(console.error));
-  refreshRatingStats();
   refreshDownloadCount();
+  refreshRatingStats();
   listenForFeedback();
   if (window.maniaxeCurrentUser) loadUserReview(window.maniaxeCurrentUser).catch(console.error);
 });

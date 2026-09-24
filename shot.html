@@ -33,8 +33,18 @@
       <p>Take a test first, then come back here to turn it into a shareable image.</p>
       <a href="index.html" class="btn btn-primary" style="margin-top:16px;">Take a test</a>
     </div>
-    <div id="shotActions" style="display:flex; gap:10px;">
+    <div id="shotActions" class="shot-actions">
       <button class="btn btn-primary" id="downloadShotBtn">Download image</button>
+      <div class="result-share-wrap">
+        <button class="btn btn-ghost result-share-btn" id="shareShotBtn" type="button" aria-expanded="false" aria-haspopup="menu">
+          <span aria-hidden="true">↗</span> Share
+        </button>
+        <div class="result-share-menu" id="shareShotMenu" role="menu">
+          <div class="result-share-title">Share result</div>
+          <button type="button" class="result-share-option" id="shareShotLinkBtn" role="menuitem">Share image + website link</button>
+          <button type="button" class="result-share-option" id="shareShotImageBtn" role="menuitem">Share image only</button>
+        </div>
+      </div>
       <a href="index.html" class="btn btn-ghost">Take another test</a>
     </div>
   </div>
@@ -46,6 +56,7 @@
 <script type="module" src="js/firebase-auth.js"></script>
 <script src="js/history.js"></script>
 <script src="js/app.js"></script>
+<script src="js/shot-utils.js"></script>
 <script src="js/shot.js"></script>
 </body>
 </html>

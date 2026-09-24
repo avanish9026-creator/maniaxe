@@ -52,6 +52,8 @@
     saveTestResult(result);
     els.resultsPanel.innerHTML = renderResultsPanel(result);
     els.resultsPanel.classList.add("show");
+    wireResultsActions(result);
+    if (typeof window.updateTypingLeaderboard === "function") window.updateTypingLeaderboard(result);
     els.panel.style.display = "none";
     document.getElementById("nextTestBtn").addEventListener("click", () => engine.start(currentConfig()));
   });
@@ -90,6 +92,7 @@
     restart();
   });
 
+  els.hiddenInput.addEventListener("beforeinput", (e) => engine.handleBeforeInput(e));
   els.hiddenInput.addEventListener("input", () => engine.handleInput());
   els.hiddenInput.addEventListener("keydown", (e) => engine.handleKeydown(e));
   els.panel.addEventListener("click", () => engine.focusInput());
