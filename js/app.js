@@ -65,7 +65,9 @@ function renderFooter() {
           <img src="assets/logo-192.png" alt="Maniaxe Typing logo">
           Maniaxe<span class="tag">typing</span>
         </a>
-        <p>A clean, fast typing test. Track your words per minute, practice with purpose and type in the language you choose.</p>
+        <p>A clean, fast typing test. Track your words per minute, practice <a href="/trakey-admin/">
+    also work
+  </a> with purpose and type in the language you choose.</p>
       </div>
 
       <div class="footer-col">
@@ -93,6 +95,7 @@ function renderFooter() {
               maniaxe.in
             </a>
           </li>
+
           <li>
             <a href="app.html#app-download" id="footerApkLink">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 21h16"></path></svg>
