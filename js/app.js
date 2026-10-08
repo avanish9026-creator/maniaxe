@@ -95,13 +95,13 @@ function renderFooter() {
           </li>
 
           <li>
-            <a href="https://github.com/avanish9026-creator/maniaxe/releases/latest/download/trakey.apk" target="_blank" rel="noopener" id="footerApkLink">
+            <a https://github.com/avanish9026-creator/maniaxe/releases/download/v2.1.1/Trakey.apk" target="_blank" rel="noopener" id="footerApkLink">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 21h16"></path></svg>
               Trakey APK
             </a>
           </li>
           <li>
-            <a href="https://github.com/avanish9026-creator/maniaxe/releases/latest/download/trakey.apk" target="_blank" rel="noopener">
+            <a https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M7 10l5 5 5-5"></path><path d="M4 21h16"></path></svg>
               Ledra APK
             </a>
