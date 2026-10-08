@@ -96,7 +96,14 @@ window.loginUser = async function () {
 window.googleLogin = async function () {
     const message = document.getElementById("authMessage");
     try {
-        await signInWithPopup(auth, googleProvider);
+        const result = await signInWithPopup(auth, googleProvider);
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        if (credential?.accessToken) {
+            try {
+                sessionStorage.setItem("maniaxeGoogleAccessToken", credential.accessToken);
+                sessionStorage.setItem("maniaxeGoogleAccessAt", String(Date.now()));
+            } catch (_) {}
+        }
         message.style.color = "var(--correct)";
         message.textContent = "Google login successful!";
         setTimeout(() => { window.location.href = "index.html"; }, 600);
@@ -133,6 +140,7 @@ window.resetPassword = async function () {
 window.logoutUser = async function () {
     try {
         await signOut(auth);
+        try { sessionStorage.removeItem("maniaxeGoogleAccessToken"); sessionStorage.removeItem("maniaxeGoogleAccessAt"); } catch (_) {}
         window.location.href = "index.html";
     } catch (error) {
         console.error(error);

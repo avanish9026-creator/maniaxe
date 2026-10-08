@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Ledra | Maniaxe</title>
+<meta name="description" content="Ledra by Maniaxe — payments, records and billing organized in one app.">
+<link rel="canonical" href="https://maniaxe.in/ledra.html">
+<link rel="icon" type="image/svg+xml" href="LedraWeb/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+.product-page{padding:55px 0 90px}.product-hero{display:grid;grid-template-columns:150px 1fr;gap:28px;align-items:center;padding:30px;border:1px solid var(--border);border-radius:26px;background:var(--surface);box-shadow:var(--shadow)}.product-icon{width:150px;height:150px;border-radius:34px;overflow:hidden;background:#0b5fff;display:grid;place-items:center}.product-icon img{width:100%;height:100%}.product-hero h1{font:700 clamp(38px,6vw,60px)/1 'Space Grotesk',sans-serif;margin:0 0 10px;letter-spacing:-.04em}.product-hero .kicker{color:var(--accent);font:700 12px/1.2 'JetBrains Mono',monospace;letter-spacing:.15em;text-transform:uppercase;margin:0 0 10px}.product-hero p{color:var(--muted);line-height:1.7;max-width:700px}.download-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}.download-actions a,.download-actions button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 17px;border-radius:12px;text-decoration:none;font:700 13px/1 inherit;cursor:pointer}.download-actions .primary{background:var(--accent);color:#fff;border:1px solid var(--accent)}.download-actions .secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}.product-section{margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.product-card{padding:22px;border:1px solid var(--border);border-radius:22px;background:var(--surface)}.product-card h2{font:700 20px/1.2 'Space Grotesk',sans-serif;margin:0 0 8px}.product-card p{color:var(--muted);line-height:1.65;margin:0}.product-note{margin-top:18px;color:var(--muted);font-size:13px;line-height:1.6}@media(max-width:700px){.product-hero{grid-template-columns:1fr;padding:22px}.product-icon{width:92px;height:92px;border-radius:22px}.product-section{grid-template-columns:1fr}}
+</style>
+</head>
+<body data-page="apps">
+<header id="site-header"></header>
+<main class="product-page"><section class="wrap">
+<div class="product-hero"><div class="product-icon"><img src="LedraWeb/favicon.svg" alt="Ledra"></div><div><p class="kicker">Maniaxe product</p><h1>Ledra</h1><p>Payments, records and billing organized in one focused workspace. The web app uses the same Ledra data and Google account as the connected Android experience.</p><div class="download-actions"><a class="primary" href="ledra-web/">Open Ledra Web</a><a class="secondary" href="https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk" target="_blank" rel="noopener">Download APK</a><button class="secondary" id="shareLedraPage">Share webpage</button><button class="secondary" id="shareLedraApk">Share APK</button></div><p class="product-note">Ledra Android APK is available from the current GitHub release.</p></div></div>
+<div class="product-section"><article class="product-card"><h2>People & payments</h2><p>Keep people, payments, funds and contributors organized with synced records.</p></article><article class="product-card"><h2>Team</h2><p>Manage employees, attendance and employee payments from the same workspace.</p></article><article class="product-card"><h2>Bills</h2><p>Build invoices, manage products and keep billing records in one place.</p></article></div>
+</section></main><footer id="site-footer"></footer>
+<script src="js/config.js"></script><script type="module" src="js/firebase-auth.js"></script><script src="js/app.js"></script>
+<script>
+async function share(data){try{if(navigator.share)await navigator.share(data);else if(navigator.clipboard){await navigator.clipboard.writeText(data.url);alert('Link copied');}else window.prompt('Copy this link:',data.url);}catch(e){if(e?.name!=='AbortError')alert('Could not share the link');}}
+document.getElementById('shareLedraPage')?.addEventListener('click',()=>share({title:'Ledra | Maniaxe',text:'Open Ledra by Maniaxe.',url:location.href}));
+document.getElementById('shareLedraApk')?.addEventListener('click',()=>share({title:'Ledra APK | Maniaxe',text:'Download the Ledra Android APK.',url:'https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk'}));
+</script>
+</body></html>
