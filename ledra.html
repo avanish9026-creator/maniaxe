@@ -16,15 +16,14 @@
 <body data-page="apps">
 <header id="site-header"></header>
 <main class="product-page"><section class="wrap">
-<div class="product-hero"><div class="product-icon"><img src="ledra-web/favicon.svg" alt="Ledra"></div><div><p class="kicker">Maniaxe product</p><h1>Ledra</h1><p>Payments, records and billing organized in one focused workspace. The web app uses the same Ledra data and Google account as the connected Android experience.</p><div class="download-actions"><a class="primary" href="ledra-web/">Open Ledra Web</a><a class="secondary" href="https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk" target="_blank" rel="noopener">Download APK</a><button class="secondary" id="shareLedraPage">Share webpage</button><button class="secondary" id="shareLedraApk">Share APK</button></div><p class="product-note">Download the Ledra Android app directly from the current Maniaxe GitHub release.</p></div></div>
-<div class="product-section"><article class="product-card"><h2>People & payments</h2><p>Keep people, payments, funds and contributors organized with synced records.</p></article><article class="product-card"><h2>Team</h2><p>Manage employees, attendance and employee payments from the same workspace.</p></article><article class="product-card"><h2>Bills</h2><p>Build invoices, manage products and keep billing records in one place.</p></article></div>
+<div class="product-hero"><div class="product-icon"><img src="ledra-web/favicon.svg" alt="Ledra"></div><div><p class="kicker">Maniaxe product</p><h1>Ledra</h1><p>Payments, records and billing organized in one focused workspace. </p><div class="download-actions"><a class="primary" href="ledra-web/">Open Ledra Web</a><a class="secondary" href="https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk" target="_blank" rel="noopener">Download APK</a><button class="secondary" id="shareLedraPage">Share webpage</button><button class="secondary" id="shareLedraApk">Share APK</button></div><p class="product-note">Download the Ledra Android app directly from the current Maniaxe GitHub release.</p></div></div>
+<div class="product-section"><article class="product-card"><h2>People & payments</h2></article><article class="product-card"><h2>Team</h2></article><article class="product-card"><h2>Bills</h2></article></div>
 
 <section class="android-section" id="ledra-android" aria-labelledby="ledra-android-title">
   <div class="android-section-head">
     <div>
       <p class="android-kicker">Ledra Android</p>
       <h2 id="ledra-android-title">Ledra, wherever you work.</h2>
-      <p>Use the Android app for the same core Ledra workspace on your phone, with people, payments, team records and billing kept together.</p>
     </div>
     <a class="android-download" href="https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk" download>Download Ledra Android</a>
   </div>
@@ -38,7 +37,7 @@
 <script src="js/config.js"></script><script type="module" src="js/firebase-auth.js"></script><script src="js/app.js"></script>
 <script>
 const LEDRA_APK_URL='https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk';
-const TRAKEY_APK_URL='https://github.com/avanish9026-creator/maniaxe/releases/latest/download/trakey.apk';
+const TRAKEY_APK_URL='https://github.com/avanish9026-creator/maniaxe/releases/download/v2.1.1/Trakey.apk';
 async function share(data){try{if(navigator.share)await navigator.share(data);else if(navigator.clipboard){await navigator.clipboard.writeText(data.url);alert('Link copied');}else window.prompt('Copy this link:',data.url);}catch(e){if(e?.name!=='AbortError')alert('Could not share the link');}}
 document.getElementById('shareLedraPage')?.addEventListener('click',()=>share({title:'Ledra | Maniaxe',text:'Open Ledra by Maniaxe.',url:location.href}));
 document.getElementById('shareLedraApk')?.addEventListener('click',()=>share({title:'Ledra APK | Maniaxe',text:'Download the Ledra Android APK.',url:LEDRA_APK_URL}));
