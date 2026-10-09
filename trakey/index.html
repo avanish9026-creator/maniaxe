@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trakey Web | Maniaxe</title>
+<meta name="description" content="Trakey Web by Maniaxe: view and manage your Trakey notes, tasks, goals, habits and exams on a bigger screen.">
+<link rel="icon" type="image/png" href="../assets/trakey-logo.png">
+<link rel="apple-touch-icon" href="../assets/trakey-logo.png">
+<meta name="theme-color" content="#0a0d12">
+<style>
+:root{--bg:#f3f7fb;--card:#fff;--elev:#e9f0f7;--text:#13202c;--sub:#5d6f80;--blue:#3aa8ff;--line:#dbe5ee;--ok:#2fb37a;--bad:#e5484d}
+@media (prefers-color-scheme:dark){:root{--bg:#0a0d12;--card:#141a22;--elev:#1d2630;--text:#eef3f8;--sub:#8fa1b3;--line:#26313d}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+button{font:inherit;cursor:pointer}
+.hide{display:none!important}
+#login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;text-align:center}
+#login h1{margin:0;font-size:34px}#login p{margin:0;color:var(--sub);max-width:420px}
+.btn{background:var(--blue);color:#06121c;border:0;border-radius:999px;padding:12px 26px;font-weight:700}
+.btn.ghost{background:var(--elev);color:var(--text)}
+#err{color:var(--bad);max-width:460px;font-size:14px}
+#app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}
+nav{background:var(--card);border-right:1px solid var(--line);padding:18px 12px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px;overflow:auto}
+nav .brand{font-weight:800;font-size:20px;padding:4px 12px 14px}
+nav a{display:flex;justify-content:space-between;padding:10px 12px;border-radius:12px;color:var(--sub);text-decoration:none;font-weight:600}
+nav a.on{background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--blue)}
+nav a span{font-weight:500;font-size:13px}
+nav .foot{margin-top:auto;font-size:12px;color:var(--sub);padding:12px}
+main{padding:26px clamp(16px,4vw,44px);max-width:1100px;width:100%}
+h2{margin:0 0 4px;font-size:26px}.sub{color:var(--sub);margin:0 0 20px;font-size:14px}
+.banner{background:color-mix(in srgb,var(--blue) 12%,transparent);border:1px solid color-mix(in srgb,var(--blue) 35%,transparent);border-radius:14px;padding:10px 14px;margin-bottom:20px;font-size:13px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px 18px}
+.stat b{display:block;font-size:34px;line-height:1.1}.stat span{color:var(--sub);font-size:13px}
+.list{display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:12px;align-items:center}.grow{flex:1;min-width:0}
+.t{font-weight:650;overflow-wrap:anywhere}.m{color:var(--sub);font-size:13px}
+.chip{display:inline-block;background:var(--elev);border-radius:999px;padding:4px 12px;font-size:13px;margin:0 6px 6px 0;border:0;color:var(--text)}
+.chip.on{background:var(--blue);color:#06121c;font-weight:700}
+.bar{height:6px;background:var(--elev);border-radius:9px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--blue)}
+input[type=search]{width:100%;max-width:420px;padding:11px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);margin-bottom:14px;font:inherit}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--sub);flex:none;padding:0;cursor:pointer}.dot.ok{background:var(--blue);border-color:var(--blue)}
+.pill{font-size:12px;padding:2px 10px;border-radius:999px;background:var(--elev);color:var(--sub)}.pill.ok{color:var(--ok)}.pill.bad{color:var(--bad)}
+.note{white-space:pre-wrap;overflow-wrap:anywhere}
+details{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 16px}summary{cursor:pointer;font-weight:650}
+.opt{padding:3px 0;font-size:14px;color:var(--sub)}.opt.right{color:var(--ok);font-weight:700}.opt.wrong{color:var(--bad);font-weight:700}
+.empty{color:var(--sub);padding:30px 0;text-align:center}
+@media(max-width:760px){#app{display:block}nav{position:sticky;height:auto;flex-direction:row;overflow-x:auto;padding:8px;z-index:5;border-right:0;border-bottom:1px solid var(--line)}nav .brand,nav .foot{display:none}nav a{white-space:nowrap;gap:6px}nav a span{display:none}main{padding:18px 14px}}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 0}
+.mini{background:var(--elev);color:var(--text);border:0;border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600}
+.mini.danger{color:var(--bad)}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+dialog{border:1px solid var(--line);border-radius:22px;background:var(--card);color:var(--text);padding:22px;width:min(520px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+dialog h3{margin:0 0 14px}
+dialog label{display:block;font-size:13px;color:var(--sub);margin:12px 0 4px}
+dialog input[type=text],dialog input[type=date],dialog textarea{width:100%;padding:10px 14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit}
+dialog textarea{min-height:160px;resize:vertical}
+.seg{display:flex;gap:8px}.seg label{flex:1;margin:0;text-align:center;padding:10px 0;border-radius:999px;background:var(--elev);color:var(--text);cursor:pointer;font-weight:600}
+.seg input{display:none}.seg input:checked+span{color:var(--blue)}.seg label:has(input:checked){background:var(--blue);color:#06121c}
+.chk{display:flex;gap:8px;align-items:center;margin-top:14px;color:var(--text)!important;font-size:14px!important}
+.livepill{font-size:12px;color:var(--ok)}
+.exfolder.on{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 10%,var(--card))}.exfolder.off{opacity:.5}
+.exck{width:46px;height:46px;border-radius:50%;border:0;background:color-mix(in srgb,var(--blue) 14%,transparent);color:var(--blue);font-size:18px;font-weight:700;flex:none}
+.exck.on{background:var(--blue);color:#06121c}
+.exsw{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;cursor:pointer;font-weight:600}
+.exsw input{width:20px;height:20px;accent-color:var(--blue)}
+.exnum{padding:0 4px 12px}.exnum input{width:120px;padding:9px 14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--text);font:inherit}
+.segb{flex:1;border:0;border-radius:999px;padding:10px 0;background:var(--elev);color:var(--text);font-weight:600}.segb.on{background:var(--blue);color:#06121c}
+.exmark{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;flex:none}
+.runner{position:fixed;inset:0;background:var(--bg);z-index:60;display:flex;flex-direction:column;align-items:center;overflow:auto}
+.runner>*{width:min(760px,100%)}
+.rtop{display:flex;align-items:center;justify-content:space-between;padding:14px 18px}
+.ricon{width:46px;height:46px;border-radius:50%;border:0;background:var(--elev);color:var(--text);font-size:16px;font-weight:700;flex:none}.ricon.bad{color:var(--bad)}
+.rtime{background:var(--elev);border-radius:20px;padding:9px 18px;font-weight:700;font-size:16px}.rtime.urgent{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
+.rprog{display:flex;align-items:center;gap:12px;padding:0 22px}
+.rbody{flex:1;padding:24px 22px;overflow:auto}.rq{font-size:24px;font-weight:650;line-height:1.35;overflow-wrap:anywhere;margin-bottom:24px}
+.ropts{display:flex;flex-direction:column;gap:12px}
+.ropt{display:flex;gap:14px;align-items:center;text-align:left;padding:16px 18px;border-radius:20px;border:2px solid var(--line);background:var(--card);color:var(--text);font:inherit;font-size:16px}
+.ropt b{width:30px;height:30px;border-radius:50%;background:var(--elev);display:flex;align-items:center;justify-content:center;flex:none;font-size:14px}
+.ropt.on{border-color:var(--blue);background:color-mix(in srgb,var(--blue) 12%,var(--card))}.ropt.on b{background:var(--blue);color:#06121c}
+.rfoot{display:flex;gap:12px;padding:14px 18px 22px;align-items:center}
+.rplay{width:112px;height:112px;border-radius:50%;border:0;background:var(--blue);color:#06121c;font-size:44px}
+.rsheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:18px;z-index:5}
+@media print{nav,.banner,.btnrow,.chip,.top .chip,#runner{display:none!important}#app{display:block}main{padding:0}}
+.mxlink{display:inline-flex;align-items:center;gap:6px;color:var(--sub);text-decoration:none;font-size:13px;font-weight:600}
+.mxlink:hover{color:var(--blue)}
+#login .mxlink{margin-top:10px}
+nav .mxlink{padding:10px 12px;margin-top:4px}
+@media(max-width:760px){nav .mxlink{display:none}}
+</style>
+</head>
+<body>
+
+<section id="login">
+  <h1>Trakey Web</h1>
+  <p>See your notes, tasks, goals, habits, Learn and Challenge data on a bigger screen. Sign in with the same Google account you use in the Trakey app.</p>
+  <button class="btn" id="signin">Sign in with Google</button>
+  <div id="err"></div>
+  <a class="mxlink" href="../app.html">← Back to Trakey app page</a>
+</section>
+
+<div id="app" class="hide">
+  <nav id="nav"></nav>
+  <main>
+    <div class="banner" id="banner"></div>
+    <div id="view"></div>
+  </main>
+</div>
+
+<div id="runner" class="runner hide"></div>
+<dialog id="dlg"><form method="dialog" id="dlgform"></form></dialog>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, signInWithCredential, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, onSnapshot, runTransaction } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { ssoSignIn, clearHandoff } from "../js/sso.js";
+// core.js is loaded after sign-in (see load), so the Sign-in button works even if core.js is missing.
+let gunzip, decodePrefs, buildModel, unpackSync, packSync, normalizeFeature, toRaw;
+
+/* ---- 1. PASTE YOUR FIREBASE WEB CONFIG HERE (Firebase console > Project settings > Your apps > Web app) ---- */
+const firebaseConfig = {
+  apiKey: "AIzaSyDjq71StPRBPhJ5Fplt1Bhe7D96An3V1lc",
+  authDomain: "trakey-b6002.firebaseapp.com",
+  projectId: "trakey-b6002",
+  appId: "1:164803851209:web:9ecca1501b27e0afadee18"
+};
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmtDate = (ms) => ms ? new Date(ms).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "";
+const fmtDT = (ms) => ms ? new Date(ms).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "";
+const pct = (a, b) => b > 0 ? Math.round(a / b * 100) : 0;
+
+if (firebaseConfig.apiKey.startsWith("PASTE")) {
+  $("err").textContent = "Setup needed: open index.html and paste your Firebase web config at the top of the script.";
+  $("signin").disabled = true;
+}
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let X = null;                                   // exam.js, loaded after sign-in
+let webExams = [];                              // exams taken on the website (users/{uid}/backup/web_exam_history)
+let ex = { view: "setup", sel: [], topicSel: {}, openTopics: null, qLimit: false, qCount: 20, tLimit: false, minutes: 30, perQ: false, perQSec: 60, neg: false, negIdx: 1, shuffle: true, rec: null, filter: 0 };
+let live = { uid: null, unsub: [], docs: {}, seq: {}, lastAt: 0 }, liveError = "";
+let M = null, backupMeta = null, tab = "overview", ui = { q: "", folder: "All", qfolder: null };
+
+if (location.protocol === "file:") {
+  $("err").textContent = "Open this page through a web address (https://maniaxe.in/... or http://127.0.0.1:PORT), not by double-clicking the file. Google sign-in and the page scripts do not work from file://.";
+  $("signin").disabled = true;
+}
+
+$("signin").onclick = async () => {
+  const button = $("signin"), err = $("err");
+  err.textContent = "";
+  button.disabled = true;
+  button.textContent = "Opening Google…";
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: "select_account" });
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    console.error("Trakey Google sign-in error:", e);
+    if (e.code === "auth/popup-blocked" || e.code === "auth/operation-not-supported-in-this-environment") {
+      try { await signInWithRedirect(auth, provider); return; } catch (e2) { e = e2; }
+    }
+    const messages = {
+      "auth/unauthorized-domain": `This website (${location.hostname}) is not authorized in Firebase. Open Firebase console > Authentication > Settings > Authorized domains and add ${location.hostname}.`,
+      "auth/operation-not-allowed": "Google sign-in is not enabled. Enable Google under Firebase console > Authentication > Sign-in method.",
+      "auth/popup-closed-by-user": "The Google sign-in window was closed before sign-in finished.",
+      "auth/cancelled-popup-request": "Another sign-in window was already open. Try again.",
+      "auth/network-request-failed": "Network request failed. Check your internet connection and try again.",
+      "auth/invalid-api-key": "The Firebase web config in index.html is not valid."
+    };
+    err.textContent = messages[e.code] || ("Sign-in failed: " + (e.code || e.message));
+  } finally {
+    button.disabled = location.protocol === "file:";
+    button.textContent = "Sign in with Google";
+  }
+};
+
+let ssoTried = false;
+onAuthStateChanged(auth, async (user) => {
+  if (!user && !ssoTried) {
+    // Signed in to Maniaxe with Google a moment ago? Reuse that sign-in.
+    ssoTried = true;
+    $("signin").disabled = true; $("signin").textContent = "Signing you in with Maniaxe…";
+    const ok = await ssoSignIn(auth, GoogleAuthProvider, signInWithCredential);
+    $("signin").disabled = location.protocol === "file:"; $("signin").textContent = "Sign in with Google";
+    if (ok) return;   // onAuthStateChanged fires again with the user
+  }
+  if (!user) { live.unsub.forEach((f) => f()); live = { uid: null, unsub: [], docs: {}, seq: {}, lastAt: 0 }; webExams = []; ex.view = "setup"; ex.rec = null; M = null; $("login").classList.remove("hide"); $("app").classList.add("hide"); return; }
+  $("login").classList.add("hide"); $("app").classList.remove("hide");
+  load(user);
+});
+
+async function load(user) {
+  $("view").innerHTML = '<div class="empty">Loading your backup…</div>';
+  try {
+    if (!gunzip) ({ gunzip, decodePrefs, buildModel, unpackSync, packSync, normalizeFeature, toRaw } = await import("./core.js"));
+    if (!X) { try { X = await import("./exam.js"); } catch (e) { console.error("exam.js", e); } }
+    const main = await getDoc(doc(db, "users", user.uid, "backup", "main"));
+    if (!main.exists()) { M = buildModel({}); M.base = { notes: [], tasks: [] }; backupMeta = null; attachLive(user); applyLive(); return; }
+    const d = main.data();
+    let prefs;
+    if (d.format === "gzip-json") {
+      const chunks = [];
+      for (let i = 0; i < (d.parts || 0); i++) {
+        const p = await getDoc(doc(db, "users", user.uid, "backup", "part_" + i));
+        if (!p.exists()) throw new Error("The backup is incomplete (missing part " + i + ").");
+        chunks.push(p.data().data.toUint8Array());
+      }
+      const all = new Uint8Array(chunks.reduce((n, c) => n + c.length, 0));
+      let o = 0; for (const c of chunks) { all.set(c, o); o += c.length; }
+      prefs = decodePrefs(JSON.parse(new TextDecoder().decode(await gunzip(all))));
+    } else {
+      prefs = decodePrefs(d.prefs || {});     // old schema 3 backups
+    }
+    M = buildModel(prefs);
+    M.base = { notes: M.notes, tasks: M.tasks };
+    backupMeta = { at: d.updatedAt?.toMillis?.() || 0, email: user.email };
+  } catch (e) {
+    M = null; backupMeta = null;
+    const hint = gunzip ? "" : "<br><small>core.js could not be loaded. Upload core.js into the same folder as index.html.</small>";
+    $("view").innerHTML = '<div class="empty">Could not load your data.<br><small>' + esc(e.code || e.message) + '</small>' + hint + '</div>';
+    return;
+  }
+  attachLive(user);
+  applyLive();
+}
+
+const FEATURES = ["notes", "goals", "tasks", "questions"];
+const MODEL_KEY = { notes: "notes", goals: "goals", tasks: "tasks", questions: "folders" };
+
+function attachLive(user) {
+  if (live.uid === user.uid) return;
+  live.unsub.forEach((f) => f());
+  live = { uid: user.uid, unsub: [], docs: {}, seq: {} };
+  liveError = "";
+  for (const feature of FEATURES) {
+    live.seq[feature] = 0;
+    live.unsub.push(onSnapshot(doc(db, "users", user.uid, "backup", "sync_" + feature), async (snap) => {
+      const n = ++live.seq[feature];
+      let arr = null;
+      try { arr = snap.exists() ? await unpackSync(snap.data().data) : null; } catch { arr = null; }
+      if (n !== live.seq[feature]) return;           // a newer snapshot arrived meanwhile
+      live.docs[feature] = arr;
+      live.lastAt = Date.now();
+      liveError = "";
+      applyLive();
+    }, (err) => { liveError = err.code || err.message; render(); }));
+  }
+  live.unsub.push(onSnapshot(doc(db, "users", user.uid, "backup", "web_exam_history"), async (snap) => {
+    try { webExams = snap.exists() ? await unpackSync(snap.data().data) : []; } catch { webExams = []; }
+    if (tab === "exam") render();
+  }, () => {}));
+}
+
+/** Features the phone has synced replace the backup copy; others keep showing the backup. */
+function applyLive() {
+  if (M) for (const f of FEATURES) if (live.docs[f]) M[MODEL_KEY[f]] = normalizeFeature(f, live.docs[f]);
+  render();
+}
+
+/** Change one synced list safely: read it, apply the change, write it back in one transaction. */
+async function mutateSync(feature, change) {
+  const ref = doc(db, "users", auth.currentUser.uid, "backup", "sync_" + feature);
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      const current = snap.exists() ? await unpackSync(snap.data().data) : toRaw(feature, M.base[MODEL_KEY[feature]] || []);
+      const next = change(current);
+      const packed = await packSync(next);
+      if (packed.length > 900000) throw new Error("This list is too large to sync.");
+      const prev = snap.exists() ? Number(snap.data().updatedAt || 0) : 0;
+      tx.set(ref, { data: packed, updatedAt: Math.max(Date.now(), prev + 1), by: "web", count: next.length }, { merge: true });
+    });
+  } catch (e) { alert("Could not save: " + (e.code || e.message) + "\nCheck the Firestore rule in README.md."); }
+}
+
+function writeItem(kind, id, data) {
+  return mutateSync(kind, (arr) => {
+    const i = arr.findIndex((x) => String(x.id) === String(id));
+    const obj = { ...(i >= 0 ? arr[i] : {}), ...data, id };
+    if (i >= 0) arr[i] = obj; else arr.push(obj);
+    return arr;
+  });
+}
+
+function deleteItem(kind, id) {
+  if (!confirm("Delete this " + (kind === "notes" ? "note" : "task") + "? It will also be removed from the app.")) return;
+  return mutateSync(kind, (arr) => arr.filter((x) => String(x.id) !== String(id)));
+}
+
+/* ---------------- Exam ---------------- */
+function examRecords() {
+  const seen = new Set(), out = [];
+  for (const r of [...webExams, ...((M && M.challengesRaw) || []).filter((x) => x.kind === "exam")]) {
+    if (r && !seen.has(r.id)) { seen.add(r.id); out.push(r); }
+  }
+  return out;
+}
+
+function examView() {
+  if (!X) return '<div class="empty">exam.js could not be loaded.<br>Upload exam.js into the same folder as index.html.</div>';
+  const records = examRecords();
+  if (ex.view === "result" && ex.rec) return X.resultHTML(ex.rec, ex.filter, esc, fmtDT, webExams.some((r) => r.id === ex.rec.id));
+  return head("Exam", "Take an exam from your question folders, with the same rules as the app.") + X.statsHTML(records) +
+    X.setupHTML(ex, M.folders, esc) + X.historyHTML(records, esc, fmtDT);
+}
+
+async function saveExamHistory(change) {
+  const ref = doc(db, "users", auth.currentUser.uid, "backup", "web_exam_history");
+  try {
+    await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      let next = change(snap.exists() ? await unpackSync(snap.data().data) : []).sort((a, b) => a.at - b.at).slice(-300);
+      let packed = await packSync(next);
+      while (packed.length > 850000 && next.length > 1) { next = next.slice(1); packed = await packSync(next); }
+      tx.set(ref, { data: packed, updatedAt: Date.now(), by: "web", count: next.length }, { merge: true });
+    });
+  } catch (e) { alert("The exam result could not be saved to your account (" + (e.code || e.message) + "). It is shown here only."); }
+}
+
+function examPool() { return X.buildPool(M.folders, ex.sel, ex.topicSel); }
+
+function updateStartLabel() {
+  const b = $("exstart"); if (!b) return;
+  const n = examPool().length;
+  b.textContent = "Start · " + (ex.qLimit ? Math.min(Math.max(1, ex.qCount || 1), n) : n);
+  b.disabled = n === 0;
+}
+
+function startExam() {
+  ex.qCount = Math.max(1, ex.qCount | 0); ex.minutes = Math.max(1, ex.minutes | 0); ex.perQSec = Math.max(5, ex.perQSec | 0);
+  const pool = examPool();
+  if (!pool.length) return;
+  const base = ex.shuffle ? X.shuffle(pool) : pool;
+  const qs = ex.qLimit ? base.slice(0, ex.qCount) : base;
+  const src = "u:" + ex.sel.slice().sort().join(",");
+  const title = ex.sel.length === 1 ? (M.folders.find((f) => f.id === ex.sel[0])?.title || "Exam") : "Mixed exam";
+  const last = examRecords().filter((r) => r.src === src).sort((a, b) => b.at - a.at)[0];
+  const run = { title, questions: qs, perQ: ex.perQ ? ex.perQSec : 0, totalSec: ex.tLimit ? ex.minutes * 60 : 0,
+    negative: ex.neg ? X.NEG_VALUES[ex.negIdx] : 0, allowPause: true, allowBack: !ex.perQ, src, prevPct: last ? X.view(last).scorePct : -1 };
+  X.runExam(run, $("runner"), esc, (answers, seconds, early) => {
+    const rec = X.buildRecord(run, answers, seconds, early);
+    webExams = [...webExams, rec];
+    ex.view = "result"; ex.rec = rec; ex.filter = 0;
+    location.hash = "exam";
+    render();
+    saveExamHistory((list) => [...list, rec]);
+  });
+}
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-ex]");
+  if (!b || !M || !X) return;
+  const a = b.dataset.ex, id = b.dataset.id;
+  if (a === "folder") { ex.sel = ex.sel.includes(id) ? ex.sel.filter((x) => x !== id) : [...ex.sel, id]; if (!ex.sel.includes(id)) { delete ex.topicSel[id]; if (ex.openTopics === id) ex.openTopics = null; } }
+  else if (a === "topics") ex.openTopics = ex.openTopics === id ? null : id;
+  else if (a === "topic") {
+    const f = M.folders.find((x) => x.id === id), ids = X.topicIds(f), cur = ex.topicSel[id] || ids, t = b.dataset.topic;
+    const next = cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t];
+    if (next.length) { if (next.length === ids.length) delete ex.topicSel[id]; else ex.topicSel[id] = next; }
+  }
+  else if (a === "neg") ex.negIdx = Number(b.dataset.i);
+  else if (a === "start") return startExam();
+  else if (a === "open") { ex.rec = examRecords().find((r) => r.id === id); ex.view = "result"; ex.filter = 0; }
+  else if (a === "back") { ex.view = "setup"; ex.rec = null; }
+  else if (a === "filter") ex.filter = Number(b.dataset.i);
+  else if (a === "retake") {
+    const r = examRecords().find((x) => x.id === id);
+    ex.sel = ((r && r.src) || "u:").slice(2).split(",").filter((x) => M.folders.some((f) => f.id === x));
+    ex.topicSel = {}; ex.view = "setup"; ex.rec = null;
+  }
+  else if (a === "delete") {
+    if (!confirm("Delete this exam result?")) return;
+    webExams = webExams.filter((r) => r.id !== id); ex.view = "setup"; ex.rec = null; render();
+    return saveExamHistory((list) => list.filter((r) => r.id !== id));
+  }
+  else if (a === "print") return window.print();
+  render();
+});
+document.addEventListener("change", (e) => {
+  const t = e.target;
+  if (t.dataset && t.dataset.ex === "sw") { ex[t.dataset.key] = t.checked; render(); }
+  else if (t.dataset && t.dataset.exn) { const min = { qCount: 1, minutes: 1, perQSec: 5 }[t.dataset.exn] || 1; ex[t.dataset.exn] = Math.max(min, Math.floor(Number(t.value)) || min); render(); }
+});
+document.addEventListener("input", (e) => {
+  const t = e.target;
+  if (t.dataset && t.dataset.exn) { ex[t.dataset.exn] = Math.floor(Number(t.value)) || 0; updateStartLabel(); }
+});
+
+function openDialog(title, body, onSave) {
+  const dlg = $("dlg"), f = $("dlgform");
+  f.innerHTML = `<h3>${title}</h3>${body}<div class="btnrow" style="justify-content:flex-end;margin-top:18px"><button type="button" class="mini" id="dlgcancel">Cancel</button><button type="submit" class="btn" style="padding:9px 24px">Save</button></div>`;
+  $("dlgcancel").onclick = () => dlg.close();
+  f.onsubmit = (e) => { e.preventDefault(); onSave(new FormData(f)); dlg.close(); };
+  dlg.showModal();
+}
+const val = (fd, k) => String(fd.get(k) || "").trim();
+
+function noteDialog(n) {
+  const folders = [...new Set(["Personal", ...M.notes.map((x) => x.folder)])];
+  openDialog(n ? "Edit note" : "New note", `
+    <label>Title</label><input type="text" name="title" value="${esc(n?.title)}" autofocus>
+    <label>Note</label><textarea name="content">${esc(n?.content)}</textarea>
+    <label>Folder</label><input type="text" name="folder" list="folders" value="${esc(n?.folder || "Personal")}">
+    <datalist id="folders">${folders.map((f) => `<option value="${esc(f)}">`).join("")}</datalist>
+    <label class="chk"><input type="checkbox" name="pinned" ${n?.pinned ? "checked" : ""}> Pin this note</label>`,
+  (fd) => {
+    const id = n?.id || Date.now(), now = Date.now();
+    if (!val(fd, "title") && !val(fd, "content")) return;
+    writeItem("notes", id, { title: val(fd, "title"), content: String(fd.get("content") || ""), folder: val(fd, "folder") || "Personal",
+      pinned: fd.get("pinned") === "on", createdAt: n?.createdAt || now, updatedAt: now });
+  });
+}
+
+function taskDialog(t) {
+  const due = t?.dueAt ? new Date(t.dueAt - new Date(t.dueAt).getTimezoneOffset() * 60000).toISOString().slice(0, 10) : "";
+  const pr = t?.priority || "Low";
+  openDialog(t ? "Edit task" : "New task", `
+    <label>Title</label><input type="text" name="title" value="${esc(t?.title)}" autofocus>
+    <label>Description</label><input type="text" name="description" value="${esc(t?.description)}">
+    <label>Due date</label><input type="date" name="due" value="${due}">
+    <label>Priority</label>
+    <div class="seg">${["Low", "Medium", "High"].map((p) => `<label><input type="radio" name="priority" value="${p}" ${pr === p ? "checked" : ""}><span>${p}</span></label>`).join("")}</div>
+    <label>Category</label><input type="text" name="category" value="${esc(t?.category || "General")}">
+    <label class="chk"><input type="checkbox" name="completed" ${t?.completed ? "checked" : ""}> Completed</label>`,
+  (fd) => {
+    if (!val(fd, "title")) return;
+    const d = val(fd, "due");
+    writeItem("tasks", t?.id || Date.now(), { title: val(fd, "title"), description: val(fd, "description"),
+      dueAt: d ? new Date(d + "T09:00:00").getTime() : -1, priority: val(fd, "priority") || "Low",
+      category: val(fd, "category") || "General", completed: fd.get("completed") === "on" });
+  });
+}
+
+function act(kind, id, name) {
+  const list = kind === "notes" ? M.notes : M.tasks, it = list.find((x) => String(x.id) === String(id));
+  if (name === "new-note") return noteDialog(null);
+  if (name === "new-task") return taskDialog(null);
+  if (!it) return;
+  if (name === "edit-note") noteDialog(it);
+  else if (name === "pin-note") writeItem("notes", it.id, { ...it, pinned: !it.pinned, updatedAt: Date.now() });
+  else if (name === "edit-task") taskDialog(it);
+  else if (name === "toggle-task") writeItem("tasks", it.id, { ...it, dueAt: it.dueAt ?? -1, completed: !it.completed });
+  else if (name === "delete-note") deleteItem("notes", it.id);
+  else if (name === "delete-task") deleteItem("tasks", it.id);
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-act]");
+  if (!b || !M) return;
+  e.preventDefault();
+  act(b.dataset.kind, b.dataset.id, b.dataset.act);
+});
+
+const TABS = [
+  ["overview", "Overview", () => ""],
+  ["notes", "Notes", () => M.notes.length],
+  ["tasks", "Tasks", () => M.tasks.filter((t) => !t.completed).length],
+  ["goals", "Goals", () => M.goals.length],
+  ["habits", "Habits", () => M.habits.length],
+  ["learn", "Learn", () => M.learnNotes.length],
+  ["challenges", "Challenges", () => M.challenges.length],
+  ["questions", "Questions", () => M.folders.reduce((n, f) => n + f.questions.length, 0)],
+  ["exam", "Exam", () => M ? examRecords().length || "" : ""],
+  ["games", "Games", () => ""],
+];
+
+function render() {
+  const nav = $("nav");
+  nav.innerHTML = '<div class="brand">Trakey</div>' + TABS.map(([id, name, cnt]) =>
+    `<a href="#${id}" class="${tab === id ? "on" : ""}">${name}<span>${M ? cnt() : ""}</span></a>`).join("") +
+    '<a class="mxlink" href="../app.html">← Trakey app &amp; downloads</a><div class="foot"><button class="chip" id="refresh">Refresh</button><button class="chip" id="out">Sign out</button></div>';
+  $("refresh").onclick = () => load(auth.currentUser);
+  $("out").onclick = () => { clearHandoff(); signOut(auth); };
+  const editable = tab === "notes" || tab === "tasks";
+  const syncedTab = ["notes", "goals", "tasks", "questions"].includes(tab);
+  const hasLive = syncedTab && live.docs[tab];
+  const liveTime = live.lastAt ? fmtDT(live.lastAt) : "";
+  const syncLabel = hasLive ? `<b class="livepill">● Live</b> ${liveTime ? `Updated ${esc(liveTime)}` : "Connected"}` : "";
+  $("banner").innerHTML = liveError
+    ? `Live sync is not available (${esc(liveError)}). Check that the Firestore rule for <b>users/{uid}/backup</b> allows read/write. Until then this page shows your last backup.`
+    : hasLive
+      ? `${syncLabel} · ${editable ? "Edits here appear on your phone within seconds." : "This section is live; web editing is limited here for safety."}`
+      : (backupMeta
+        ? `Showing your last cloud backup from <b>${esc(fmtDT(backupMeta.at))}</b>. Live sync will start when the phone has synced this section.`
+        : "No cloud backup found yet for this section. Open Trakey on your phone while signed in.");
+  const v = $("view");
+  if (!M) return;
+  v.innerHTML = ({ overview, notes, tasks, goals, habits, learn, challenges, questions, exam: examView, games }[tab] || overview)();
+  wire();
+}
+
+window.addEventListener("hashchange", () => { tab = location.hash.slice(1) || "overview"; ui.q = ""; ui.folder = "All"; ui.qfolder = null; if (M) render(); });
+tab = location.hash.slice(1) || "overview";
+
+function wire() {
+  const s = $("search");
+  if (s) { s.oninput = () => { ui.q = s.value; const pos = s.selectionStart; render(); const n = $("search"); n.focus(); n.setSelectionRange(pos, pos); }; }
+  document.querySelectorAll("[data-folder]").forEach((b) => b.onclick = () => { ui.folder = b.dataset.folder; render(); });
+  document.querySelectorAll("[data-qf]").forEach((b) => b.onclick = () => { ui.qfolder = b.dataset.qf || null; ui.q = ""; render(); });
+  document.querySelectorAll('[data-ex="folder"]').forEach((b) => b.onkeydown = (e) => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); b.click(); }
+  });
+}
+const head = (t, s) => `<h2>${t}</h2><p class="sub">${s}</p>`;
+const searchBox = () => `<input type="search" id="search" placeholder="Search" value="${esc(ui.q)}">`;
+const has = (text) => !ui.q || String(text).toLowerCase().includes(ui.q.toLowerCase());
+
+function overview() {
+  const left = M.tasks.filter((t) => !t.completed).length;
+  const active = M.goals.filter((g) => g.status !== "Completed").length;
+  const best = Math.max(0, ...M.habits.map((h) => h.streak));
+  const stat = (n, l) => `<div class="card stat"><b>${n}</b><span>${l}</span></div>`;
+  const nextTasks = M.tasks.filter((t) => !t.completed).sort((a, b) => (a.dueAt ?? 9e15) - (b.dueAt ?? 9e15)).slice(0, 5);
+  return head("Hi, " + esc(M.profile.name), esc(M.profile.bio || "Here is your Trakey at a glance.")) +
+    `<div class="grid">${stat(left, "tasks left")}${stat(active, "active goals")}${stat(best + " d", "best habit streak")}${stat(M.notes.length, "notes")}${stat(M.challenges.length, "challenges taken")}${stat(M.folders.reduce((n, f) => n + f.questions.length, 0), "questions saved")}</div>` +
+    `<h3 style="margin:26px 0 10px">Up next</h3><div class="list">${nextTasks.map((t) => `<div class="card row"><div class="dot"></div><div class="grow"><div class="t">${esc(t.title)}</div><div class="m">${t.dueAt ? "Due " + fmtDate(t.dueAt) : "No due date"} · ${esc(t.priority)}</div></div></div>`).join("") || '<div class="empty">Nothing pending.</div>'}</div>`;
+}
+
+function notes() {
+  const folders = ["All", ...new Set(M.notes.map((n) => n.folder))];
+  const list = M.notes.filter((n) => (ui.folder === "All" || n.folder === ui.folder) && has(n.title + n.content))
+    .sort((a, b) => b.pinned - a.pinned || b.updatedAt - a.updatedAt);
+  const btn = (act, id, label, cls = "") => `<button class="mini ${cls}" data-kind="notes" data-act="${act}" data-id="${id}">${label}</button>`;
+  return `<div class="top"><div>${head("Notes", `${M.notes.length} notes`)}</div><button class="btn" data-kind="notes" data-act="new-note">+ New note</button></div>` + searchBox() +
+    `<div>${folders.map((f) => `<button class="chip ${ui.folder === f ? "on" : ""}" data-folder="${esc(f)}">${esc(f)}</button>`).join("")}</div>` +
+    `<div class="list">${list.map((n) => `<details><summary>${n.pinned ? "📌 " : ""}${esc(n.title || "Untitled")} <span class="m">· ${esc(n.folder)} · ${fmtDate(n.updatedAt)}</span></summary><div class="note" style="margin-top:10px">${esc(n.content)}</div><div class="btnrow">${btn("edit-note", n.id, "Edit")}${btn("pin-note", n.id, n.pinned ? "Unpin" : "Pin")}${btn("delete-note", n.id, "Delete", "danger")}</div></details>`).join("") || '<div class="empty">No notes found.</div>'}</div>`;
+}
+
+function tasks() {
+  const list = M.tasks.filter((t) => has(t.title + t.description + t.category))
+    .sort((a, b) => a.completed - b.completed || (a.dueAt ?? 9e15) - (b.dueAt ?? 9e15));
+  const btn = (act, id, label, cls = "") => `<button class="mini ${cls}" data-kind="tasks" data-act="${act}" data-id="${id}">${label}</button>`;
+  return `<div class="top"><div>${head("Tasks", `${M.tasks.filter((t) => !t.completed).length} left · ${M.tasks.filter((t) => t.completed).length} done`)}</div><button class="btn" data-kind="tasks" data-act="new-task">+ New task</button></div>` + searchBox() +
+    `<div class="list">${list.map((t) => `<div class="card row"><button class="dot ${t.completed ? "ok" : ""}" style="background:${t.completed ? "var(--blue)" : "transparent"}" data-kind="tasks" data-act="toggle-task" data-id="${t.id}" title="Mark ${t.completed ? "not done" : "done"}"></button><div class="grow"><div class="t" style="${t.completed ? "text-decoration:line-through;color:var(--sub)" : ""}">${esc(t.title)}</div>${t.description ? `<div class="m">${esc(t.description)}</div>` : ""}<div class="m">${t.dueAt ? "Due " + fmtDate(t.dueAt) : "No due date"} · ${esc(t.category)}</div></div><span class="pill">${esc(t.priority)}</span>${btn("edit-task", t.id, "Edit")}${btn("delete-task", t.id, "Delete", "danger")}</div>`).join("") || '<div class="empty">No tasks found.</div>'}</div>`;
+}
+
+function goals() {
+  const list = M.goals.filter((g) => has(g.title + g.description + g.target));
+  return head("Goals", `${M.goals.length} goals`) + searchBox() +
+    `<div class="list">${list.map((g) => `<div class="card"><div class="row"><div class="grow"><div class="t">${g.favorite ? "⭐ " : ""}${esc(g.title)}</div><div class="m">${esc(g.status)}${g.deadline ? " · by " + fmtDate(g.deadline) : ""}${g.target ? " · Target: " + esc(g.target) : ""}</div></div><b>${Math.round(g.progress * 100)}%</b></div><div class="bar"><i style="width:${g.progress * 100}%"></i></div>${g.description ? `<div class="m" style="margin-top:8px">${esc(g.description)}</div>` : ""}${g.milestones.length ? `<div style="margin-top:10px">${g.milestones.map((m) => `<div class="m">${m.completed ? "✔" : "○"} ${esc(m.title)}</div>`).join("")}</div>` : ""}</div>`).join("") || '<div class="empty">No goals found.</div>'}</div>`;
+}
+
+function habits() {
+  const unit = { Weekly: "week", Monthly: "month" };
+  return head("Habits", `${M.habits.length} habits`) +
+    `<div class="list">${M.habits.map((h) => `<div class="card row"><div class="dot ${h.done ? "ok" : ""}"></div><div class="grow"><div class="t">${esc(h.name)}</div><div class="m">${esc(h.frequency)}${h.description ? " · " + esc(h.description) : ""}</div></div><div style="text-align:right"><b style="color:var(--blue)">${h.streak}</b><div class="m">${unit[h.frequency] || "day"} streak</div></div></div>`).join("") || '<div class="empty">No habits yet.</div>'}</div>`;
+}
+
+function learn() {
+  const list = M.learnNotes.filter((n) => has(n.topic + n.front + n.back));
+  const sess = M.learnSessions, c = sess.reduce((n, s) => n + s.correct, 0), t = sess.reduce((n, s) => n + s.total, 0);
+  return head("Learn", `${M.learnNotes.length} cards · ${M.learned} marked learned · ${sess.length} practice sessions${t ? " · " + pct(c, t) + "% correct overall" : ""}`) + searchBox() +
+    `<div class="list">${list.map((n) => `<details><summary>${esc(n.front)} <span class="m">· ${esc(n.topic)}</span></summary><div class="note" style="margin-top:10px">${esc(n.back)}</div></details>`).join("") || '<div class="empty">No Learn cards in this backup.</div>'}</div>`;
+}
+
+function challenges() {
+  const list = M.challenges.filter((r) => has(r.title));
+  const avg = M.challenges.length ? Math.round(M.challenges.reduce((n, r) => n + pct(r.score, r.max), 0) / M.challenges.length) : 0;
+  return head("Challenges and exams", `${M.challenges.length} taken · ${avg}% average score`) + searchBox() +
+    `<div class="list">${list.map((r) => `<details><summary>${esc(r.title || r.kind)} <span class="pill ${r.won ? "ok" : "bad"}">${pct(r.score, r.max)}%</span> <span class="m">· ${fmtDT(r.at)} · ${r.score}/${r.max}${r.exp ? " · +" + r.exp + " EXP" : ""}</span></summary><div style="margin-top:10px">${r.answers.map((a, i) => `<div style="margin-bottom:12px"><div class="t">${i + 1}. ${esc(a.question)}</div>${a.options.map((o) => `<div class="opt ${o === a.correct ? "right" : o === a.selected ? "wrong" : ""}">${esc(o)}${o === a.correct ? " ✔" : o === a.selected ? " ✘ your answer" : ""}</div>`).join("")}${!a.selected ? '<div class="opt">Not answered</div>' : ""}</div>`).join("") || '<div class="m">No answer details saved.</div>'}</div></details>`).join("") || '<div class="empty">No challenges taken yet.</div>'}</div>`;
+}
+
+function questions() {
+  if (ui.qfolder) {
+    const f = M.folders.find((x) => x.id === ui.qfolder);
+    if (f) {
+      const list = f.questions.filter((q) => has(q.question + q.options.join(" ")));
+      return `<button class="chip" data-qf="">← All folders</button>` + head(esc(f.title), `${f.questions.length} questions`) + searchBox() +
+        `<div class="list">${list.map((q, i) => `<div class="card"><div class="t">${i + 1}. ${esc(q.question)}</div>${(q.type === "TRUE_FALSE" ? ["True", "False"] : q.options).map((o) => `<div class="opt ${o.trim().toLowerCase() === q.answer.trim().toLowerCase() ? "right" : ""}">${esc(o)}${o.trim().toLowerCase() === q.answer.trim().toLowerCase() ? " ✔" : ""}</div>`).join("")}${q.explanation ? `<div class="m" style="margin-top:6px">${esc(q.explanation)}</div>` : ""}</div>`).join("") || '<div class="empty">No questions found.</div>'}</div>`;
+    }
+  }
+  return head("Question folders", "Folders you created or imported in Challenges") +
+    `<div class="grid">${M.folders.map((f) => `<button class="card" style="text-align:left;color:inherit" data-qf="${esc(f.id)}"><div class="t">📁 ${esc(f.title)}</div><div class="m">${f.questions.length} questions</div></button>`).join("") || '<div class="empty">No question folders yet.</div>'}</div>`;
+}
+
+function games() {
+  const names = { memory: "Pattern Recall (level)", math: "Number Dash", seq: "Sequence Solver", path: "Path Recall (level)", digit: "Digit Recall (level)" };
+  const e = Object.entries(M.game);
+  return head("Trakey Game", "Your best scores") +
+    `<div class="grid">${e.map(([k, v]) => `<div class="card stat"><b>${v}</b><span>${esc(names[k] || k)}</span></div>`).join("") || '<div class="empty">No game scores yet.</div>'}</div>`;
+}
+</script>
+</body>
+</html>
