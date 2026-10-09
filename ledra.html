@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledra | Maniaxe</title>
+<meta name="description" content="Ledra by Maniaxe: keep payment records, funds, team attendance and GST invoices in one Android app, with a web version that stays in sync. Download the APK from GitHub.">
+<link rel="canonical" href="https://maniaxe.in/ledra.html">
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="ledra">
+
+<header id="site-header"></header>
+
+<main class="app-page">
+  <section class="wrap app-store-wrap">
+    <div class="app-share-row">
+      <span class="app-breadcrumb">Maniaxe apps / Ledra</span>
+      <div class="app-share-wrap">
+        <button class="app-share-btn" id="shareAppBtn" type="button" aria-label="Share Ledra" title="Share Ledra" aria-haspopup="menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle>
+            <path d="m8.6 13.5 6.8 3.8M15.4 6.7 8.6 10.5"></path>
+          </svg>
+        </button>
+        <div class="app-share-popover" id="shareAppMenu" role="menu" aria-label="Share Ledra options">
+          <div class="app-share-popover-title">Share Ledra</div>
+          <button type="button" class="app-share-option" id="sharePageOption" role="menuitem">
+            <span class="app-share-option-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9z"></path></svg>
+            </span>
+            <span><strong>Share App Page</strong><small>Maniaxe Ledra page</small></span>
+          </button>
+          <button type="button" class="app-share-option app-share-option-primary" id="shareApkOption" role="menuitem">
+            <span class="app-share-option-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M4 21h16"></path></svg>
+            </span>
+            <span><strong>Share GitHub APK</strong><small>Direct APK download</small></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-store-card">
+      <div class="app-store-main">
+        <div class="app-icon-wrap ledra-icon-wrap">
+          <img src="assets/ledra-logo.svg" alt="Ledra app logo">
+        </div>
+
+        <div class="app-store-info">
+          <h1>Ledra</h1>
+          <p class="app-byline">Payments, funds, team and invoices</p>
+          <p class="app-description">A Maniaxe Android app for keeping track of who owes what. Record payments, run shared funds, mark team attendance and print GST invoices, then open the same data on the web.</p>
+
+          <div class="app-meta app-meta-store">
+            <div><b>Android 8+</b><span>requires</span></div>
+            <div><b>APK</b><span>GitHub download</span></div>
+            <div><b>Web</b><span>synced version</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dl-row single">
+        <a class="uptodown-download-card is-primary" id="ledra-download" href="https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk" data-link="ledraApk" rel="noopener" aria-label="Download Ledra APK from GitHub">
+          <span class="dl-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M4 21h16"></path></svg></span>
+          <div class="uptodown-download-copy">
+            <strong>Download Ledra APK</strong>
+            <small>Direct file from GitHub</small>
+          </div>
+          <svg class="download-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+        </a>
+      </div>
+
+      <div class="web-app-strip">
+        <div class="web-app-strip-copy">
+          <strong>Use Ledra on the web</strong>
+          <small>Same records as the phone app, updated live in both directions. Sign in with the Google account you use in the app.</small>
+        </div>
+        <a class="btn btn-ghost" href="ledra/">Open Ledra Web</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap section app-feature-section">
+    <div class="ledra-facts">
+      <div class="card"><h3>Payment records</h3><p>Keep a person-by-person record of what you collect and what you pay, with payment modes, monthly dues and printable statements.</p></div>
+      <div class="card"><h3>Funds and team</h3><p>Run shared funds with contributors, track employee attendance, and log salary and advance payments in one place.</p></div>
+      <div class="card"><h3>Invoices</h3><p>Build bills from your price list, add GST and discounts, accept cash, UPI, card or credit, and print an A4 invoice or an 80 mm receipt.</p></div>
+    </div>
+  </section>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script type="module" src="js/firebase-auth.js"></script>
+<script src="js/app.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const shareButton = document.getElementById("shareAppBtn");
+    const shareMenu = document.getElementById("shareAppMenu");
+
+    function closeShareMenu() {
+      shareMenu.classList.remove("open");
+      shareButton.setAttribute("aria-expanded", "false");
+    }
+
+    async function shareOrCopy(data, fallbackMessage) {
+      try {
+        if (navigator.share) {
+          await navigator.share(data);
+        } else if (navigator.clipboard) {
+          await navigator.clipboard.writeText(data.url);
+          showToast(fallbackMessage);
+        } else {
+          window.prompt("Copy this link:", data.url);
+        }
+      } catch (err) {
+        if (err && err.name !== "AbortError") showToast("Could not share the link");
+      }
+    }
+
+    shareButton.addEventListener("click", function (e) {
+      e.stopPropagation();
+      shareMenu.classList.toggle("open");
+      shareButton.setAttribute("aria-expanded", shareMenu.classList.contains("open") ? "true" : "false");
+    });
+
+    document.getElementById("sharePageOption").addEventListener("click", async function () {
+      closeShareMenu();
+      await shareOrCopy({
+        title: "Ledra | Maniaxe",
+        text: "Ledra by Maniaxe: payment records, funds, team and invoices for Android and web.",
+        url: MANIAXE_LINKS.ledraPage
+      }, "App page link copied");
+    });
+
+    document.getElementById("shareApkOption").addEventListener("click", async function () {
+      closeShareMenu();
+      await shareOrCopy({
+        title: "Ledra APK | Maniaxe",
+        text: "Download the Ledra Android APK from GitHub.",
+        url: MANIAXE_LINKS.ledraApk
+      }, "Direct APK link copied");
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!e.target.closest(".app-share-wrap")) closeShareMenu();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeShareMenu();
+    });
+  });
+</script>
+</body>
+</html>

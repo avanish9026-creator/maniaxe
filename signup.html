@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create account — Maniaxe Typing</title>
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script>
+  document.documentElement.setAttribute("data-theme", localStorage.getItem("maniaxeTheme") || "dark");
+</script>
+</head>
+<body>
+
+<div class="auth-shell">
+  <div class="auth-card">
+    <a href="index.html" class="brand" style="justify-content:center; margin-bottom:22px;">
+      <img src="assets/logo-192.png" alt="Maniaxe Typing logo" style="width:26px;height:26px;border-radius:6px;">
+      Maniaxe<span class="tag">typing</span>
+    </a>
+
+    <h1>Create your account</h1>
+    <p>Track your progress and download the app.</p>
+
+    <form id="signupForm" onsubmit="signUpUser(); return false;">
+      <div class="field">
+        <label for="signupName">Name</label>
+        <input id="signupName" type="text" placeholder="Your name" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="signupEmail">Email</label>
+        <input id="signupEmail" type="email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="signupPassword">Password</label>
+        <input id="signupPassword" type="password" placeholder="At least 6 characters" autocomplete="new-password" required>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">Create account</button>
+    </form>
+
+    <p id="authMessage" class="auth-message"></p>
+
+    <div class="auth-divider"><span>or</span></div>
+
+    <button class="btn btn-ghost btn-block" onclick="googleLogin()" type="button">Continue with Google</button>
+
+    <p class="auth-switch">Already have an account? <a href="login.html">Sign in</a></p>
+  </div>
+</div>
+
+<script type="module" src="js/firebase-auth.js"></script>
+<script>
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      if (typeof checkLoginPage === "function") checkLoginPage();
+    }, 100);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your progress — Maniaxe Typing</title>
+<link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png">
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="profile">
+
+<header id="site-header"></header>
+
+<main>
+  <div class="page-head wrap">
+    <h1 id="profileGreeting">Your progress</h1>
+    <p>Every signed-in test and practice run you complete is tracked here.</p>
+  </div>
+
+  <div class="wrap section-tight" id="profileContent" style="display:none;">
+    <div class="stat-row">
+      <div class="stat-card"><div class="num" id="statTests">0</div><div class="lbl">tests completed</div></div>
+      <div class="stat-card"><div class="num" id="statAvgWpm">0</div><div class="lbl">average wpm</div></div>
+      <div class="stat-card"><div class="num" id="statBestWpm">0</div><div class="lbl">best wpm</div></div>
+      <div class="stat-card"><div class="num" id="statAvgAcc">0%</div><div class="lbl">average accuracy</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:28px;">
+      <canvas id="wpmChart" height="90"></canvas>
+    </div>
+
+    <div class="card" id="historyCard">
+      <table class="history-table">
+        <thead>
+          <tr><th>Date</th><th>WPM</th><th>Accuracy</th><th>Time</th><th>Mode</th></tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="wrap section-tight" id="profileEmpty" style="display:none;">
+    <div class="empty-state">
+      <h3>No tests yet</h3>
+      <p>Take a test while signed in and it'll show up here.</p>
+      <a href="index.html" class="btn btn-primary" style="margin-top:16px;">Take a test</a>
+    </div>
+  </div>
+</main>
+
+<footer id="site-footer"></footer>
+
+<script src="js/config.js"></script>
+<script type="module" src="js/firebase-auth.js"></script>
+<script src="js/history.js"></script>
+<script src="js/app.js"></script>
+<script src="js/profile.js"></script>
+</body>
+</html>
