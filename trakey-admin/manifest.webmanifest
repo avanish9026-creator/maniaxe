@@ -1,0 +1,18 @@
+{
+  "name": "Trakey Admin",
+  "short_name": "Trakey Admin",
+  "description": "Trakey administration panel",
+  "start_url": "/trakey-admin/",
+  "scope": "/trakey-admin/",
+  "display": "standalone",
+  "background_color": "#0b0f14",
+  "theme_color": "#0b0f14",
+  "icons": [
+    {
+      "src": "/trakey-admin/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

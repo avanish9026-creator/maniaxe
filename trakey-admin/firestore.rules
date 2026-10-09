@@ -1,0 +1,75 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null &&
+        request.auth.uid == "vbKeDnvMhfd4EFvx8F3kqc5M6m63";
+    }
+
+    // User profile/index document. Users can maintain only their own record;
+    // the Admin account can read/manage all user records.
+    match /users/{uid} {
+      allow read, write: if isAdmin() ||
+        (request.auth != null && request.auth.uid == uid);
+    }
+
+    // Trakey's existing cloud backup and rating lock.
+    match /users/{uid}/backup/{documentId} {
+      allow read, write: if isAdmin() ||
+        (request.auth != null && request.auth.uid == uid);
+    }
+
+    // Admin collection-group access to all backup documents.
+    // Required because Trakey Admin uses collectionGroup("backup").
+    match /{path=**}/backup/{documentId} {
+      allow read: if isAdmin();
+    }
+
+    match /adminAnnouncements/{announcementId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /appUpdates/{updateId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /adminNotifications/{notificationId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Phase 3 feedback/contact inboxes.
+    // The app may create a submission, but only the Admin may read/update/delete it.
+    match /feedbackSubmissions/{submissionId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if request.auth != null &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.name is string &&
+        request.resource.data.email is string &&
+        request.resource.data.rating is int &&
+        request.resource.data.rating >= 1 &&
+        request.resource.data.rating <= 5;
+    }
+
+    match /contactMessages/{messageId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if request.resource.data.name is string &&
+        request.resource.data.email is string &&
+        request.resource.data.topic is string &&
+        request.resource.data.message is string &&
+        request.resource.data.message.size() > 0 &&
+        request.resource.data.message.size() <= 5000;
+    }
+
+    match /messageHistory/{messageId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
