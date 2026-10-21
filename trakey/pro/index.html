@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trakey Pro · Test confirmation</title>
+<style>
+  :root{--bg:#0b0f14;--card:#121a24;--text:#eaf1f8;--sub:#8fa1b3;--blue:#4da3ff;--onblue:#061018;--warn:#f2a93b}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  main{width:min(92vw,420px);background:var(--card);border-radius:28px;padding:28px 24px}
+  h1{margin:0 0 4px;font-size:22px}
+  p{color:var(--sub);margin:6px 0;line-height:1.45;font-size:14px}
+  .tag{display:inline-block;margin:10px 0 14px;padding:4px 10px;border-radius:12px;background:#f2a93b22;color:var(--warn);font-size:12px;font-weight:600}
+  button{width:100%;height:54px;margin-top:14px;border:0;border-radius:27px;background:var(--blue);color:var(--onblue);font-size:16px;font-weight:700;cursor:pointer}
+  button[disabled]{opacity:.45;cursor:default}
+  #msg{min-height:20px;margin-top:12px;font-size:13px}
+</style>
+</head>
+<body>
+<main>
+  <h1>Trakey Pro</h1>
+  <p id="plan">Loading…</p>
+  <span class="tag">TEST MODE · no real payment</span>
+  <p>This temporary page only confirms Pro for testing. The real payment interface will replace it.</p>
+  <button id="signin" hidden>Sign in with Google</button>
+  <button id="confirm" hidden>Confirm (test)</button>
+  <p id="msg"></p>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // PASTE the same firebaseConfig that trakey/index.html already uses.
+  const firebaseConfig = {
+    apiKey: "PASTE",
+    authDomain: "PASTE",
+    projectId: "PASTE",
+    appId: "PASTE"
+  };
+
+  const q = new URLSearchParams(location.search);
+  const plan = q.get("plan") === "monthly" ? "monthly" : "yearly";
+  const uid = q.get("uid") || "";
+  const DAYS = plan === "monthly" ? 30 : 365;
+  const $ = (id) => document.getElementById(id);
+  const say = (t) => { $("msg").textContent = t; };
+
+  $("plan").textContent = (plan === "monthly" ? "Monthly" : "Yearly") + " plan · " + DAYS + " days";
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  $("signin").onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(() => say("Sign-in failed. Try again."));
+
+  onAuthStateChanged(auth, (user) => {
+    $("signin").hidden = !!user;
+    $("confirm").hidden = !user;
+    if (user && uid && user.uid !== uid) {
+      say("Please sign in with the same Google account you use in the Trakey app.");
+      $("confirm").disabled = true;
+    }
+  });
+
+  $("confirm").onclick = async () => {
+    const user = auth.currentUser;
+    if (!user || user.uid !== uid) return;
+    $("confirm").disabled = true;
+    say("Activating…");
+    try {
+      const ref = doc(db, "proStatus", user.uid);
+      const snap = await getDoc(ref);
+      const now = Date.now();
+      const current = snap.exists() ? (snap.data().proUntil || 0) : 0;
+      const proUntil = Math.max(now, current) + DAYS * 24 * 60 * 60 * 1000;
+      await setDoc(ref, { proUntil, plan, testPayment: true, updatedAt: serverTimestamp() }, { merge: true });
+      say("Pro is active. Go back to the Trakey app.");
+    } catch (e) {
+      $("confirm").disabled = false;
+      say("Could not activate. Test mode may be switched off.");
+    }
+  };
+</script>
+</body>
+</html>
