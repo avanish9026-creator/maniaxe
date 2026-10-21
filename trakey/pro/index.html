@@ -54,7 +54,22 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  $("signin").onclick = () => signInWithPopup(auth, new GoogleAuthProvider()).catch(() => say("Sign-in failed. Try again."));
+  $("signin").onclick = () => {
+    say("Opening Google…");
+    signInWithPopup(auth, new GoogleAuthProvider())
+      .then(() => say(""))
+      .catch((e) => {
+        const code = (e && e.code) || "unknown";
+        const hint = {
+          "auth/unauthorized-domain": "This website is not allowed in Firebase yet (Authentication > Settings > Authorized domains).",
+          "auth/popup-blocked": "The browser blocked the sign-in window. Allow pop-ups for this site and try again.",
+          "auth/popup-closed-by-user": "The sign-in window was closed.",
+          "auth/operation-not-allowed": "Google sign-in is not enabled in Firebase.",
+          "auth/api-key-not-valid.-please-pass-a-valid-api-key.": "The firebaseConfig on this page is wrong (apiKey)."
+        }[code] || "";
+        say("Sign-in failed (" + code + "). " + hint);
+      });
+  };
 
   onAuthStateChanged(auth, (user) => {
     $("signin").hidden = !!user;
