@@ -25,12 +25,13 @@
   <p>This temporary page only confirms Pro for testing. The real payment interface will replace it.</p>
   <button id="signin" hidden>Sign in with Google</button>
   <button id="confirm" hidden>Confirm (test)</button>
+  <button id="switch" hidden>Use another Google account</button>
   <p id="msg"></p>
 </main>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // PASTE the same firebaseConfig that trakey/index.html already uses.
@@ -56,7 +57,9 @@
 
   $("signin").onclick = () => {
     say("Opening Google…");
-    signInWithPopup(auth, new GoogleAuthProvider())
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    signInWithPopup(auth, provider)
       .then(() => say(""))
       .catch((e) => {
         const code = (e && e.code) || "unknown";
@@ -71,18 +74,29 @@
       });
   };
 
+  $("switch").onclick = () => signOut(auth).then(() => say("Signed out. Sign in with the account used in the Trakey app."));
+
   onAuthStateChanged(auth, (user) => {
     $("signin").hidden = !!user;
     $("confirm").hidden = !user;
-    if (user && uid && user.uid !== uid) {
-      say("Please sign in with the same Google account you use in the Trakey app.");
+    $("switch").hidden = true;
+    $("confirm").disabled = false;
+    if (!user) return;
+    if (!uid) {
+      say("Open this page from the Trakey app (Settings > Trakey Pro), so it knows which account to activate.");
       $("confirm").disabled = true;
+    } else if (user.uid !== uid) {
+      say("You are signed in as " + (user.email || "another account") + ". Use the same Google account as in the Trakey app.");
+      $("confirm").disabled = true;
+      $("switch").hidden = false;
+    } else {
+      say("Signed in as " + (user.email || "your account") + ".");
     }
   });
 
   $("confirm").onclick = async () => {
     const user = auth.currentUser;
-    if (!user || user.uid !== uid) return;
+    if (!user || !uid || user.uid !== uid) return;
     $("confirm").disabled = true;
     say("Activating…");
     try {
