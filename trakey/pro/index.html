@@ -36,20 +36,21 @@
 
   // PASTE the same firebaseConfig that trakey/index.html already uses.
   const firebaseConfig = {
-    apiKey: "AIzaSyDjq71StPRBPhJ5Fplt1Bhe7D96An3V1lc",
-  authDomain: "trakey-b6002.firebaseapp.com",
-  projectId: "trakey-b6002",
-    appId: "1:164803851209:web:9ecca1501b27e0afadee18"
+    apiKey: "PASTE",
+    authDomain: "PASTE",
+    projectId: "PASTE",
+    appId: "PASTE"
   };
 
   const q = new URLSearchParams(location.search);
-  const plan = q.get("plan") === "monthly" ? "monthly" : "yearly";
+  const planParam = q.get("plan");
+  const plan = planParam === "monthly" ? "monthly" : planParam === "lifetime" ? "lifetime" : "yearly";
   const uid = q.get("uid") || "";
-  const DAYS = plan === "monthly" ? 30 : 365;
+  const DAYS = plan === "monthly" ? 30 : plan === "lifetime" ? 36500 : 365;
   const $ = (id) => document.getElementById(id);
   const say = (t) => { $("msg").textContent = t; };
 
-  $("plan").textContent = (plan === "monthly" ? "Monthly" : "Yearly") + " plan · " + DAYS + " days";
+  $("plan").textContent = plan === "lifetime" ? "Lifetime plan · one time" : (plan === "monthly" ? "Monthly" : "Yearly") + " plan · " + DAYS + " days";
 
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
