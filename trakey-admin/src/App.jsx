@@ -1,0 +1,1721 @@
+import { useEffect, useState } from "react";
+import {
+  GoogleAuthProvider,
+  browserLocalPersistence,
+  onAuthStateChanged,
+  setPersistence,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  signOut,
+} from "firebase/auth";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  collectionGroup,
+  onSnapshot,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+  Timestamp,
+  updateDoc,
+  writeBatch,
+} from "firebase/firestore";
+import { auth, functions } from "./firebase";
+import { httpsCallable } from "firebase/functions";
+import app from "./firebase";
+import "./App.css";
+import { buildCsv, buildPdf, downloadBlob, financialYear, selectRecords } from "./paymentExport";
+import { buildUserRows, buildUsersCsv, buildUsersPdf } from "./userExport";
+
+const db = getFirestore(app);
+const ADMIN_EMAIL = "support.trakey@gmail.com";
+
+const manualInputStyle = {
+  background: "#11141a", color: "#fff", border: "1px solid #30343d", borderRadius: "8px", padding: "9px 10px", fontSize: "14px", width: "100%", boxSizing: "border-box",
+};
+const manualLabelStyle = { display: "grid", gap: "4px", fontSize: "12px", color: "#9da3ad" };
+
+function App() {
+  const [user, setUser] = useState(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
+
+  const [currentSection, setCurrentSection] = useState("dashboard");
+  const [announcements, setAnnouncements] = useState([]);
+  const [announcementLoading, setAnnouncementLoading] = useState(false);
+  const [announcementError, setAnnouncementError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("General");
+  const [actionText, setActionText] = useState("");
+  const [actionUrl, setActionUrl] = useState("");
+
+  const [updates, setUpdates] = useState([]);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateError, setUpdateError] = useState("");
+  const [updateSuccess, setUpdateSuccess] = useState("");
+  const [version, setVersion] = useState("");
+  const [updateTitle, setUpdateTitle] = useState("");
+  const [updateDescription, setUpdateDescription] = useState("");
+  const [releaseNotes, setReleaseNotes] = useState("");
+  const [downloadUrl, setDownloadUrl] = useState("");
+
+  const [notifications, setNotifications] = useState([]);
+  const [notificationLoading, setNotificationLoading] = useState(false);
+  const [notificationError, setNotificationError] = useState("");
+  const [notificationSuccess, setNotificationSuccess] = useState("");
+  const [notificationTitle, setNotificationTitle] = useState("");
+  const [notificationMessage, setNotificationMessage] = useState("");
+
+  const [history, setHistory] = useState([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState("");
+
+  // Phase 3 live data
+  const [adminUsers, setAdminUsers] = useState([]);
+  const [proItems, setProItems] = useState([]); // proStatus docs, used only for the user data download
+  const [feedbackItems, setFeedbackItems] = useState([]);
+  const [contactItems, setContactItems] = useState([]);
+  const [backupMainItems, setBackupMainItems] = useState([]);
+  const [phase3Error, setPhase3Error] = useState("");
+  const [userSearch, setUserSearch] = useState("");
+  const [feedbackFilter, setFeedbackFilter] = useState("all");
+  const [contactFilter, setContactFilter] = useState("all");
+  const [phase3BusyId, setPhase3BusyId] = useState("");
+
+  // Manual UPI payments (orders are created by the Trakey app, approved here)
+  const [paymentItems, setPaymentItems] = useState([]);
+  const [paymentFilter, setPaymentFilter] = useState("pending");
+  const [paymentBusyId, setPaymentBusyId] = useState("");
+  const [paymentError, setPaymentError] = useState("");
+  const [shotCache, setShotCache] = useState({});
+  const [openShots, setOpenShots] = useState({});
+  // Payment records download (tax) + manual records
+  const [exportStatus, setExportStatus] = useState("both");
+  const [exportFrom, setExportFrom] = useState("");
+  const [exportTo, setExportTo] = useState("");
+  const todayIst = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  const emptyManual = () => ({
+    status: "approved", plan: "yearly", amount: "", currency: "INR", date: todayIst(), name: "", email: "", uid: "",
+    ref: "", method: "PayPal", country: "", note: "", grantPro: false,
+  });
+  const [showManual, setShowManual] = useState(false);
+  const [manualForm, setManualForm] = useState(emptyManual());
+  const [manualBusy, setManualBusy] = useState(false);
+
+  const checkAdmin = (signedInUser) => {
+    if (signedInUser.email?.toLowerCase() !== ADMIN_EMAIL) {
+      signOut(auth);
+      setError("This account is not authorized to access Trakey Admin.");
+      return false;
+    }
+
+    setUser(signedInUser);
+    return true;
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+
+    // Register the auth listener immediately so a slow browser persistence
+    // operation can never leave the Admin stuck on "Restoring your admin session".
+    const unsubscribe = onAuthStateChanged(auth, (signedInUser) => {
+      if (cancelled) return;
+
+      if (signedInUser) {
+        checkAdmin(signedInUser);
+      } else {
+        setUser(null);
+      }
+
+      setAuthReady(true);
+    });
+
+    // Persistence is best-effort and must not block initial auth restoration.
+    setPersistence(auth, browserLocalPersistence).catch((err) => {
+      if (!cancelled) {
+        console.warn("Firebase auth persistence warning:", err);
+      }
+    });
+
+    // Safety fallback: never leave the UI permanently stuck on the restore screen.
+    const timeout = window.setTimeout(() => {
+      if (!cancelled) {
+        setAuthReady(true);
+      }
+    }, 8000);
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+      window.clearTimeout(timeout);
+    };
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    setError("");
+    setLoading(true);
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      checkAdmin(result.user);
+    } catch (err) {
+      setError(err.message || "Google sign-in failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEmailLogin = async (event) => {
+    event.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const result = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      checkAdmin(result.user);
+    } catch (err) {
+      setError("Invalid email or password.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut(auth);
+    setUser(null);
+    setCurrentSection("dashboard");
+  };
+
+  const loadAnnouncements = async () => {
+    setAnnouncementLoading(true);
+    setAnnouncementError("");
+
+    try {
+      const snapshot = await getDocs(collection(db, "adminAnnouncements"));
+
+      const items = snapshot.docs
+        .map((announcementDoc) => ({
+          id: announcementDoc.id,
+          ...announcementDoc.data(),
+        }))
+        .sort((a, b) => {
+          const aTime = a.createdAt?.toMillis?.() ?? 0;
+          const bTime = b.createdAt?.toMillis?.() ?? 0;
+          return bTime - aTime;
+        });
+
+      setAnnouncements(items);
+    } catch (err) {
+      setAnnouncementError(
+        err.message || "Unable to load announcements."
+      );
+    } finally {
+      setAnnouncementLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user && currentSection === "announcements") {
+      loadAnnouncements();
+    }
+  }, [user, currentSection]);
+
+  const handleCreateAnnouncement = async (event) => {
+    event.preventDefault();
+    setAnnouncementError("");
+    setSuccessMessage("");
+
+    const cleanTitle = title.trim();
+    const cleanMessage = message.trim();
+    const cleanActionText = actionText.trim();
+    const cleanActionUrl = actionUrl.trim();
+
+    if (!cleanTitle || !cleanMessage) {
+      setAnnouncementError("Title and message are required.");
+      return;
+    }
+
+    if (cleanActionText && !cleanActionUrl) {
+      setAnnouncementError(
+        "Enter an action URL when an action button is provided."
+      );
+      return;
+    }
+
+    setAnnouncementLoading(true);
+
+    try {
+      await addDoc(collection(db, "adminAnnouncements"), {
+        title: cleanTitle,
+        message: cleanMessage,
+        type,
+        actionText: cleanActionText || null,
+        actionUrl: cleanActionUrl || null,
+        active: true,
+        published: true,
+        createdAt: serverTimestamp(),
+        publishedAt: serverTimestamp(),
+        publishedBy: user.email,
+        createdBy: user.email,
+      });
+
+      setTitle("");
+      setMessage("");
+      setType("General");
+      setActionText("");
+      setActionUrl("");
+      setSuccessMessage("Announcement published successfully.");
+
+      await loadAnnouncements();
+    } catch (err) {
+      setAnnouncementError(
+        err.message || "Unable to publish the announcement."
+      );
+    } finally {
+      setAnnouncementLoading(false);
+    }
+  };
+
+  const handleDeleteAnnouncement = async (announcementId) => {
+    const confirmed = window.confirm(
+      "Delete this announcement? This cannot be undone."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setAnnouncementError("");
+    setSuccessMessage("");
+    setAnnouncementLoading(true);
+
+    try {
+      await deleteDoc(doc(db, "adminAnnouncements", announcementId));
+      setAnnouncements((current) =>
+        current.filter((item) => item.id !== announcementId)
+      );
+      setSuccessMessage("Announcement deleted.");
+    } catch (err) {
+      setAnnouncementError(
+        err.message || "Unable to delete the announcement."
+      );
+    } finally {
+      setAnnouncementLoading(false);
+    }
+  };
+
+  const loadUpdates = async () => {
+    setUpdateLoading(true);
+    setUpdateError("");
+    try {
+      const snapshot = await getDocs(collection(db, "appUpdates"));
+      const items = snapshot.docs
+        .map((updateDoc) => ({ id: updateDoc.id, ...updateDoc.data() }))
+        .sort((a, b) => {
+          const aTime = a.publishedAt?.toMillis?.() ?? a.createdAt?.toMillis?.() ?? 0;
+          const bTime = b.publishedAt?.toMillis?.() ?? b.createdAt?.toMillis?.() ?? 0;
+          return bTime - aTime;
+        });
+      setUpdates(items);
+    } catch (err) {
+      setUpdateError(err.message || "Unable to load updates.");
+    } finally { setUpdateLoading(false); }
+  };
+
+  useEffect(() => {
+    if (user && currentSection === "updates") loadUpdates();
+  }, [user, currentSection]);
+
+  const handleCreateUpdate = async (event) => {
+    event.preventDefault();
+    setUpdateError(""); setUpdateSuccess("");
+    const cleanVersion = version.trim();
+    const cleanTitle = updateTitle.trim();
+    const cleanDescription = updateDescription.trim();
+    const cleanReleaseNotes = releaseNotes.trim();
+    const cleanDownloadUrl = downloadUrl.trim();
+    if (!cleanVersion || !cleanTitle || !cleanDescription) {
+      setUpdateError("Version, title and description are required."); return;
+    }
+    if (cleanDownloadUrl && !/^https?:\/\//i.test(cleanDownloadUrl)) {
+      setUpdateError("Download URL must start with http:// or https://."); return;
+    }
+    setUpdateLoading(true);
+    try {
+      await addDoc(collection(db, "appUpdates"), {
+        version: cleanVersion, title: cleanTitle, description: cleanDescription,
+        releaseNotes: cleanReleaseNotes, downloadUrl: cleanDownloadUrl || null,
+        active: true, createdAt: serverTimestamp(), publishedAt: serverTimestamp(), publishedBy: user.email,
+      });
+      setVersion(""); setUpdateTitle(""); setUpdateDescription(""); setReleaseNotes(""); setDownloadUrl("");
+      setUpdateSuccess("Update published successfully.");
+      await loadUpdates();
+    } catch (err) {
+      setUpdateError(err.message || "Unable to publish the update.");
+    } finally { setUpdateLoading(false); }
+  };
+
+  const handleDeleteUpdate = async (updateId) => {
+    if (!window.confirm("Delete this update? This cannot be undone.")) return;
+    setUpdateError(""); setUpdateSuccess(""); setUpdateLoading(true);
+    try {
+      await deleteDoc(doc(db, "appUpdates", updateId));
+      setUpdates((current) => current.filter((item) => item.id !== updateId));
+      setUpdateSuccess("Update deleted.");
+    } catch (err) {
+      setUpdateError(err.message || "Unable to delete the update.");
+    } finally { setUpdateLoading(false); }
+  };
+
+  const loadNotifications = async () => {
+    setNotificationLoading(true);
+    setNotificationError("");
+    try {
+      const snapshot = await getDocs(collection(db, "adminNotifications"));
+      const items = snapshot.docs
+        .map((notificationDoc) => ({ id: notificationDoc.id, ...notificationDoc.data() }))
+        .sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+      setNotifications(items);
+    } catch (err) {
+      setNotificationError(err.message || "Unable to load notifications.");
+    } finally {
+      setNotificationLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user && currentSection === "notifications") loadNotifications();
+  }, [user, currentSection]);
+
+  const handleCreateNotification = async (event) => {
+    event.preventDefault();
+
+    if (notificationLoading) return;
+
+    setNotificationError("");
+    setNotificationSuccess("");
+
+    const cleanTitle = notificationTitle.trim();
+    const cleanMessage = notificationMessage.trim();
+
+    if (!cleanTitle || !cleanMessage) {
+      setNotificationError("Title and message are required.");
+      return;
+    }
+
+    setNotificationLoading(true);
+
+    try {
+      const sendTrakeyNotification = httpsCallable(
+        functions,
+        "sendTrakeyNotification"
+      );
+
+      const result = await sendTrakeyNotification({
+        title: cleanTitle,
+        message: cleanMessage,
+      });
+
+      const resultData = result?.data;
+
+      setNotificationTitle("");
+      setNotificationMessage("");
+      setNotificationSuccess(
+        resultData?.message || "Notification sent successfully."
+      );
+
+      // The callable function is responsible for the actual FCM delivery
+      // and server-side notification history. Reload the history only after
+      // the function confirms that the request was accepted.
+      await loadNotifications();
+    } catch (err) {
+      console.error("sendTrakeyNotification failed:", err);
+      setNotificationError(
+        err?.message ||
+          "Unable to send the notification. Please try again."
+      );
+    } finally {
+      setNotificationLoading(false);
+    }
+  };
+
+  const handleDeleteNotification = async (id) => {
+    setNotificationLoading(true);
+    setNotificationError("");
+    try {
+      await deleteDoc(doc(db, "adminNotifications", id));
+      await loadNotifications();
+    } catch (err) {
+      setNotificationError(err.message || "Unable to delete the notification.");
+    } finally {
+      setNotificationLoading(false);
+    }
+  };
+
+  const loadHistory = async () => {
+    setHistoryLoading(true);
+    setHistoryError("");
+    try {
+      const [announcementSnap, notificationSnap, updateSnap] = await Promise.all([
+        getDocs(collection(db, "adminAnnouncements")),
+        getDocs(collection(db, "adminNotifications")),
+        getDocs(collection(db, "appUpdates")),
+      ]);
+      const items = [
+        ...announcementSnap.docs.map((d) => ({ id: `announcement-${d.id}`, category: "Announcement", title: d.data().title || "Announcement", message: d.data().message || "", timestamp: d.data().createdAt, data: d.data() })),
+        ...notificationSnap.docs.map((d) => ({ id: `notification-${d.id}`, category: "Notification", title: d.data().title || "Notification", message: d.data().message || "", timestamp: d.data().createdAt, data: d.data() })),
+        ...updateSnap.docs.map((d) => ({ id: `update-${d.id}`, category: "Update", title: d.data().title || `Version ${d.data().version || ""}`, message: d.data().description || "", timestamp: d.data().createdAt, data: d.data() })),
+      ].sort((a, b) => (b.timestamp?.toMillis?.() ?? 0) - (a.timestamp?.toMillis?.() ?? 0));
+      setHistory(items);
+    } catch (err) {
+      setHistoryError(err.message || "Unable to load message history.");
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user && currentSection === "history") loadHistory();
+  }, [user, currentSection]);
+
+  // One listener set keeps Dashboard / Users / Feedback / Contact live without refreshes.
+  useEffect(() => {
+    if (!user) {
+      setAdminUsers([]);
+      setFeedbackItems([]);
+      setContactItems([]);
+      setBackupMainItems([]);
+      setPaymentItems([]);
+      setProItems([]);
+      return undefined;
+    }
+
+    setPhase3Error("");
+    const unsubs = [];
+
+    unsubs.push(
+      onSnapshot(
+        collection(db, "users"),
+        (snap) => setAdminUsers(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+        (err) => setPhase3Error(err.message || "Unable to load users.")
+      )
+    );
+
+    unsubs.push(
+      onSnapshot(
+        collectionGroup(db, "backup"),
+        (snap) => setBackupMainItems(snap.docs.filter((d) => d.id === "main")),
+        (err) => setPhase3Error(err.message || "Unable to load backup user data.")
+      )
+    );
+
+    unsubs.push(
+      onSnapshot(
+        collection(db, "feedbackSubmissions"),
+        (snap) => {
+          const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          items.sort((a, b) => (b.submittedAt?.toMillis?.() ?? 0) - (a.submittedAt?.toMillis?.() ?? 0));
+          setFeedbackItems(items);
+        },
+        (err) => setPhase3Error(err.message || "Unable to load feedback.")
+      )
+    );
+
+    unsubs.push(
+      onSnapshot(
+        collection(db, "contactMessages"),
+        (snap) => {
+          const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          items.sort((a, b) => (b.submittedAt?.toMillis?.() ?? 0) - (a.submittedAt?.toMillis?.() ?? 0));
+          setContactItems(items);
+        },
+        (err) => setPhase3Error(err.message || "Unable to load contact messages.")
+      )
+    );
+
+    unsubs.push(
+      onSnapshot(
+        collection(db, "payments"),
+        (snap) => {
+          const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          items.sort((a, b) => (b.createdAt?.toMillis?.() ?? 0) - (a.createdAt?.toMillis?.() ?? 0));
+          setPaymentItems(items);
+        },
+        (err) => setPaymentError(err.message || "Unable to load payments.")
+      )
+    );
+
+    unsubs.push(
+      onSnapshot(
+        collection(db, "proStatus"),
+        (snap) => setProItems(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+        () => setProItems([])
+      )
+    );
+
+    return () => unsubs.forEach((unsubscribe) => unsubscribe());
+  }, [user]);
+
+  const updateFeedbackHandled = async (id, handled) => {
+    setPhase3BusyId(id);
+    try {
+      await updateDoc(doc(db, "feedbackSubmissions", id), { handled });
+    } catch (err) {
+      setPhase3Error(err.message || "Unable to update feedback status.");
+    } finally {
+      setPhase3BusyId("");
+    }
+  };
+
+  const updateContactStatus = async (id, status) => {
+    setPhase3BusyId(id);
+    try {
+      await updateDoc(doc(db, "contactMessages", id), { status });
+    } catch (err) {
+      setPhase3Error(err.message || "Unable to update contact status.");
+    } finally {
+      setPhase3BusyId("");
+    }
+  };
+
+  // ---- Manual UPI payments ----
+  const PAY_DAY_MS = 24 * 60 * 60 * 1000;
+  const PAY_LIFETIME_UNTIL = 4102444800000; // 1 Jan 2100, the app shows this as "Lifetime"
+
+  // Extends Pro from the later of now / current end. Never downgrades an existing Lifetime.
+  const proPatchFor = (cur, plan) => {
+    const base = Math.max(Number(cur.proUntil) || 0, Date.now());
+    let proUntil;
+    if (plan === "lifetime") proUntil = PAY_LIFETIME_UNTIL;
+    else if (plan === "monthly") proUntil = base + 30 * PAY_DAY_MS;
+    else proUntil = base + 365 * PAY_DAY_MS;
+    return cur.plan === "lifetime" ? {} : { proUntil, plan };
+  };
+
+  const toggleShot = async (orderId) => {
+    const open = !openShots[orderId];
+    setOpenShots((prev) => ({ ...prev, [orderId]: open }));
+    if (!open || shotCache[orderId]) return;
+    try {
+      const snap = await getDoc(doc(db, "paymentShots", orderId));
+      setShotCache((prev) => ({ ...prev, [orderId]: snap.exists() ? snap.data().data || "" : "" }));
+    } catch (err) {
+      setPaymentError(err.message || "Unable to load the screenshot.");
+    }
+  };
+
+  // One transaction: marks the order approved AND extends Pro, so they can never get out of step.
+  const approvePayment = async (order) => {
+    const ok = window.confirm(
+      "Approve " + order.id + " (" + order.plan + ", Rs " + order.amount + ", UTR " + order.utr + ")?\n\nOnly approve after you saw this money in your bank / UPI app."
+    );
+    if (!ok) return;
+    setPaymentBusyId(order.id);
+    setPaymentError("");
+    try {
+      await runTransaction(db, async (tx) => {
+        const payRef = doc(db, "payments", order.id);
+        const proRef = doc(db, "proStatus", order.uid);
+        const paySnap = await tx.get(payRef);
+        const proSnap = await tx.get(proRef);
+        if (!paySnap.exists() || paySnap.data().status !== "pending") {
+          throw new Error("This payment is no longer pending.");
+        }
+        const cur = proSnap.exists() ? proSnap.data() : {};
+        const patch = proPatchFor(cur, order.plan);
+        tx.set(proRef, { ...patch, paidVia: "upi", updatedAt: serverTimestamp() }, { merge: true });
+        tx.update(payRef, { status: "approved", reviewedAt: serverTimestamp() });
+      });
+    } catch (err) {
+      setPaymentError(err.message || "Unable to approve this payment.");
+    } finally {
+      setPaymentBusyId("");
+    }
+  };
+
+  // Rejecting also frees the UTR, so the user can send the corrected number.
+  const rejectPayment = async (order) => {
+    const reason = window.prompt(
+      "Reason shown to the user:",
+      "We could not find this payment. Check the UTR and amount, then try again."
+    );
+    if (reason === null) return;
+    setPaymentBusyId(order.id);
+    setPaymentError("");
+    try {
+      const batch = writeBatch(db);
+      batch.update(doc(db, "payments", order.id), {
+        status: "rejected",
+        note: reason.trim(),
+        reviewedAt: serverTimestamp(),
+      });
+      if (order.utr) batch.delete(doc(db, "paymentUtrs", order.utr));
+      await batch.commit();
+    } catch (err) {
+      setPaymentError(err.message || "Unable to reject this payment.");
+    } finally {
+      setPaymentBusyId("");
+    }
+  };
+
+  // ---- Payment records download (CSV / PDF) ----
+  const exportPeriodLabel = () =>
+    exportFrom || exportTo ? (exportFrom || "start") + " to " + (exportTo || "today") : "All dates";
+
+  const downloadRecords = (format) => {
+    setPaymentError("");
+    const rows = selectRecords(paymentItems, { status: exportStatus, from: exportFrom, to: exportTo });
+    if (rows.length === 0) {
+      setPaymentError("No approved / rejected payments in this selection.");
+      return;
+    }
+    const stamp = todayIst();
+    const part = exportStatus === "both" ? "approved-rejected" : exportStatus;
+    if (format === "csv") {
+      downloadBlob(buildCsv(rows), "trakey-payment-records-" + part + "-" + stamp + ".csv");
+    } else {
+      const statusLabel = exportStatus === "both" ? "Approved and Rejected" : exportStatus === "approved" ? "Approved" : "Rejected";
+      downloadBlob(buildPdf(rows, { period: exportPeriodLabel(), statusLabel }), "trakey-payment-records-" + part + "-" + stamp + ".pdf");
+    }
+  };
+
+  const setExportFy = (offset) => {
+    const fy = financialYear(offset);
+    setExportFrom(fy.from);
+    setExportTo(fy.to);
+  };
+
+  // ---- Manual payment records (outside India / offline payments) ----
+  const setMF = (key, value) => setManualForm((prev) => ({ ...prev, [key]: value }));
+
+  const addManualPayment = async () => {
+    const f = manualForm;
+    const amount = Number(f.amount);
+    if (!(amount > 0)) return setPaymentError("Enter the amount paid.");
+    if (!f.name.trim() && !f.email.trim()) return setPaymentError("Enter the customer name or email.");
+    if (!f.date) return setPaymentError("Choose the payment date.");
+    const uid = f.uid.trim();
+    const grant = f.grantPro && f.status === "approved";
+    if (grant && !uid) return setPaymentError("Account ID is needed to activate Pro. Copy it from the user's email or the Users tab.");
+
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const id = "TKM-" + Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+    const data = {
+      uid,
+      email: f.email.trim(),
+      name: f.name.trim(),
+      plan: f.plan,
+      amount,
+      currency: (f.currency.trim() || "INR").toUpperCase(),
+      utr: f.ref.trim(),
+      method: f.method.trim(),
+      country: f.country.trim(),
+      status: f.status,
+      note: f.note.trim(),
+      manual: true,
+      addedBy: user?.email || ADMIN_EMAIL,
+      createdAt: Timestamp.fromDate(new Date(f.date + "T12:00:00+05:30")),
+      reviewedAt: serverTimestamp(),
+    };
+
+    setManualBusy(true);
+    setPaymentError("");
+    try {
+      if (grant) {
+        // Record + Pro activation in one transaction, same rules as Approve.
+        await runTransaction(db, async (tx) => {
+          const proRef = doc(db, "proStatus", uid);
+          const proSnap = await tx.get(proRef);
+          const patch = proPatchFor(proSnap.exists() ? proSnap.data() : {}, f.plan);
+          tx.set(proRef, { ...patch, paidVia: "manual", updatedAt: serverTimestamp() }, { merge: true });
+          tx.set(doc(db, "payments", id), data);
+        });
+      } else {
+        await setDoc(doc(db, "payments", id), data);
+      }
+      setManualForm(emptyManual());
+      setShowManual(false);
+    } catch (err) {
+      setPaymentError(err.message || "Unable to save this record.");
+    } finally {
+      setManualBusy(false);
+    }
+  };
+
+  // Only manual records can be removed here. App orders stay as the permanent audit trail.
+  const deleteManualPayment = async (order) => {
+    if (!order.manual) return;
+    if (!window.confirm("Delete manual record " + order.id + "? This cannot be undone.\n\nIt does not change the user's Pro access.")) return;
+    setPaymentBusyId(order.id);
+    setPaymentError("");
+    try {
+      await deleteDoc(doc(db, "payments", order.id));
+    } catch (err) {
+      setPaymentError(err.message || "Unable to delete this record.");
+    } finally {
+      setPaymentBusyId("");
+    }
+  };
+
+  const paymentStatusColor = (status) =>
+    status === "approved" ? "#57d68d" : status === "rejected" ? "#ef6a6a" : "#f2a93b";
+
+  const mergedUsers = (() => {
+    const byId = new Map();
+    adminUsers.forEach((item) => byId.set(item.id, item));
+    backupMainItems.forEach((item) => {
+      const uid = item.ref?.parent?.parent?.id;
+      if (!uid) return;
+      const data = item.data();
+      byId.set(uid, {
+        ...(byId.get(uid) || {}),
+        id: uid,
+        uid,
+        name: byId.get(uid)?.name || data.displayName || "Trakey User",
+        email: byId.get(uid)?.email || data.email || "",
+        lastSeenAt: byId.get(uid)?.lastSeenAt || data.updatedAt || null,
+      });
+    });
+    return [...byId.values()].sort((a, b) => {
+      const at = a.lastSeenAt?.toMillis?.() ?? a.lastSeenAt ?? 0;
+      const bt = b.lastSeenAt?.toMillis?.() ?? b.lastSeenAt ?? 0;
+      return bt - at;
+    });
+  })();
+
+  const dashboardStats = {
+    users: mergedUsers.length,
+    feedback: feedbackItems.length,
+    contacts: contactItems.length,
+    unreadFeedback: feedbackItems.filter((item) => !item.handled).length,
+    newContacts: contactItems.filter((item) => (item.status || "new") === "new").length,
+    pendingPayments: paymentItems.filter((item) => (item.status || "pending") === "pending").length,
+  };
+
+  const formatTimestamp = (timestamp) => {
+    if (typeof timestamp === "number" && timestamp > 0) {
+      return new Date(timestamp).toLocaleString();
+    }
+    if (!timestamp?.toDate) {
+      return "Just now";
+    }
+    return timestamp.toDate().toLocaleString();
+  };
+
+
+  const getPhase3TimestampMs = (timestamp) => {
+    if (typeof timestamp === "number") return timestamp;
+    return timestamp?.toMillis?.() ?? 0;
+  };
+
+  const isPhase3UserOnline = (item) => {
+    const lastSeen = getPhase3TimestampMs(item.lastSeenAt);
+    return lastSeen > 0 && Date.now() - lastSeen <= 5 * 60 * 1000;
+  };
+
+  const downloadPhase3UserData = () => {
+    const normalize = (value) => {
+      if (value?.toDate) return value.toDate().toISOString();
+      if (Array.isArray(value)) return value.map(normalize);
+      if (value && typeof value === "object") {
+        return Object.fromEntries(
+          Object.entries(value).map(([key, val]) => [key, normalize(val)])
+        );
+      }
+      return value;
+    };
+
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      users: mergedUsers.map((item) =>
+        normalize({ ...item, online: isPhase3UserOnline(item) })
+      ),
+      feedback: feedbackItems.map((item) => normalize(item)),
+      contactMessages: contactItems.map((item) => normalize(item)),
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download =
+      "trakey-admin-data-" +
+      new Date().toISOString().replace(/[:.]/g, "-") +
+      ".json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  // Whole user data as CSV / PDF (all users, ignores the search box).
+  const downloadUsersTable = (format) => {
+    const data = buildUserRows({
+      users: mergedUsers, proItems, paymentItems, feedbackItems, contactItems, isOnline: isPhase3UserOnline,
+    });
+    const stamp = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+    if (format === "csv") downloadBlob(buildUsersCsv(data), "trakey-user-data-" + stamp + ".csv");
+    else downloadBlob(buildUsersPdf(data), "trakey-user-data-" + stamp + ".pdf");
+  };
+
+  if (!authReady) {
+    return (
+      <div className="login-page">
+        <div className="login-box">
+          <h1>Trakey Admin</h1>
+          <p className="subtitle">Restoring your admin session...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (user) {
+    return (
+      <div className="admin-page">
+        <header className="admin-header">
+          <div>
+            <h1>Trakey Admin</h1>
+            <p>Administration Panel</p>
+          </div>
+
+          <button onClick={handleLogout}>Sign out</button>
+        </header>
+
+        <main className="dashboard">
+          {currentSection === "dashboard" && (
+            <>
+              <h2>Dashboard</h2>
+
+              <div className="welcome-box">
+                <h3>Welcome, Admin.</h3>
+                <p>Signed in as {user.email}</p>
+              </div>
+
+              {phase3Error && <div className="error-message">{phase3Error}</div>}
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: "14px", marginBottom: "24px" }}>
+                {[
+                  ["Users", dashboardStats.users, "users"],
+                  ["Feedback", dashboardStats.feedback, "feedback"],
+                  ["Contact", dashboardStats.contacts, "contact"],
+                  ["Needs attention", dashboardStats.unreadFeedback + dashboardStats.newContacts, "feedback"],
+                  ["Payments to review", dashboardStats.pendingPayments, "payments"],
+                ].map(([label, value, section]) => (
+                  <button key={label} className="admin-card" onClick={() => setCurrentSection(section)} style={{ textAlign: "left", cursor: "pointer" }}>
+                    <p style={{ margin: 0, color: "#9da3ad", fontSize: "13px" }}>{label}</p>
+                    <h2 style={{ margin: "8px 0 0", fontSize: "30px" }}>{value}</h2>
+                    <p style={{ margin: "6px 0 0", color: "#7fc6ff", fontSize: "12px" }}>Live</p>
+                  </button>
+                ))}
+              </div>
+
+              <div className="admin-grid">
+                <button className="admin-card" onClick={() => setCurrentSection("users")} style={{ textAlign: "left", cursor: "pointer" }}>
+                  <h3>Users</h3><p>Live user list, account details and signup activity.</p>
+                </button>
+                <button className="admin-card" onClick={() => setCurrentSection("feedback")} style={{ textAlign: "left", cursor: "pointer" }}>
+                  <h3>Feedback</h3><p>Ratings, survey answers and handled status.</p>
+                </button>
+                <button className="admin-card" onClick={() => setCurrentSection("contact")} style={{ textAlign: "left", cursor: "pointer" }}>
+                  <h3>Contact Us</h3><p>Support messages, user details and status.</p>
+                </button>
+                <button className="admin-card" onClick={() => setCurrentSection("payments")} style={{ textAlign: "left", cursor: "pointer" }}>
+                  <h3>Payments</h3><p>Approve or reject manual UPI payments for Trakey Pro.</p>
+                </button>
+                <button className="admin-card" onClick={() => setCurrentSection("announcements")} style={{ textAlign: "left", cursor: "pointer" }}>
+                  <h3>Announcements</h3><p>Create and manage Trakey announcements.</p>
+                </button>
+                <button className="admin-card" onClick={() => setCurrentSection("notifications")} style={{ textAlign: "left", cursor: "pointer" }}>
+                  <h3>Notifications</h3><p>Notification history. Send important pushes from Firebase Console.</p>
+                </button>
+                <button className="admin-card" onClick={() => setCurrentSection("updates")} style={{ textAlign: "left", cursor: "pointer" }}>
+                  <h3>Updates</h3><p>Manage Trakey version information.</p>
+                </button>
+                <button className="admin-card" onClick={() => setCurrentSection("history")} style={{ textAlign: "left", cursor: "pointer" }}>
+                  <h3>Message History</h3><p>View announcements, notifications and updates.</p>
+                </button>
+              </div>
+            </>
+          )}
+
+          {currentSection === "users" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "18px" }}>
+                <div><h2 style={{ marginBottom: "6px" }}>Users</h2><p style={{ color: "#9da3ad", margin: 0 }}>{mergedUsers.length} users • live Firestore data</p></div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <button type="button" onClick={() => downloadUsersTable("pdf")}>Download PDF</button>
+                  <button type="button" onClick={() => downloadUsersTable("csv")}>Download CSV</button>
+                  <button type="button" onClick={downloadPhase3UserData}>Download JSON</button>
+                  <button type="button" onClick={() => setCurrentSection("dashboard")}>Back</button>
+                </div>
+              </div>
+              <input value={userSearch} onChange={(e) => setUserSearch(e.target.value)} placeholder="Search name, email or UID" style={{ marginBottom: "18px" }} />
+              <div style={{ display: "grid", gap: "10px" }}>
+                {mergedUsers.filter((item) => { const q = userSearch.trim().toLowerCase(); return !q || [item.name, item.email, item.uid].some((v) => String(v || "").toLowerCase().includes(q)); }).map((item) => (
+                  <article key={item.id} style={{ border: "1px solid #30343d", borderRadius: "10px", padding: "16px", background: "#1a1d23" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}>
+                      <div><h4 style={{ margin: "0 0 5px" }}>{item.name || "Trakey User"}</h4><p style={{ margin: 0, color: "#c2c7cf" }}>{item.email || "No email"}</p></div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "9px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+                         <span style={{ color: isPhase3UserOnline(item) ? "#57d68d" : "#8b929c", fontSize: "12px", fontWeight: 600 }}>
+                           {isPhase3UserOnline(item) ? "Online" : "Offline"}
+                         </span>
+                         <span style={{ color: "#9da3ad", fontSize: "12px" }}>{formatTimestamp(item.lastSeenAt)}</span>
+                       </div>
+                    </div>
+                    <p style={{ margin: "10px 0 0", color: "#7f8792", fontSize: "12px", wordBreak: "break-all" }}>UID: {item.uid || item.id}</p>
+                    {item.location && <p style={{ margin: "5px 0 0", color: "#9da3ad", fontSize: "13px" }}>{item.location}</p>}
+                  </article>
+                ))}
+                {mergedUsers.length === 0 && <p style={{ color: "#9da3ad" }}>No indexed users yet. Users appear here after their next sign-in or backup.</p>}
+              </div>
+            </>
+          )}
+
+          {currentSection === "feedback" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "18px" }}>
+                <div><h2 style={{ marginBottom: "6px" }}>Feedback</h2><p style={{ color: "#9da3ad", margin: 0 }}>Live ratings and survey responses.</p></div>
+                <button onClick={() => setCurrentSection("dashboard")}>Back</button>
+              </div>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "18px", flexWrap: "wrap" }}>
+                {["all", "new", "handled"].map((filter) => <button key={filter} onClick={() => setFeedbackFilter(filter)}>{filter === "all" ? "All" : filter === "new" ? "Needs attention" : "Handled"}</button>)}
+              </div>
+              <div style={{ display: "grid", gap: "12px" }}>
+                {feedbackItems.filter((item) => feedbackFilter === "all" || (feedbackFilter === "handled" ? item.handled : !item.handled)).map((item) => (
+                  <article key={item.id} style={{ border: "1px solid #30343d", borderRadius: "10px", padding: "18px", background: "#1a1d23" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}><div><h4 style={{ margin: 0 }}>{item.name || "Trakey User"}</h4><p style={{ margin: "4px 0", color: "#9da3ad" }}>{item.email || "No email"} • {item.type || "Rating"}</p></div><strong style={{ color: "#8ec8ff" }}>{item.rating || 0}/5 ★</strong></div>
+                    <p style={{ margin: "10px 0 5px", color: "#9da3ad", fontSize: "13px" }}>{formatTimestamp(item.submittedAt)} • v{item.appVersion || "—"}</p>
+                    {item.additionalFeedback && <p style={{ whiteSpace: "pre-wrap", color: "#c2c7cf" }}>{item.additionalFeedback}</p>}
+                    {item.answers && Object.keys(item.answers).length > 0 && <details><summary style={{ cursor: "pointer", color: "#8ec8ff" }}>Survey answers</summary><div style={{ marginTop: "10px", display: "grid", gap: "7px" }}>{Object.entries(item.answers).map(([k, v]) => <div key={k}><span style={{ color: "#9da3ad" }}>{k}: </span><span>{String(v)}</span></div>)}</div></details>}
+                    <button type="button" onClick={() => updateFeedbackHandled(item.id, !item.handled)} disabled={phase3BusyId === item.id} style={{ marginTop: "14px" }}>{item.handled ? "Mark as new" : "Mark handled"}</button>
+                  </article>
+                ))}
+                {feedbackItems.length === 0 && <p style={{ color: "#9da3ad" }}>No new detailed feedback has been submitted yet.</p>}
+              </div>
+            </>
+          )}
+
+          {currentSection === "contact" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "18px" }}>
+                <div><h2 style={{ marginBottom: "6px" }}>Contact Us</h2><p style={{ color: "#9da3ad", margin: 0 }}>Live support messages from Trakey.</p></div>
+                <button onClick={() => setCurrentSection("dashboard")}>Back</button>
+              </div>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "18px", flexWrap: "wrap" }}>
+                {["all", "new", "in_progress", "resolved"].map((filter) => <button key={filter} onClick={() => setContactFilter(filter)}>{filter === "all" ? "All" : filter.replace("_", " ")}</button>)}
+              </div>
+              <div style={{ display: "grid", gap: "12px" }}>
+                {contactItems.filter((item) => contactFilter === "all" || (item.status || "new") === contactFilter).map((item) => (
+                  <article key={item.id} style={{ border: "1px solid #30343d", borderRadius: "10px", padding: "18px", background: "#1a1d23" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}><div><h4 style={{ margin: 0 }}>{item.topic || "Support"}</h4><p style={{ margin: "4px 0", color: "#9da3ad" }}>{item.name || "Trakey User"} • {item.email || "No email"}</p></div><span style={{ color: "#8ec8ff", fontSize: "12px" }}>{item.status || "new"}</span></div>
+                    <p style={{ margin: "10px 0", color: "#c2c7cf", whiteSpace: "pre-wrap" }}>{item.message}</p>
+                    <p style={{ margin: "0 0 12px", color: "#9da3ad", fontSize: "13px" }}>{formatTimestamp(item.submittedAt)} • v{item.appVersion || "—"}</p>
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>{["new", "in_progress", "resolved"].map((status) => <button key={status} type="button" onClick={() => updateContactStatus(item.id, status)} disabled={phase3BusyId === item.id}>{status.replace("_", " ")}</button>)}</div>
+                  </article>
+                ))}
+                {contactItems.length === 0 && <p style={{ color: "#9da3ad" }}>No contact messages yet.</p>}
+              </div>
+            </>
+          )}
+
+          {currentSection === "payments" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "18px" }}>
+                <div><h2 style={{ marginBottom: "6px" }}>Payments</h2><p style={{ color: "#9da3ad", margin: 0 }}>Manual UPI orders from the app. Match amount, UTR and time in your bank app before approving.</p></div>
+                <button onClick={() => setCurrentSection("dashboard")}>Back</button>
+              </div>
+              {paymentError && <div className="error-message">{paymentError}</div>}
+              <div style={{ border: "1px solid #30343d", borderRadius: "10px", padding: "16px", background: "#1a1d23", marginBottom: "18px" }}>
+                <h4 style={{ margin: "0 0 4px" }}>Download payment records (for tax)</h4>
+                <p style={{ margin: "0 0 12px", color: "#9da3ad", fontSize: "13px" }}>Approved and rejected payments with customer, plan, amount, UTR, country and dates (IST). Pending orders are never included.</p>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", alignItems: "end", marginBottom: "12px" }}>
+                  <label style={manualLabelStyle}>Status
+                    <select value={exportStatus} onChange={(e) => setExportStatus(e.target.value)} style={manualInputStyle}>
+                      <option value="both">Approved + Rejected</option>
+                      <option value="approved">Approved only</option>
+                      <option value="rejected">Rejected only</option>
+                    </select>
+                  </label>
+                  <label style={manualLabelStyle}>From
+                    <input type="date" value={exportFrom} onChange={(e) => setExportFrom(e.target.value)} style={manualInputStyle} />
+                  </label>
+                  <label style={manualLabelStyle}>To
+                    <input type="date" value={exportTo} onChange={(e) => setExportTo(e.target.value)} style={manualInputStyle} />
+                  </label>
+                  <button type="button" onClick={() => setExportFy(0)}>{financialYear(0).label}</button>
+                  <button type="button" onClick={() => setExportFy(1)}>{financialYear(1).label}</button>
+                  <button type="button" onClick={() => { setExportFrom(""); setExportTo(""); }}>All dates</button>
+                </div>
+                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                  <button type="button" onClick={() => downloadRecords("pdf")}>Download PDF</button>
+                  <button type="button" onClick={() => downloadRecords("csv")}>Download CSV</button>
+                  <span style={{ color: "#7f8792", fontSize: "12px", alignSelf: "center" }}>{selectRecords(paymentItems, { status: exportStatus, from: exportFrom, to: exportTo }).length} records selected</span>
+                </div>
+              </div>
+
+              <div style={{ border: "1px solid #30343d", borderRadius: "10px", padding: "16px", background: "#1a1d23", marginBottom: "18px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px" }}>
+                  <div>
+                    <h4 style={{ margin: "0 0 4px" }}>Add manual record</h4>
+                    <p style={{ margin: 0, color: "#9da3ad", fontSize: "13px" }}>For payments outside India or anything paid outside the app. It appears in the list and in the downloads.</p>
+                  </div>
+                  <button type="button" onClick={() => setShowManual((v) => !v)}>{showManual ? "Close" : "Add record"}</button>
+                </div>
+                {showManual && (
+                  <div style={{ marginTop: "14px", display: "grid", gap: "10px", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
+                    <label style={manualLabelStyle}>Status
+                      <select value={manualForm.status} onChange={(e) => setMF("status", e.target.value)} style={manualInputStyle}>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                    </label>
+                    <label style={manualLabelStyle}>Subscription
+                      <select value={manualForm.plan} onChange={(e) => setMF("plan", e.target.value)} style={manualInputStyle}>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="lifetime">Lifetime (one-time)</option>
+                      </select>
+                    </label>
+                    <label style={manualLabelStyle}>Amount paid
+                      <input type="number" min="0" step="0.01" value={manualForm.amount} onChange={(e) => setMF("amount", e.target.value)} style={manualInputStyle} />
+                    </label>
+                    <label style={manualLabelStyle}>Currency
+                      <input value={manualForm.currency} onChange={(e) => setMF("currency", e.target.value)} maxLength={5} style={manualInputStyle} />
+                    </label>
+                    <label style={manualLabelStyle}>Payment date
+                      <input type="date" value={manualForm.date} onChange={(e) => setMF("date", e.target.value)} style={manualInputStyle} />
+                    </label>
+                    <label style={manualLabelStyle}>Customer name
+                      <input value={manualForm.name} onChange={(e) => setMF("name", e.target.value)} style={manualInputStyle} />
+                    </label>
+                    <label style={manualLabelStyle}>Customer email
+                      <input type="email" value={manualForm.email} onChange={(e) => setMF("email", e.target.value)} style={manualInputStyle} />
+                    </label>
+                    <label style={manualLabelStyle}>Account ID (optional)
+                      <input value={manualForm.uid} onChange={(e) => setMF("uid", e.target.value)} placeholder="from the user's email" style={manualInputStyle} />
+                    </label>
+                    <label style={manualLabelStyle}>Transaction ID / reference
+                      <input value={manualForm.ref} onChange={(e) => setMF("ref", e.target.value)} style={manualInputStyle} />
+                    </label>
+                    <label style={manualLabelStyle}>Payment method
+                      <input value={manualForm.method} onChange={(e) => setMF("method", e.target.value)} placeholder="PayPal, bank, card…" style={manualInputStyle} />
+                    </label>
+                    <label style={manualLabelStyle}>Country
+                      <input value={manualForm.country} onChange={(e) => setMF("country", e.target.value)} style={manualInputStyle} />
+                    </label>
+                    <label style={{ ...manualLabelStyle, gridColumn: "1 / -1" }}>Note / reason
+                      <textarea value={manualForm.note} onChange={(e) => setMF("note", e.target.value)} rows={2} style={{ ...manualInputStyle, resize: "vertical" }} />
+                    </label>
+                    {manualForm.status === "approved" && (
+                      <label style={{ gridColumn: "1 / -1", display: "flex", gap: "8px", alignItems: "center", color: "#c2c7cf", fontSize: "13px" }}>
+                        <input type="checkbox" checked={manualForm.grantPro} onChange={(e) => setMF("grantPro", e.target.checked)} />
+                        Also activate Pro for this Account ID (same days as Approve)
+                      </label>
+                    )}
+                    <div style={{ gridColumn: "1 / -1", display: "flex", gap: "8px" }}>
+                      <button type="button" onClick={addManualPayment} disabled={manualBusy}>{manualBusy ? "Saving…" : "Save record"}</button>
+                      <button type="button" onClick={() => setManualForm(emptyManual())} disabled={manualBusy}>Clear</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: "8px", marginBottom: "18px", flexWrap: "wrap" }}>
+                {["pending", "approved", "rejected", "all"].map((filter) => (
+                  <button key={filter} onClick={() => setPaymentFilter(filter)}>
+                    {filter.charAt(0).toUpperCase() + filter.slice(1)} ({filter === "all" ? paymentItems.length : paymentItems.filter((item) => (item.status || "pending") === filter).length})
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: "grid", gap: "12px" }}>
+                {paymentItems.filter((item) => paymentFilter === "all" || (item.status || "pending") === paymentFilter).map((item) => (
+                  <article key={item.id} style={{ border: "1px solid #30343d", borderRadius: "10px", padding: "18px", background: "#1a1d23" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}>
+                      <div>
+                        <h4 style={{ margin: 0 }}>{item.id} · {item.currency && item.currency !== "INR" ? item.currency : "Rs"} {item.amount} · {item.plan}{item.manual ? " · MANUAL" : ""}</h4>
+                        <p style={{ margin: "4px 0", color: "#9da3ad" }}>{item.name || "Trakey User"} • {item.email || "No email"}</p>
+                      </div>
+                      <span style={{ color: paymentStatusColor(item.status), fontSize: "12px", fontWeight: 700, textTransform: "uppercase" }}>{item.status || "pending"}</span>
+                    </div>
+                    <p style={{ margin: "10px 0 4px", color: "#c2c7cf", fontSize: "15px" }}>{item.manual ? "Ref" : "UTR"}: <strong style={{ letterSpacing: "0.5px" }}>{item.utr || "—"}</strong>{item.manual && (item.method || item.country) ? " · " + [item.method, item.country].filter(Boolean).join(" · ") : ""}</p>
+                    <p style={{ margin: "0 0 4px", color: "#9da3ad", fontSize: "13px" }}>{formatTimestamp(item.createdAt)} • v{item.appVersion || "—"}</p>
+                    <p style={{ margin: "0 0 12px", color: "#7f8792", fontSize: "12px", wordBreak: "break-all" }}>UID: {item.uid || "—"}</p>
+                    {item.note && <p style={{ margin: "0 0 12px", color: "#c2c7cf", whiteSpace: "pre-wrap" }}>Note: {item.note}</p>}
+                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                      {!item.manual && <button type="button" onClick={() => toggleShot(item.id)}>{openShots[item.id] ? "Hide screenshot" : "View screenshot"}</button>}
+                      {item.manual && <button type="button" onClick={() => deleteManualPayment(item)} disabled={paymentBusyId === item.id}>Delete record</button>}
+                      {(item.status || "pending") === "pending" && (
+                        <>
+                          <button type="button" onClick={() => approvePayment(item)} disabled={paymentBusyId === item.id}>Approve</button>
+                          <button type="button" onClick={() => rejectPayment(item)} disabled={paymentBusyId === item.id}>Reject</button>
+                        </>
+                      )}
+                    </div>
+                    {openShots[item.id] && (
+                      <div style={{ marginTop: "14px" }}>
+                        {shotCache[item.id] === undefined && <p style={{ color: "#9da3ad" }}>Loading screenshot…</p>}
+                        {shotCache[item.id] === "" && <p style={{ color: "#ef6a6a" }}>No screenshot found for this order.</p>}
+                        {shotCache[item.id] && (
+                          <img
+                            alt={"Payment screenshot " + item.id}
+                            src={"data:image/jpeg;base64," + shotCache[item.id]}
+                            style={{ maxWidth: "100%", maxHeight: "560px", borderRadius: "10px", border: "1px solid #30343d" }}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </article>
+                ))}
+                {paymentItems.length === 0 && <p style={{ color: "#9da3ad" }}>No payments yet.</p>}
+              </div>
+            </>
+          )}
+
+          {currentSection === "announcements" && (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "16px",
+                  marginBottom: "24px",
+                }}
+              >
+                <div>
+                  <h2 style={{ marginBottom: "6px" }}>Announcements</h2>
+                  <p style={{ color: "#9da3ad", margin: 0 }}>
+                    Create and manage messages shown to Trakey users.
+                  </p>
+                </div>
+
+                <button onClick={() => setCurrentSection("dashboard")}>
+                  Back
+                </button>
+              </div>
+
+              <form
+                onSubmit={handleCreateAnnouncement}
+                style={{
+                  border: "1px solid #30343d",
+                  borderRadius: "8px",
+                  padding: "22px",
+                  background: "#1a1d23",
+                  marginBottom: "24px",
+                }}
+              >
+                <h3 style={{ marginTop: 0 }}>Create announcement</h3>
+
+                <label>Title</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  placeholder="Announcement title"
+                  maxLength={120}
+                  required
+                />
+
+                <label>Description / Message</label>
+                <textarea
+                  value={message}
+                  onChange={(event) => setMessage(event.target.value)}
+                  placeholder="Write the announcement message"
+                  maxLength={2000}
+                  rows={6}
+                  required
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    border: "1px solid #3a3f49",
+                    background: "#111318",
+                    color: "white",
+                    resize: "vertical",
+                  }}
+                />
+
+                <label>Type</label>
+                <select
+                  value={type}
+                  onChange={(event) => setType(event.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    border: "1px solid #3a3f49",
+                    background: "#111318",
+                    color: "white",
+                  }}
+                >
+                  <option>General</option>
+                  <option>Update</option>
+                  <option>Feature</option>
+                  <option>Maintenance</option>
+                  <option>Important</option>
+                </select>
+
+                <label>Action button text (optional)</label>
+                <input
+                  type="text"
+                  value={actionText}
+                  onChange={(event) => setActionText(event.target.value)}
+                  placeholder="Example: View update"
+                  maxLength={60}
+                />
+
+                <label>Action URL (optional)</label>
+                <input
+                  type="url"
+                  value={actionUrl}
+                  onChange={(event) => setActionUrl(event.target.value)}
+                  placeholder="https://..."
+                />
+
+                <button
+                  className="login-button"
+                  type="submit"
+                  disabled={announcementLoading}
+                >
+                  {announcementLoading ? "Publishing..." : "Publish"}
+                </button>
+              </form>
+
+              {successMessage && (
+                <div
+                  style={{
+                    marginBottom: "18px",
+                    padding: "10px",
+                    borderRadius: "6px",
+                    background: "#17331f",
+                    color: "#a8e6b5",
+                  }}
+                >
+                  {successMessage}
+                </div>
+              )}
+
+              {announcementError && (
+                <div className="error-message">
+                  {announcementError}
+                </div>
+              )}
+
+              <section>
+                <h3>Published announcements</h3>
+
+                {announcementLoading && announcements.length === 0 ? (
+                  <p style={{ color: "#9da3ad" }}>Loading...</p>
+                ) : announcements.length === 0 ? (
+                  <p style={{ color: "#9da3ad" }}>
+                    No announcements have been published yet.
+                  </p>
+                ) : (
+                  <div style={{ display: "grid", gap: "12px" }}>
+                    {announcements.map((announcement) => (
+                      <article
+                        key={announcement.id}
+                        style={{
+                          border: "1px solid #30343d",
+                          borderRadius: "8px",
+                          padding: "18px",
+                          background: "#1a1d23",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            gap: "16px",
+                          }}
+                        >
+                          <div>
+                            <p
+                              style={{
+                                margin: "0 0 6px",
+                                color: "#9da3ad",
+                                fontSize: "13px",
+                              }}
+                            >
+                              {announcement.type || "General"} •{" "}
+                              {formatTimestamp(announcement.createdAt)}
+                            </p>
+
+                            <h4 style={{ margin: "0 0 10px" }}>
+                              {announcement.title}
+                            </h4>
+
+                            <p
+                              style={{
+                                margin: 0,
+                                color: "#c2c7cf",
+                                whiteSpace: "pre-wrap",
+                              }}
+                            >
+                              {announcement.message}
+                            </p>
+
+                            {announcement.actionText &&
+                              announcement.actionUrl && (
+                                <p
+                                  style={{
+                                    margin: "12px 0 0",
+                                    color: "#9da3ad",
+                                    fontSize: "13px",
+                                  }}
+                                >
+                                  Action: {announcement.actionText} →{" "}
+                                  {announcement.actionUrl}
+                                </p>
+                              )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleDeleteAnnouncement(announcement.id)
+                            }
+                            disabled={announcementLoading}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {currentSection === "notifications" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
+                <div>
+                  <h2 style={{ marginBottom: "6px" }}>Notifications</h2>
+                  <p style={{ color: "#9da3ad", margin: 0 }}>Send a notification to Trakey users.</p>
+                </div>
+                <button onClick={() => setCurrentSection("dashboard")}>Back</button>
+              </div>
+
+              <form onSubmit={handleCreateNotification} style={{ border: "1px solid #30343d", borderRadius: "8px", padding: "22px", background: "#1a1d23", marginBottom: "24px" }}>
+                <h3 style={{ marginTop: 0 }}>Send notification</h3>
+                <label>Title</label>
+                <input type="text" value={notificationTitle} onChange={(event) => setNotificationTitle(event.target.value)} placeholder="Example: Trakey 2.0.2 is available" maxLength={120} required />
+                <label>Message</label>
+                <textarea value={notificationMessage} onChange={(event) => setNotificationMessage(event.target.value)} placeholder="Write the notification message" maxLength={500} rows={5} required style={{ width: "100%", boxSizing: "border-box", padding: "12px", borderRadius: "6px", border: "1px solid #3a3f49", background: "#111318", color: "white", resize: "vertical" }} />
+                <button className="login-button" type="submit" disabled={notificationLoading}>{notificationLoading ? "Sending..." : "Send Notification"}</button>
+              </form>
+
+              {notificationSuccess && <div style={{ marginBottom: "18px", padding: "10px", borderRadius: "6px", background: "#17331f", color: "#a8e6b5" }}>{notificationSuccess}</div>}
+              {notificationError && <div className="error-message">{notificationError}</div>}
+
+              <section>
+                <h3>Sent notifications</h3>
+                {notificationLoading && notifications.length === 0 ? <p style={{ color: "#9da3ad" }}>Loading...</p> : notifications.length === 0 ? <p style={{ color: "#9da3ad" }}>No notifications have been sent yet.</p> : (
+                  <div style={{ display: "grid", gap: "12px" }}>
+                    {notifications.map((item) => (
+                      <article key={item.id} style={{ border: "1px solid #30343d", borderRadius: "8px", padding: "18px", background: "#1a1d23" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}>
+                          <div>
+                            <p style={{ margin: "0 0 6px", color: "#9da3ad", fontSize: "13px" }}>{formatTimestamp(item.createdAt)}</p>
+                            <h4 style={{ margin: "0 0 10px" }}>{item.title}</h4>
+                            <p style={{ margin: 0, color: "#c2c7cf", whiteSpace: "pre-wrap" }}>{item.message}</p>
+                          </div>
+                          <button type="button" onClick={() => handleDeleteNotification(item.id)} disabled={notificationLoading}>Delete</button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+          {currentSection === "history" && (
+            <>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "16px", marginBottom: "24px" }}>
+                <div>
+                  <h2 style={{ marginBottom: "6px" }}>Message History</h2>
+                  <p style={{ color: "#9da3ad", margin: 0 }}>Announcements, notifications and updates published from Trakey Admin.</p>
+                </div>
+                <button onClick={() => setCurrentSection("dashboard")}>Back</button>
+              </div>
+              {historyError && <div className="error-message">{historyError}</div>}
+              {historyLoading ? <p style={{ color: "#9da3ad" }}>Loading history...</p> : history.length === 0 ? <p style={{ color: "#9da3ad" }}>No message history yet.</p> : (
+                <div style={{ display: "grid", gap: "12px" }}>
+                  {history.map((item) => (
+                    <article key={item.id} style={{ border: "1px solid #30343d", borderRadius: "8px", padding: "18px", background: "#1a1d23" }}>
+                      <p style={{ margin: "0 0 6px", color: "#9da3ad", fontSize: "13px" }}>{item.category} • {formatTimestamp(item.timestamp)}</p>
+                      <h4 style={{ margin: "0 0 8px" }}>{item.title}</h4>
+                      <p style={{ margin: 0, color: "#c2c7cf", whiteSpace: "pre-wrap" }}>{item.message}</p>
+                      {item.category === "Update" && item.data.version && <p style={{ margin: "10px 0 0", color: "#9da3ad", fontSize: "13px" }}>Version: {item.data.version}</p>}
+                    </article>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+
+          {currentSection === "updates" && (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: "16px",
+                  marginBottom: "24px",
+                }}
+              >
+                <div>
+                  <h2 style={{ marginBottom: "6px" }}>Updates</h2>
+                  <p style={{ color: "#9da3ad", margin: 0 }}>
+                    Publish Trakey version updates and release notes.
+                  </p>
+                </div>
+                <button onClick={() => setCurrentSection("dashboard")}>Back</button>
+              </div>
+
+              <form
+                onSubmit={handleCreateUpdate}
+                style={{
+                  border: "1px solid #30343d",
+                  borderRadius: "8px",
+                  padding: "22px",
+                  background: "#1a1d23",
+                  marginBottom: "24px",
+                }}
+              >
+                <h3 style={{ marginTop: 0 }}>Publish update</h3>
+
+                <label>Version</label>
+                <input
+                  type="text"
+                  value={version}
+                  onChange={(event) => setVersion(event.target.value)}
+                  placeholder="Example: 1.2.0"
+                  maxLength={30}
+                  required
+                />
+
+                <label>Update title</label>
+                <input
+                  type="text"
+                  value={updateTitle}
+                  onChange={(event) => setUpdateTitle(event.target.value)}
+                  placeholder="Example: Trakey 1.2 is here"
+                  maxLength={120}
+                  required
+                />
+
+                <label>Short description</label>
+                <textarea
+                  value={updateDescription}
+                  onChange={(event) => setUpdateDescription(event.target.value)}
+                  placeholder="Briefly describe what this update brings."
+                  maxLength={500}
+                  rows={4}
+                  required
+                  style={{
+                    width: "100%",
+                    boxSizing: "border-box",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    border: "1px solid #3a3f49",
+                    background: "#111318",
+                    color: "white",
+                    resize: "vertical",
+                  }}
+                />
+
+                <label>What's new / Release notes</label>
+                <textarea
+                  value={releaseNotes}
+                  onChange={(event) => setReleaseNotes(event.target.value)}
+                  placeholder={"Example:\n• New Goals improvements\n• Faster Notes loading\n• Bug fixes"}
+                  maxLength={3000}
+                  rows={8}
+                  style={{
+                    width: "100%",
+                    boxSizing: "border-box",
+                    padding: "12px",
+                    borderRadius: "6px",
+                    border: "1px solid #3a3f49",
+                    background: "#111318",
+                    color: "white",
+                    resize: "vertical",
+                    whiteSpace: "pre-wrap",
+                  }}
+                />
+
+                <label>Update / Download URL (optional)</label>
+                <input
+                  type="url"
+                  value={downloadUrl}
+                  onChange={(event) => setDownloadUrl(event.target.value)}
+                  placeholder="https://..."
+                />
+
+                <button
+                  className="login-button"
+                  type="submit"
+                  disabled={updateLoading}
+                >
+                  {updateLoading ? "Publishing..." : "Publish Update"}
+                </button>
+              </form>
+
+              {updateSuccess && (
+                <div
+                  style={{
+                    marginBottom: "18px",
+                    padding: "10px",
+                    borderRadius: "6px",
+                    background: "#17331f",
+                    color: "#a8e6b5",
+                  }}
+                >
+                  {updateSuccess}
+                </div>
+              )}
+
+              {updateError && <div className="error-message">{updateError}</div>}
+
+              <section>
+                <h3>Published updates</h3>
+                {updateLoading && updates.length === 0 ? (
+                  <p style={{ color: "#9da3ad" }}>Loading...</p>
+                ) : updates.length === 0 ? (
+                  <p style={{ color: "#9da3ad" }}>No updates have been published yet.</p>
+                ) : (
+                  <div style={{ display: "grid", gap: "12px" }}>
+                    {updates.map((update) => (
+                      <article
+                        key={update.id}
+                        style={{
+                          border: "1px solid #30343d",
+                          borderRadius: "8px",
+                          padding: "18px",
+                          background: "#1a1d23",
+                        }}
+                      >
+                        <div style={{ display: "flex", justifyContent: "space-between", gap: "16px" }}>
+                          <div style={{ flex: 1 }}>
+                            <p style={{ margin: "0 0 6px", color: "#9da3ad", fontSize: "13px" }}>
+                              Trakey v{update.version || "—"} • {formatTimestamp(update.publishedAt || update.createdAt)}
+                            </p>
+                            <h4 style={{ margin: "0 0 8px" }}>{update.title}</h4>
+                            <p style={{ margin: "0 0 10px", color: "#c2c7cf", whiteSpace: "pre-wrap" }}>
+                              {update.description}
+                            </p>
+                            {update.releaseNotes && (
+                              <details>
+                                <summary style={{ cursor: "pointer", color: "#8ec8ff" }}>What's new</summary>
+                                <p style={{ color: "#c2c7cf", whiteSpace: "pre-wrap" }}>{update.releaseNotes}</p>
+                              </details>
+                            )}
+                            {update.downloadUrl && (
+                              <p style={{ margin: "10px 0 0", color: "#9da3ad", fontSize: "13px", wordBreak: "break-all" }}>
+                                Update URL: {update.downloadUrl}
+                              </p>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteUpdate(update.id)}
+                            disabled={updateLoading}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
+          )}
+
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="login-page">
+      <div className="login-box">
+        <h1>Trakey Admin</h1>
+        <p className="subtitle">Administrator Sign In</p>
+
+        <button
+          className="google-button"
+          onClick={handleGoogleLogin}
+          disabled={loading}
+        >
+          Continue with Google
+        </button>
+
+        <div className="divider">
+          <span>OR</span>
+        </div>
+
+        <form onSubmit={handleEmailLogin}>
+          <label>Email</label>
+
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder="Admin email"
+            required
+          />
+
+          <label>Password</label>
+
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Password"
+            required
+          />
+
+          <button
+            className="login-button"
+            type="submit"
+            disabled={loading}
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
+
+        {error && <div className="error-message">{error}</div>}
+
+        <p className="security-note">
+          Authorized administrators only.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default App;
