@@ -14,7 +14,7 @@ const EMAILJS_TEMPLATE_ID = "template_m6fg0y8";
 const MANIAXE_LINKS = {
   site:            "https://maniaxe.in",
   trakeyPage:      "https://maniaxe.in/app.html",
-  trakeyApk:       "https://github.com/avanish9026-creator/maniaxe/releases/download/v2.4.3/Trakey-2-4-3.apk",
+  trakeyApk:       "https://github.com/avanish9026-creator/maniaxe/releases/download/v3.2.3/Trakey-3-2-3.apk",
   trakeyUptodown:  "https://trakey.en.uptodown.com/android",
   ledraPage:       "https://maniaxe.in/ledra.html",
   ledraApk:        "https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk"
