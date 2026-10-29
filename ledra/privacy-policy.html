@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ledra – Privacy Policy</title>
+<meta name="description" content="Privacy Policy and Terms of Use for the Ledra app by Trakey Labs.">
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#ffffff; --text:#14181f; --sub:#5b6472; --line:#e5e8ed;
+    --primary:#2f5bea; --soft:#eef2ff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0f1218; --card:#171b23; --text:#eceff4; --sub:#9aa4b2; --line:#262c37; --primary:#7b9bff; --soft:#1b2236; }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;scroll-padding-top:84px}
+  body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  header{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+  .bar{max-width:760px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:12px}
+  .logo{width:34px;height:34px;border-radius:10px;background:var(--primary);color:#fff;font-weight:700;display:grid;place-items:center;font-size:18px}
+  .brand{font-weight:700;font-size:17px;flex:1}
+  nav{display:flex;gap:6px}
+  nav a{color:var(--sub);text-decoration:none;font-size:14px;font-weight:600;padding:7px 14px;border-radius:999px}
+  nav a:hover,nav a.active{background:var(--soft);color:var(--primary)}
+  main{max-width:760px;margin:0 auto;padding:28px 20px 64px}
+  section.doc{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px 28px 20px;margin-bottom:28px}
+  h1{font-size:28px;line-height:1.25;margin:0 0 4px}
+  .meta{color:var(--sub);font-size:14px;margin:0 0 20px}
+  h2{font-size:17px;margin:28px 0 6px}
+  p,li{color:var(--text)}
+  p{margin:8px 0}
+  ul{padding-left:22px;margin:8px 0}
+  li{margin:4px 0}
+  .note{background:var(--soft);border-radius:14px;padding:14px 16px;margin:16px 0;font-size:15px}
+  a{color:var(--primary)}
+  footer{text-align:center;color:var(--sub);font-size:13px;padding:0 20px 40px}
+  @media (max-width:520px){ section.doc{padding:22px 18px 14px} h1{font-size:24px} .brand{font-size:16px} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="logo">L</div>
+    <div class="brand"><a href="/ledra" style="color:inherit;text-decoration:none">Ledra</a></div>
+    <nav>
+      <a href="privacy-policy.html" class="active">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section class="doc" id="privacy">
+  <h1>Privacy Policy</h1>
+  <p class="meta">Ledra by Trakey Labs · Last updated: 29 October 2026</p>
+
+  <p>Ledra is a simple app to keep payment records for people you collect from or pay, funds, employees and invoices. This policy explains what information the app uses and why. In short: your records belong to you, they stay on your phone, and we do not sell your data.</p>
+
+  <div class="note">Your records are stored on your phone. They are copied to the cloud only if you choose to sign in with Google and keep backup turned on.</div>
+
+  <h2>1. Information you enter</h2>
+  <p>Everything you add in Ledra, such as names, phone numbers, addresses, notes, payment amounts and dates, fund and employee entries, attendance, items, shop details and invoices, is saved on your device. You decide what to enter.</p>
+
+  <h2>2. Google sign-in and cloud backup (optional)</h2>
+  <p>If you tap “Continue with Google”, we receive your Google account email address through Google Sign-In and Firebase Authentication. While Auto backup is on, Ledra uploads a copy of your records to Google Firebase (Cloud Firestore), under your own account, so you can restore them on a new phone and keep the Ledra web app in step with your phone.</p>
+  <ul>
+    <li>Only you, signed in with the same Google account, can read your backup.</li>
+    <li>You can turn Auto backup off, or sign out, at any time in Settings.</li>
+    <li>If you never sign in, nothing is uploaded and the app works fully offline.</li>
+  </ul>
+
+  <h2>3. App PIN</h2>
+  <p>If you set an app PIN, only a hashed (scrambled) form of it is stored on your device. We never see your PIN.</p>
+
+  <h2>4. Usage analytics (Microsoft Clarity)</h2>
+  <p>Ledra uses Microsoft Clarity to understand how the app is used and to fix problems. Clarity may collect anonymised usage information such as screens visited, taps and scrolls, session recordings and heatmaps, and device information (device model, operating system, app version, approximate location from IP address). Clarity applies masking to sensitive content. We do not use Clarity to identify you personally. Clarity is operated by Microsoft; see the <a href="https://privacy.microsoft.com/privacystatement" target="_blank" rel="noopener">Microsoft Privacy Statement</a> for how Microsoft handles data.</p>
+
+  <h2>5. Permissions the app asks for</h2>
+  <ul>
+    <li><strong>Internet</strong>: for sign-in, backup, sync and checking for updates.</li>
+    <li><strong>Notifications</strong>: only if you turn on the daily reminder for due payments.</li>
+    <li><strong>Run at start-up</strong>: so your reminder keeps working after the phone restarts.</li>
+  </ul>
+  <p>Ledra does not access your contacts, location, microphone or photos.</p>
+
+  <h2>6. Update check</h2>
+  <p>To tell you when a newer version is available, the app contacts GitHub to look up the latest Ledra release. No personal data from your records is sent.</p>
+
+  <h2>7. Sharing and exports</h2>
+  <p>We do not sell or rent your information. Data leaves your phone only when you (a) enable cloud backup, (b) export or share a PDF, CSV or invoice, for example through WhatsApp or email, or (c) because of the service providers named above (Google Firebase, Microsoft Clarity, GitHub), which process data to provide their services.</p>
+
+  <h2>8. Your choices</h2>
+  <ul>
+    <li>Use Ledra without signing in.</li>
+    <li>Turn off backup or sign out in Settings.</li>
+    <li>Delete records inside the app, or uninstall the app to remove the data on your phone.</li>
+    <li>Ask us to delete your cloud backup by emailing us from your account email address.</li>
+  </ul>
+
+  <h2>9. Security</h2>
+  <p>We use industry-standard services and access rules so that only you can read your backup. No method of storage or transmission is completely secure, so we recommend you set an app PIN and keep your phone locked.</p>
+
+  <h2>10. Children</h2>
+  <p>Ledra is a business and record-keeping tool and is not directed to children under 13. We do not knowingly collect information from children.</p>
+
+  <h2>11. Changes to this policy</h2>
+  <p>We may update this policy from time to time. The latest version is always on this page, with the date above.</p>
+
+  <h2>12. Contact</h2>
+  <p>Questions or requests: <a href="mailto:support.trakey@gmail.com">support.trakey@gmail.com</a></p>
+</section>
+
+</main>
+
+<footer>© <span id="yr">2026</span> Trakey Labs · Ledra</footer>
+<script>document.getElementById('yr').textContent = new Date().getFullYear();</script>
+</body>
+</html>
