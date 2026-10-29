@@ -17,7 +17,7 @@ const MANIAXE_LINKS = {
   trakeyApk:       "https://github.com/avanish9026-creator/maniaxe/releases/download/v4.2.4/Trakey-4-2-4.apk",
   trakeyUptodown:  "https://trakey.en.uptodown.com/android",
   ledraPage:       "https://maniaxe.in/ledra.html",
-  ledraApk:        "https://github.com/avanish9026-creator/maniaxe/releases/download/v1.0.3/Ledra.apk"
+  ledraApk:        "https://github.com/avanish9026-creator/maniaxe/releases/download/v1.2.3/Ledra-1-2-3.apk"
 };
 
 if (typeof emailjs !== "undefined") {
