@@ -22,6 +22,20 @@ export const APPROVAL_TEXT = "Usually approved within 24 hours";
 export const WEB_VERSION = "web";                 // goes into payments/{id}.appVersion (the app sends its version name)
 export const QR_URL = "./trakey_pay_qr.png";      // next to index.html
 
+// PayU (online payment: UPI, cards, netbanking, wallets). Runs through the free Cloudflare Worker in /worker (it holds the secret salt).
+// Paste your Worker address here after you deploy it. While it still says YOUR-SUBDOMAIN the PayU button stays hidden.
+export const PAYU_WORKER = "https://trakey-payu.trakey-ai.workers.dev";
+const PAYU_ON = !PAYU_WORKER.includes("trakey-ai");
+// While the Worker is in TEST mode the PayU button is shown only to these accounts (the Worker enforces it too). In live mode everyone sees it.
+export const PAYU_TEST_EMAILS = ["trakeylabs@gmail.com"];
+let payuMode = null;   // "test" | "live" | null (unknown yet = button hidden)
+async function loadPayuMode() {
+  if (!PAYU_ON || payuMode) return;
+  try { const r = await fetch(PAYU_WORKER + "/payu/health"); const j = await r.json(); payuMode = j && j.configured ? j.mode : null; } catch { payuMode = null; }
+  if (payuMode) refreshPro();
+}
+const payuShown = () => PAYU_ON && (payuMode === "live" || (payuMode === "test" && PAYU_TEST_EMAILS.includes(String((ctx && ctx.auth.currentUser && ctx.auth.currentUser.email) || "").toLowerCase())));
+
 const MAX_SHOT_BYTES = 450_000;                    // JPEG size after compressing (base64 is ~4/3 of this, under Firestore's 1 MB document limit)
 const MAX_SHOT_EDGE = 1600;
 const ID_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // no 0/O/1/I
@@ -46,7 +60,7 @@ export function parseOrder(id, d) {
   const at = t && typeof t.toMillis === "function" ? t.toMillis() : Date.now();   // pending server timestamp = now
   return {
     id, plan: String(d?.plan || ""), amount: Math.floor(Number(d?.amount) || 0), utr: String(d?.utr || ""),
-    status: String(d?.status || "pending"), createdAt: at, note: String(d?.note || ""),
+    status: String(d?.status || "pending"), createdAt: at, note: String(d?.note || ""), provider: String(d?.provider || ""),
   };
 }
 
@@ -231,7 +245,7 @@ let S = null;            // dialog state, null while closed
 let unsub = null;
 
 /** Call once after sign-in. ctx = { db, auth, P (pro.js), getRaw: () => proStatus raw }. */
-export function initPay(c) { ctx = c; }
+export function initPay(c) { const first = !ctx; ctx = c; if (first) { setTimeout(handlePayuReturn, 0); loadPayuMode(); } }
 
 /** Stops listening (sign-out). */
 export function resetPay() {
@@ -258,7 +272,7 @@ export function openPro(opts = {}) {
   ensureDialog();
   const user = ctx.auth.currentUser;
   if (!user) return;
-  S = { step: "plans", reason: opts.reason || "", plan: opts.plan || "yearly", orders: null, readFailed: false, orderId: newOrderId(), utr: "", shot: null, shotUrl: "", shotBusy: false, busy: false, msg: "", contact: false, contactText: "", contactErr: "", contactBusy: false };
+  S = { step: opts.step || "plans", reason: opts.reason || "", plan: opts.plan || "yearly", orders: null, readFailed: false, orderId: newOrderId(), utr: "", shot: null, shotUrl: "", shotBusy: false, busy: false, msg: "", contact: false, contactText: "", contactErr: "", contactBusy: false, payuBusy: false };
   if (unsub) unsub();
   unsub = listenOrders(ctx.db, user.uid, (list) => {
     if (!S) return;
@@ -272,6 +286,35 @@ export function openPro(opts = {}) {
 
 /** Pro status changed (the proStatus snapshot arrived): redraw if the page is open. */
 export function refreshPro() { if (S && dlg && dlg.open) draw(); }
+
+/** Asks the Worker for a signed PayU request, then posts the customer to PayU's page. Nothing secret is here. */
+async function startPayu(user, plan) {
+  const token = await user.getIdToken();
+  let res;
+  try {
+    res = await withTimeout(fetch(PAYU_WORKER + "/payu/create", {
+      method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer " + token }, body: JSON.stringify({ plan }),
+    }), 20_000);
+  } catch { throw new Error("No connection. Check the internet and try again."); }
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok || !j.url || !j.fields) throw new Error(j.error || "Could not open PayU. Please try again.");
+  const f = document.createElement("form");
+  f.method = "POST"; f.action = j.url; f.style.display = "none";
+  for (const [k, v] of Object.entries(j.fields)) { const i = document.createElement("input"); i.type = "hidden"; i.name = k; i.value = v; f.appendChild(i); }
+  document.body.appendChild(f);
+  f.submit();
+}
+
+/** Back from PayU: the Worker redirects to /trakey/?payu=success|failed|error&order=... Shows the result, then cleans the address bar. */
+function handlePayuReturn() {
+  let q; try { q = new URLSearchParams(location.search); } catch { return; }
+  const r = q.get("payu");
+  if (!r) return;
+  try { history.replaceState(null, "", location.pathname + location.hash); } catch { /* ignore */ }
+  if (r === "success") openPro({ step: "pay", reason: "Payment received. Trakey Pro is being turned on…" });
+  else if (r === "error") openPro({ reason: "We could not confirm your payment yet. If money was deducted, Pro will turn on automatically, or contact us with your order ID." });
+  else openPro({ reason: "The payment was not completed, so nothing was charged. You can try again." });
+}
 
 const ackKey = (id) => "trakey_web_pay_ack_" + id;
 const isAcked = (o) => { try { return !!o && localStorage.getItem(ackKey(o.id)) === "1"; } catch { return false; } };
@@ -320,7 +363,7 @@ function draw() {
     // ---- payment step (same four views as the app) ----
     const amount = P.amountFor(S.plan);
     title = { pending: "Payment status", approved: "Payment approved", rejected: "Payment not approved" }[view] || "Pay for Pro";
-    const details = (o) => `<div class="pdet"><div><span>Order</span><b>${esc(o.id)}</b></div><div><span>Plan</span><b>${esc(planNameOf(o.plan))} · ₹${o.amount}</b></div><div><span>UTR</span><b>${esc(o.utr)}</b></div><div><span>Submitted</span><b>${esc(payDate(o.createdAt))}</b></div></div>`;
+    const details = (o) => `<div class="pdet"><div><span>Order</span><b>${esc(o.id)}</b></div><div><span>Plan</span><b>${esc(planNameOf(o.plan))} · ₹${o.amount}</b></div><div><span>${o.provider === "payu" ? "Paid via" : "UTR"}</span><b>${o.provider === "payu" ? "PayU" : esc(o.utr)}</b></div><div><span>Submitted</span><b>${esc(payDate(o.createdAt))}</b></div></div>`;
     const status = (ic, h, p) => `<div class="pstatus"><div class="ic">${ic}</div><h2>${esc(h)}</h2><p>${esc(p)}</p></div>`;
 
     if (view === "loading") body = `<div class="pcenter" style="padding:90px 0;color:var(--sub)">Loading…</div>`;
@@ -335,7 +378,10 @@ function draw() {
       foot = `<button type="button" class="btn pgo" data-p="retry">Try again</button><button type="button" class="btn ghost pgo" style="margin-top:10px" data-p="contact">Contact us</button>`;
     } else {
       const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-      body = `<div class="pamt">₹${amount}</div><div class="psub">${esc(planNameOf(S.plan))} · Order ${esc(S.orderId)}</div>
+      const payu = payuShown() ? `<button type="button" class="btn pgo" data-p="payu" ${S.payuBusy ? "disabled" : ""}>${S.payuBusy ? "Opening PayU…" : "Pay ₹" + amount + " online (UPI, card, netbanking)"}</button>
+        <div class="ptiny">Secure payment by PayU. Pro turns on by itself in a few seconds.</div>
+        <div class="ptiny" style="margin:16px 0 4px">— or pay manually with the QR below —</div>` : "";
+      body = `<div class="pamt">₹${amount}</div><div class="psub">${esc(planNameOf(S.plan))}${payuShown() ? "" : " · Order " + esc(S.orderId)}</div>${payu}
         <div class="pqr"><img src="${QR_URL}" alt="UPI QR code" width="228" height="228"></div>
         <div class="ptiny">Scan with any UPI app${mobile ? ", or tap the button below" : ""}</div>
         <div class="pupi"><div><small>UPI ID</small><b>${esc(UPI_ID)}</b></div><button type="button" data-p="copy">Copy</button></div>
@@ -419,6 +465,16 @@ async function onClick(e) {
       try { await navigator.clipboard.writeText(UPI_ID); el.textContent = "Copied"; setTimeout(() => { if (el.isConnected) el.textContent = "Copy"; }, 1500); }
       catch { const i = document.createElement("textarea"); i.value = UPI_ID; document.body.appendChild(i); i.select(); try { document.execCommand("copy"); el.textContent = "Copied"; } catch { /* ignore */ } i.remove(); }
       return;
+    case "payu": {
+      if (S.payuBusy || !user) return;
+      S.payuBusy = true; S.msg = ""; draw();
+      try { await startPayu(user, S.plan); return; }   // the browser leaves for PayU
+      catch (err) {
+        if (!S) return;
+        S.payuBusy = false; S.msg = err.message || "Could not open PayU. Please try again."; draw();
+      }
+      return;
+    }
     case "outside":
       location.href = outsideIndiaMail(S.plan, P.amountFor(S.plan), user); return;
     case "contact": S.contact = true; S.contactText = ""; S.contactErr = ""; draw(); return;
