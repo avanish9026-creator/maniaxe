@@ -25,7 +25,7 @@ export const QR_URL = "./trakey_pay_qr.png";      // next to index.html
 // PayU (online payment: UPI, cards, netbanking, wallets). Runs through the free Cloudflare Worker in /worker (it holds the secret salt).
 // Paste your Worker address here after you deploy it. While it still says YOUR-SUBDOMAIN the PayU button stays hidden.
 export const PAYU_WORKER = "https://trakey-payu.trakey-ai.workers.dev";
-const PAYU_ON = !PAYU_WORKER.includes("trakey-ai");
+const PAYU_ON = !PAYU_WORKER.includes("YOUR-SUBDOMAIN");
 // While the Worker is in TEST mode the PayU button is shown only to these accounts (the Worker enforces it too). In live mode everyone sees it.
 export const PAYU_TEST_EMAILS = ["trakeylabs@gmail.com"];
 let payuMode = null;   // "test" | "live" | null (unknown yet = button hidden)
