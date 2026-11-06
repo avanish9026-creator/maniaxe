@@ -32,7 +32,19 @@ exports.sendTrakeyNotification = onCall(async (request) => {
   // ---------------------------------------------------------
   // 2. Verify Trakey Admin account
   // ---------------------------------------------------------
-  if (request.auth.uid !== ADMIN_UID) {
+  // The owner, or an active "editor" added in Trakey Admin > Team access (adminStaff/{uid}).
+  let allowed = request.auth.uid === ADMIN_UID;
+  if (!allowed) {
+    const staff = await getFirestore()
+      .collection("adminStaff")
+      .doc(request.auth.uid)
+      .get();
+    allowed = staff.exists &&
+      staff.data().role === "editor" &&
+      staff.data().active !== false;
+  }
+
+  if (!allowed) {
     throw new HttpsError(
       "permission-denied",
       "Admin access required."
