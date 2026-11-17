@@ -88,6 +88,10 @@ export function buildModel(prefs, now = new Date()) {
     id: t.id, title: t.title || "", description: t.description || "",
     dueAt: typeof t.dueAt === "number" && t.dueAt >= 0 ? t.dueAt : null,
     priority: t.priority || "Medium", category: t.category || "General", completed: !!t.completed,
+    // Same keys as the phone writes (only when used), so saving a task from the web keeps them.
+    ...(Array.isArray(t.steps) && t.steps.length ? { steps: t.steps.map((x) => ({ t: String(x?.t || ""), d: !!x?.d })) } : {}),
+    ...(t.repeat ? { repeat: String(t.repeat) } : {}),
+    ...(t.goalStepId ? { goalId: t.goalId || 0, goalStepId: t.goalStepId } : {}),
   }));
 
   const goals = arr(prefs, "trakey_goals", "goals_json").map((g) => {
@@ -145,8 +149,18 @@ export function buildModel(prefs, now = new Date()) {
 
   const challengesRaw = arr(prefs, "trakey_challenge_v4", "history");
 
+  // Activity log for the Weekly / monthly report (trakey_report_log + trakey_habit_log in the backup).
+  const report = { days: {}, habits: {} };
+  const logObj = (file) => { try { const o = JSON.parse(prefs?.[file]?.log || "{}"); return o && typeof o === "object" ? o : {}; } catch { return {}; } };
+  for (const [day, v] of Object.entries(logObj("trakey_report_log"))) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(day) && v && typeof v === "object") report.days[day] = { t: v.t | 0, g: v.g | 0, f: v.f | 0, s: v.s | 0, st: v.st | 0, gm: v.gm | 0 };
+  }
+  for (const v of Object.values(logObj("trakey_habit_log"))) {
+    for (const day of String(v || "").split(",")) if (/^\d{4}-\d{2}-\d{2}$/.test(day)) report.habits[day] = (report.habits[day] || 0) + 1;
+  }
+
   return { profile, notes, tasks, goals, habits, learnNotes, learnSessions, learned, learnedIds,
-    challenges, challengesRaw, folders, game };
+    challenges, challengesRaw, folders, game, report };
 }
 
 // ---- Live sync documents written by the phone (TrakeySync): users/{uid}/backup/sync_{feature} ----

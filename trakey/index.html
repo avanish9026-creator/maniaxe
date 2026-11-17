@@ -82,6 +82,8 @@ dialog textarea{min-height:160px;resize:vertical}
 .rfoot{display:flex;gap:12px;padding:14px 18px 22px;align-items:center}
 .rplay{width:112px;height:112px;border-radius:50%;border:0;background:var(--blue);color:#06121c;font-size:44px}
 .rsheet{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:18px;z-index:5}
+.rpup{color:var(--ok)}.rpdown{color:var(--bad)}.rpflat{color:var(--sub)}.stat small{display:block;margin-top:2px;font-size:12px}.clk{cursor:pointer}.clk:hover{text-decoration:underline}
+.dstep{display:flex;gap:10px;align-items:center;padding:6px 0}
 @media print{nav,.banner,.btnrow,.chip,.top .chip,#runner{display:none!important}#app{display:block}main{padding:0}}
 .mxlink{display:inline-flex;align-items:center;gap:6px;color:var(--sub);text-decoration:none;font-size:13px;font-weight:600}
 .mxlink:hover{color:var(--blue)}
@@ -216,10 +218,12 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let X = null;                                   // exam.js, loaded after sign-in
+let RP = null, rpMonthly = false;               // report.js: Weekly / monthly report
+let LB = null, libAll = [], libState = "idle", libKey = null, libView = [];   // library.js: the built-in question library (read-only, Exam only)
 let webExams = [];                              // exams taken on the website (users/{uid}/backup/web_exam_history)
 let ex = { view: "setup", sel: [], topicSel: {}, openTopics: null, qLimit: false, qCount: 20, tLimit: false, minutes: 30, perQ: false, perQSec: 60, neg: false, negIdx: 1, shuffle: true, rec: null, filter: 0 };
 let live = { uid: null, unsub: [], docs: {}, seq: {}, lastAt: 0 }, liveError = "";
-let M = null, backupMeta = null, tab = "overview", ui = { q: "", folder: "All", qfolder: null };
+let M = null, backupMeta = null, tab = "overview", ui = { q: "", folder: "All", qfolder: null, openNote: null };
 let ln = { sid: null, tid: null, mode: 0, idx: 0, flipped: false, order: null, result: null }, lnCache = { sig: "", subjects: [] };
 
 if (location.protocol === "file:") {
@@ -280,6 +284,8 @@ async function load(user) {
     if (!Q) { try { Q = await import("./qimport.js"); } catch (e) { console.error("qimport.js", e); } }
     if (!S) { try { S = await import("./scan.js"); } catch (e) { console.error("scan.js", e); } }
     if (!P) { try { P = await import("./pro.js"); } catch (e) { console.error("pro.js", e); } }
+    if (!RP) { try { RP = await import("./report.js"); } catch (e) { console.error("report.js", e); } }
+    if (!LB) { try { LB = await import("./library.js"); } catch (e) { console.error("library.js", e); } }
     if (!PAY && P) { try { PAY = await import("./pay.js"); } catch (e) { console.error("pay.js", e); } }
     if (PAY) PAY.initPay({ db, auth, P, getRaw: () => proRaw });
     proWatch(user);
@@ -385,12 +391,36 @@ function examRecords() {
   return out;
 }
 
+/** Your own question folders + the built-in library (free part, or everything with Pro / trial). */
+function examFolders() {
+  if (!LB || !libAll.length) return M.folders;
+  const pro = proIsPro();
+  if (libKey !== pro) { libKey = pro; libView = LB.forTier(libAll, pro); }
+  return M.folders.concat(libView);
+}
+
+function ensureLibrary() {
+  if (!LB || libState !== "idle") return;
+  libState = "loading";
+  LB.loadLibrary().then((all) => { libAll = all; libKey = null; libState = "done"; if (tab === "exam") render(); });
+}
+
+function libraryNote() {
+  if (!LB) return "";
+  if (libState !== "done") return '<div class="m" style="margin:0 0 12px">Loading the Trakey question library…</div>';
+  if (!libAll.length) return "";
+  const have = LB.totalCount(libView), all = LB.totalCount(libAll);
+  return `<div class="m" style="margin:0 0 12px">Built-in Trakey library: ${have.toLocaleString()} questions` +
+    (have < all ? ` · <a href="#pro" data-pro="open">Get Trakey Pro</a> to unlock all ${all.toLocaleString()}` : "") + "</div>";
+}
+
 function examView() {
   if (!X) return '<div class="empty">exam.js could not be loaded.<br>Upload exam.js into the same folder as index.html.</div>';
+  ensureLibrary();
   const records = examRecords();
   if (ex.view === "result" && ex.rec) return X.resultHTML(ex.rec, ex.filter, esc, fmtDT, webExams.some((r) => r.id === ex.rec.id));
-  return head("Exam", "Take an exam from your question folders, with the same rules as the app.") + X.statsHTML(records) +
-    X.setupHTML(ex, M.folders, esc) + X.historyHTML(records, esc, fmtDT);
+  return head("Exam", "Take an exam from your question folders or the built-in Trakey library, with the same rules as the app.") + X.statsHTML(records) + libraryNote() +
+    X.setupHTML(ex, examFolders(), esc) + X.historyHTML(records, esc, fmtDT);
 }
 
 async function saveExamHistory(change) {
@@ -406,7 +436,7 @@ async function saveExamHistory(change) {
   } catch (e) { alert("The exam result could not be saved to your account (" + (e.code || e.message) + "). It is shown here only."); }
 }
 
-function examPool() { return X.buildPool(M.folders, ex.sel, ex.topicSel); }
+function examPool() { return X.buildPool(examFolders(), ex.sel, ex.topicSel); }
 
 function updateStartLabel() {
   const b = $("exstart"); if (!b) return;
@@ -422,7 +452,7 @@ function startExam() {
   const base = ex.shuffle ? X.shuffle(pool) : pool;
   const qs = ex.qLimit ? base.slice(0, ex.qCount) : base;
   const src = "u:" + ex.sel.slice().sort().join(",");
-  const title = ex.sel.length === 1 ? (M.folders.find((f) => f.id === ex.sel[0])?.title || "Exam") : "Mixed exam";
+  const title = ex.sel.length === 1 ? (examFolders().find((f) => f.id === ex.sel[0])?.title || "Exam") : "Mixed exam";
   const last = examRecords().filter((r) => r.src === src).sort((a, b) => b.at - a.at)[0];
   const run = { title, questions: qs, perQ: ex.perQ ? ex.perQSec : 0, totalSec: ex.tLimit ? ex.minutes * 60 : 0,
     negative: ex.neg ? X.NEG_VALUES[ex.negIdx] : 0, allowPause: true, allowBack: !ex.perQ, src, prevPct: last ? X.view(last).scorePct : -1 };
@@ -446,7 +476,7 @@ document.addEventListener("click", (e) => {
   if (a === "folder") { ex.sel = ex.sel.includes(id) ? ex.sel.filter((x) => x !== id) : [...ex.sel, id]; if (!ex.sel.includes(id)) { delete ex.topicSel[id]; if (ex.openTopics === id) ex.openTopics = null; } }
   else if (a === "topics") ex.openTopics = ex.openTopics === id ? null : id;
   else if (a === "topic") {
-    const f = M.folders.find((x) => x.id === id), ids = X.topicIds(f), cur = ex.topicSel[id] || ids, t = b.dataset.topic;
+    const f = examFolders().find((x) => x.id === id), ids = X.topicIds(f), cur = ex.topicSel[id] || ids, t = b.dataset.topic;
     const next = cur.includes(t) ? cur.filter((x) => x !== t) : [...cur, t];
     if (next.length) { if (next.length === ids.length) delete ex.topicSel[id]; else ex.topicSel[id] = next; }
   }
@@ -457,7 +487,7 @@ document.addEventListener("click", (e) => {
   else if (a === "filter") ex.filter = Number(b.dataset.i);
   else if (a === "retake") {
     const r = examRecords().find((x) => x.id === id);
-    ex.sel = ((r && r.src) || "u:").slice(2).split(",").filter((x) => M.folders.some((f) => f.id === x));
+    ex.sel = ((r && r.src) || "u:").slice(2).split(",").filter((x) => examFolders().some((f) => f.id === x));
     ex.topicSel = {}; ex.view = "setup"; ex.rec = null;
   }
   else if (a === "delete") {
@@ -531,6 +561,8 @@ function act(kind, id, name) {
   if (name === "edit-note") noteDialog(it);
   else if (name === "pin-note") writeItem("notes", it.id, { ...it, pinned: !it.pinned, updatedAt: Date.now() });
   else if (name === "edit-task") taskDialog(it);
+  else if (name === "task-detail") taskDetail(it);
+  else if (name === "open-note") { ui.openNote = it.id; if (tab !== "notes") location.hash = "notes"; else render(); }
   else if (name === "toggle-task") writeItem("tasks", it.id, { ...it, dueAt: it.dueAt ?? -1, completed: !it.completed });
   else if (name === "delete-note") deleteItem("notes", it.id);
   else if (name === "delete-task") deleteItem("tasks", it.id);
@@ -548,6 +580,7 @@ const TABS = [
   ["tasks", "Tasks", () => M.tasks.filter((t) => !t.completed).length],
   ["goals", "Goals", () => M.goals.length],
   ["habits", "Habits", () => M.habits.length],
+  ["report", "Report", () => ""],
   ["learn", "Learn", () => M.learnNotes.length],
   ["challenges", "Challenges", () => M.challenges.length],
   ["questions", "Questions", () => M.folders.reduce((n, f) => n + f.questions.length, 0)],
@@ -577,7 +610,7 @@ function render() {
         : "No cloud backup found yet for this section. Open Trakey on your phone while signed in.");
   const v = $("view");
   if (!M) return;
-  v.innerHTML = ({ overview, notes, tasks, goals, habits, learn: learnPage, challenges, questions, exam: examView, games }[tab] || overview)();
+  v.innerHTML = ({ overview, notes, tasks, goals, habits, learn: learnPage, challenges, questions, exam: examView, games, report: reportView }[tab] || overview)();
   wire();
 }
 
@@ -597,25 +630,79 @@ const head = (t, s) => `<h2>${t}</h2><p class="sub">${s}</p>`;
 const searchBox = () => `<input type="search" id="search" placeholder="Search" value="${esc(ui.q)}">`;
 const has = (text) => !ui.q || String(text).toLowerCase().includes(ui.q.toLowerCase());
 
+const dueWord = (ms) => {
+  if (!ms) return "No due date";
+  const t0 = new Date(); t0.setHours(0, 0, 0, 0);
+  const d = Math.round((new Date(new Date(ms).setHours(0, 0, 0, 0)) - t0) / 864e5);
+  return d < 0 ? `Overdue · ${fmtDate(ms)}` : d === 0 ? "Today" : d === 1 ? "Tomorrow" : fmtDate(ms);
+};
+
+/** Read-only Details sheet, like the app: priority, due, category, repeat, goal step, notes, steps. */
+function taskDetail(t) {
+  const dlg = $("dlg"), f = $("dlgform");
+  const goal = t.goalStepId ? M.goals.find((g) => String(g.id) === String(t.goalId)) : null;
+  const step = goal && goal.milestones.find((m) => String(m.id) === String(t.goalStepId));
+  const row = (k, v) => `<div class="dstep"><span class="m" style="min-width:90px">${k}</span><b>${v}</b></div>`;
+  f.innerHTML = `<h3 style="${t.completed ? "text-decoration:line-through;color:var(--sub)" : ""}">${esc(t.title)}</h3>` +
+    row("Priority", esc(t.priority)) + row("Due", esc(dueWord(t.dueAt))) + row("Category", esc(t.category)) +
+    (t.repeat ? row("Repeat", esc(t.repeat)) : "") + (goal ? row("Goal step", esc(goal.title + (step ? " → " + step.title : ""))) : "") +
+    (t.description ? `<label>Notes</label><div class="note">${esc(t.description)}</div>` : "") +
+    (t.steps && t.steps.length ? `<label>Steps · ${t.steps.filter((x) => x.d).length}/${t.steps.length}</label>` +
+      t.steps.map((x, i) => `<label class="dstep" style="margin:0;cursor:pointer"><input type="checkbox" data-dstep="${i}" ${x.d ? "checked" : ""}> <span style="${x.d ? "text-decoration:line-through;color:var(--sub)" : ""}">${esc(x.t)}</span></label>`).join("") : "") +
+    `<div class="btnrow" style="justify-content:flex-end;margin-top:18px"><button type="button" class="mini" id="dtclose">Close</button><button type="button" class="mini" id="dtedit">Edit</button><button type="button" class="btn" id="dtdone" style="padding:9px 20px">${t.completed ? "Mark not done" : "Mark as done"}</button></div>`;
+  f.onsubmit = (e) => e.preventDefault();
+  $("dtclose").onclick = () => dlg.close();
+  $("dtedit").onclick = () => { dlg.close(); taskDialog(t); };
+  $("dtdone").onclick = () => { dlg.close(); writeItem("tasks", t.id, { ...t, dueAt: t.dueAt ?? -1, completed: !t.completed }); };
+  f.querySelectorAll("[data-dstep]").forEach((c) => c.onchange = () => {
+    const steps = t.steps.map((x, i) => (i === Number(c.dataset.dstep) ? { ...x, d: c.checked } : x));
+    t.steps = steps;
+    dlg.close(); writeItem("tasks", t.id, { ...t, dueAt: t.dueAt ?? -1, steps }).then(() => { const n = M.tasks.find((x) => x.id === t.id); if (n) taskDetail(n); });
+  });
+  dlg.showModal();
+}
+
+function reportView() {
+  if (!RP) return '<div class="empty">report.js could not be loaded.<br>Upload report.js into the same folder as index.html.</div>';
+  const r = RP.buildReport(M.report || { days: {}, habits: {} }, rpMonthly, M.profile.joinedAt || 0);
+  return head("Report", "Your weekly and monthly progress, from the activity the phone has backed up.") + RP.reportHTML(r, M.profile.name, esc);
+}
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("[data-rp]");
+  if (!b || !M) return;
+  if (b.dataset.rp === "print") return window.print();
+  rpMonthly = b.dataset.rp === "month"; render();
+});
+
 function overview() {
   const left = M.tasks.filter((t) => !t.completed).length;
   const active = M.goals.filter((g) => g.status !== "Completed").length;
   const best = Math.max(0, ...M.habits.map((h) => h.streak));
   const stat = (n, l) => `<div class="card stat"><b>${n}</b><span>${l}</span></div>`;
   const nextTasks = M.tasks.filter((t) => !t.completed).sort((a, b) => (a.dueAt ?? 9e15) - (b.dueAt ?? 9e15)).slice(0, 5);
+  const recentNotes = M.notes.slice().sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 3);
+  const recentTasks = M.tasks.slice().sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 3);
+  const recentGoals = M.goals.slice().sort((a, b) => Number(b.id) - Number(a.id)).slice(0, 3);
+  const weekCard = RP ? RP.weekCardHTML(RP.buildReport(M.report || { days: {}, habits: {} }, false, M.profile.joinedAt || 0)) : "";
+  const recent = (title, items, fmt) => items.length ? `<div><h3 style="margin:26px 0 10px">${title}</h3><div class="list">${items.map(fmt).join("")}</div></div>` : "";
   return head("Hi, " + esc(M.profile.name) + proBadge(), esc(M.profile.bio || "Here is your Trakey at a glance.")) +
+    (weekCard ? `<div style="margin-bottom:14px">${weekCard}</div>` : "") +
     `<div class="grid">${stat(left, "tasks left")}${stat(active, "active goals")}${stat(best + " d", "best habit streak")}${stat(M.notes.length, "notes")}${stat(M.challenges.length, "challenges taken")}${stat(M.folders.reduce((n, f) => n + f.questions.length, 0), "questions saved")}</div>` +
-    `<h3 style="margin:26px 0 10px">Up next</h3><div class="list">${nextTasks.map((t) => `<div class="card row"><div class="dot"></div><div class="grow"><div class="t">${esc(t.title)}</div><div class="m">${t.dueAt ? "Due " + fmtDate(t.dueAt) : "No due date"} · ${esc(t.priority)}</div></div></div>`).join("") || '<div class="empty">Nothing pending.</div>'}</div>`;
+    `<h3 style="margin:26px 0 10px">Up next</h3><div class="list">${nextTasks.map((t) => `<div class="card row"><div class="dot"></div><div class="grow"><div class="t">${esc(t.title)}</div><div class="m">${t.dueAt ? "Due " + fmtDate(t.dueAt) : "No due date"} · ${esc(t.priority)}</div></div></div>`).join("") || '<div class="empty">Nothing pending.</div>'}</div>` +
+    recent("Recent notes", recentNotes, (n) => `<div class="card row clk" data-kind="notes" data-act="open-note" data-id="${n.id}"><div class="grow"><div class="t">${n.pinned ? "📌 " : ""}${esc(n.title || "Untitled")}</div><div class="m">${esc(n.folder)} · ${fmtDate(n.updatedAt)}</div></div></div>`) +
+    recent("Recent tasks", recentTasks, (t) => `<div class="card row clk" data-kind="tasks" data-act="task-detail" data-id="${t.id}"><div class="dot ${t.completed ? "ok" : ""}"></div><div class="grow"><div class="t">${esc(t.title)}</div><div class="m">${esc(dueWord(t.dueAt))} · ${esc(t.priority)}</div></div></div>`) +
+    recent("Recent goals", recentGoals, (g) => `<a class="card row" href="#goals" style="text-decoration:none;color:inherit"><div class="grow"><div class="t">${esc(g.title)}</div><div class="m">${esc(g.status)}</div></div><b>${Math.round(g.progress * 100)}%</b></a>`);
 }
 
 function notes() {
   const folders = ["All", ...new Set(M.notes.map((n) => n.folder))];
-  const list = M.notes.filter((n) => (ui.folder === "All" || n.folder === ui.folder) && has(n.title + n.content))
+  const openId = ui.openNote; ui.openNote = null;
+  const list = M.notes.filter((n) => (openId && String(n.id) === String(openId)) || (ui.folder === "All" || n.folder === ui.folder) && has(n.title + n.content))
     .sort((a, b) => b.pinned - a.pinned || b.updatedAt - a.updatedAt);
   const btn = (act, id, label, cls = "") => `<button class="mini ${cls}" data-kind="notes" data-act="${act}" data-id="${id}">${label}</button>`;
   return `<div class="top"><div>${head("Notes", `${M.notes.length} notes`)}</div><button class="btn" data-kind="notes" data-act="new-note">+ New note</button></div>` + searchBox() +
     `<div>${folders.map((f) => `<button class="chip ${ui.folder === f ? "on" : ""}" data-folder="${esc(f)}">${esc(f)}</button>`).join("")}</div>` +
-    `<div class="list">${list.map((n) => `<details><summary>${n.pinned ? "📌 " : ""}${esc(n.title || "Untitled")} <span class="m">· ${esc(n.folder)} · ${fmtDate(n.updatedAt)}</span></summary><div class="note" style="margin-top:10px">${esc(n.content)}</div><div class="btnrow">${btn("edit-note", n.id, "Edit")}${btn("pin-note", n.id, n.pinned ? "Unpin" : "Pin")}${btn("delete-note", n.id, "Delete", "danger")}</div></details>`).join("") || '<div class="empty">No notes found.</div>'}</div>`;
+    `<div class="list">${list.map((n) => `<details ${openId && String(n.id) === String(openId) ? "open" : ""}><summary>${n.pinned ? "📌 " : ""}${esc(n.title || "Untitled")} <span class="m">· ${esc(n.folder)} · ${fmtDate(n.updatedAt)}</span></summary><div class="note" style="margin-top:10px">${esc(n.content)}</div><div class="btnrow">${btn("edit-note", n.id, "Edit")}${btn("pin-note", n.id, n.pinned ? "Unpin" : "Pin")}${btn("delete-note", n.id, "Delete", "danger")}</div></details>`).join("") || '<div class="empty">No notes found.</div>'}</div>`;
 }
 
 function tasks() {
@@ -623,7 +710,7 @@ function tasks() {
     .sort((a, b) => a.completed - b.completed || (a.dueAt ?? 9e15) - (b.dueAt ?? 9e15));
   const btn = (act, id, label, cls = "") => `<button class="mini ${cls}" data-kind="tasks" data-act="${act}" data-id="${id}">${label}</button>`;
   return `<div class="top"><div>${head("Tasks", `${M.tasks.filter((t) => !t.completed).length} left · ${M.tasks.filter((t) => t.completed).length} done`)}</div><button class="btn" data-kind="tasks" data-act="new-task">+ New task</button></div>` + searchBox() +
-    `<div class="list">${list.map((t) => `<div class="card row"><button class="dot ${t.completed ? "ok" : ""}" style="background:${t.completed ? "var(--blue)" : "transparent"}" data-kind="tasks" data-act="toggle-task" data-id="${t.id}" title="Mark ${t.completed ? "not done" : "done"}"></button><div class="grow"><div class="t" style="${t.completed ? "text-decoration:line-through;color:var(--sub)" : ""}">${esc(t.title)}</div>${t.description ? `<div class="m">${esc(t.description)}</div>` : ""}<div class="m">${t.dueAt ? "Due " + fmtDate(t.dueAt) : "No due date"} · ${esc(t.category)}</div></div><span class="pill">${esc(t.priority)}</span>${btn("edit-task", t.id, "Edit")}${btn("delete-task", t.id, "Delete", "danger")}</div>`).join("") || '<div class="empty">No tasks found.</div>'}</div>`;
+    `<div class="list">${list.map((t) => `<div class="card row"><button class="dot ${t.completed ? "ok" : ""}" style="background:${t.completed ? "var(--blue)" : "transparent"}" data-kind="tasks" data-act="toggle-task" data-id="${t.id}" title="Mark ${t.completed ? "not done" : "done"}"></button><div class="grow"><div class="t clk" data-kind="tasks" data-act="task-detail" data-id="${t.id}" style="${t.completed ? "text-decoration:line-through;color:var(--sub)" : ""}">${esc(t.title)}</div>${t.description ? `<div class="m">${esc(t.description)}</div>` : ""}<div class="m">${t.dueAt ? "Due " + fmtDate(t.dueAt) : "No due date"} · ${esc(t.category)}</div></div><span class="pill">${esc(t.priority)}</span>${btn("edit-task", t.id, "Edit")}${btn("delete-task", t.id, "Delete", "danger")}</div>`).join("") || '<div class="empty">No tasks found.</div>'}</div>`;
 }
 
 function goals() {
