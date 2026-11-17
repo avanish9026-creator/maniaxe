@@ -1,13 +1,12 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="index, follow">
-<meta name="description" content="Official Privacy Policy for Trakey, a productivity and personal growth app developed under the Trakey Labs brand.">
+<meta name="description" content="Official Privacy Policy for Trakey, a productivity, learning and personal growth app developed by Trakey Labs and powered by Maniaxe.in.">
 <meta name="theme-color" content="#ffffff">
-<title>Privacy Policy | Trakey </title>
+<title>Privacy Policy | Trakey</title>
 <style>
 :root {
   color-scheme: light dark;
@@ -21,6 +20,7 @@
   }
 }
 * { box-sizing:border-box; }
+html { scroll-padding-top:16px; }
 body {
   margin:0; background:var(--bg); color:var(--text);
   font:16px/1.75 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -28,16 +28,30 @@ body {
 main { max-width:820px; margin:auto; padding:32px 20px 64px; }
 h1 { font-size:2rem; line-height:1.25; margin:0 0 8px; }
 h2 { font-size:1.15rem; color:var(--accent); margin:32px 0 8px; }
+h3 { font-size:1rem; margin:20px 0 6px; }
 p,li { color:var(--muted); }
 p { margin:0 0 14px; }
 ul { padding-left:24px; }
 li { margin-bottom:5px; }
+strong { color:var(--text); }
 a { color:var(--accent); overflow-wrap:anywhere; }
 .meta { color:var(--muted); font-size:.9rem; }
 nav {
   margin:18px 0; padding:14px 16px; background:var(--card);
   border:1px solid var(--line); border-radius:12px;
 }
+.card {
+  margin:0 0 14px; padding:16px 18px; background:var(--card);
+  border:1px solid var(--line); border-radius:12px;
+}
+.card h3 { margin:0 0 6px; color:var(--text); }
+.card p:last-child, .card ul:last-child { margin-bottom:0; }
+.tag {
+  display:inline-block; margin-left:6px; padding:0 8px; font-size:.72rem; font-weight:600;
+  border:1px solid var(--line); border-radius:999px; color:var(--accent); vertical-align:middle;
+}
+.toc { columns:2; column-gap:24px; padding-left:20px; }
+@media(max-width:560px) { .toc { columns:1; } }
 footer {
   margin-top:40px; padding-top:18px; border-top:1px solid var(--line);
   color:var(--muted); font-size:.85rem;
@@ -50,545 +64,328 @@ footer {
 <h1>Privacy Policy</h1>
 <p class="meta">
 Trakey — developed by Trakey Labs<br>
-Effective date: October 28, 2026<br>
-Last updated: October 28, 2026
+Effective date: November 15, 2026<br>
+Last updated: November 15, 2026
 </p>
 <nav>
-<strong>Trakey Labs</strong><br>
+<strong>Trakey Labs</strong>, powered by Maniaxe.in<br>
 Website, support and release information:
 <a href="https://maniaxe.in/">Maniaxe.in</a><br>
-Questions and privacy requests:
+Questions and requests:
 <a href="mailto:support.trakey@gmail.com">support.trakey@gmail.com</a><br>
-<a href="https://maniaxe.in/trakey/terms.html">Terms and Conditions</a>
+<a href="https://maniaxe.in/trakey/features.html">Feature guide</a> · <a href="https://maniaxe.in/trakey/terms.html">Terms and Conditions</a>
 </nav>
 </header>
 
 <section>
-<h2>1. About Trakey and this policy</h2>
+<h2>1. Who we are</h2>
 <p>
-Trakey is an Android productivity, learning and personal growth application
-developed by an individual developer using the Trakey Labs brand. Maniaxe.in
-provides website resources, hosting, support information and publication of
-release information and installation files for Trakey.
+Trakey (the “App”) is a local-first productivity, learning and personal growth app for Android. It is developed and managed by Trakey Labs, which is owned by Rohan, and is powered by Maniaxe.in, which is owned by Avanish. In this policy, “Trakey”, “we”, “us” and “our” mean Trakey Labs and Maniaxe.in together.
 </p>
 <p>
-References to "Trakey", "Trakey Labs", "we", "us" and "our" refer to the
-Trakey application and its individual developer operating under the Trakey
-Labs brand, as appropriate to the context. Trakey Labs is a brand name and
-does not, by itself, represent a separately incorporated company.
-</p>
-<p>
-This policy explains the information that may be stored, accessed, transmitted
-or processed when you use Trakey. Actual processing depends on the features
-you use, the permissions you grant, the app version, the SDKs included in
-that version and the settings of third-party services.
+This policy explains what information the App handles, why, where it goes, how long it is kept, and the choices and rights you have. By tapping Get started on the first screen, or by installing, opening or using the App, you confirm that you have read and agree to this policy. If you do not agree with it, please do not use the App.
 </p>
 </section>
 
 <section>
-<h2>2. Privacy at a glance</h2>
+<h2>2. Summary in plain words</h2>
 <ul>
-<li>Many productivity features store information locally on your device.</li>
-<li>Google sign-in is optional for ordinary local features but is required
-for certain account, backup, synchronization and social features.</li>
-<li>Optional cloud features store selected information in Firebase.</li>
-<li>Trakey offers optional rewarded advertisements through Google AdMob.</li>
-<li>Analytics and diagnostics services may process usage events, technical
-information and crash reports, depending on the enabled integrations.</li>
-<li>AI and translation features may transmit content you submit to the
-relevant processing service and AI provider.</li>
-<li>We do not sell personal information.</li>
-<li>You can manage certain information in the App and request help with
-deletion by contacting us.</li>
+<li>Most of what you create stays on your device.</li>
+<li>Signing in with Google is optional. It is needed only for cloud backup, restore, Friends, feedback and Trakey Pro.</li>
+<li>We do not sell your personal information.</li>
+<li>Trakey does not show banner or pop-up ads.</li>
+<li>Some features send data to third-party services (Google Firebase, Cloudflare, Groq, Google Gemini, Google AdMob, Web3Forms, Microsoft Clarity, a payment provider when you pay, and public rate or update servers). Section 7 lists exactly which.</li>
+<li>You can clear your local data and delete your cloud backup from the App at any time.</li>
+<li>The App is not meant for children under 13.</li>
+<li>A <a href="https://maniaxe.in/trakey/features.html">feature guide</a> explains gestures and features that are easy to miss (section 23).</li>
 </ul>
 </section>
 
 <section>
-<h2>3. Information stored locally</h2>
+<h2>3. Information stored on your device</h2>
 <p>
-Depending on the features you use, Trakey may store the following information
-in the App's private storage or other device locations selected for a feature:
+These items are created by you and stored in the App’s private storage on your device. They are not sent to us unless you sign in and back up, or use a feature described in section 7.
 </p>
 <ul>
-<li>Profile information, including your name, bio, avatar choice and
-selected profile photo.</li>
-<li>Notes, goals, tasks, habits, milestones, calendar entries, reminders
-and organisation data.</li>
-<li>Focus sessions, activity statistics, game statistics and challenge results.</li>
-<li>Learning cards, question folders, imported questions and learning history.</li>
-<li>Calculator history, saved currency preferences, exchange-rate alerts,
-world clock cities and saved country information.</li>
-<li>Translation history and saved translations.</li>
-<li>Voice recordings created using the Recorder.</li>
-<li>Images you choose to save from challenge results.</li>
-<li>Music library information and playlists used by the music player.</li>
-<li>App preferences, notification settings, theme and AI settings.</li>
-<li>A Gemini API key if you choose to supply one.</li>
-<li>App lock settings and a PIN verifier if App lock is enabled.</li>
+<li>Profile: name, bio, avatar choice and profile photo (a photo from your gallery stays on your device).</li>
+<li>Notes, goals and milestones, tasks, habits and habit history, calendar entries and countdowns, reminders and alerts, checklists, expenses and budgets, and the Organise tab.</li>
+<li>Focus sessions and activity statistics, weekly and monthly report data, game and challenge statistics.</li>
+<li>Learn cards and learning progress, spaced-review data, your custom question folders, imported questions, Challenge history and analytics.</li>
+<li>Calculator history, saved currency choices and rate alerts, world clock cities, saved Countries items.</li>
+<li>Translator history and saved translations.</li>
+<li>Voice recordings you make with the Recorder, saved as audio files on your device.</li>
+<li>Images you choose to save from Challenge results, notes, expenses or reports, which are written to the Trakey folder in your device’s Pictures.</li>
+<li>Scan: pages you add to Scan are held in memory only while Scan is open. Photos or PDFs you share to Trakey from another app are copied into the App’s private cache so they can be read, and are deleted automatically after about a day. A PDF you make with Save as PDF is saved in the Trakey folder inside your device’s Downloads (Android 10 and later) or handed to the app you share it with. Text you extract or summarise is kept only if you copy it, share it or save it as a Note.</li>
+<li>Music player library and playlists. The player reads audio files you choose or that your device exposes to it, and plays them on your device.</li>
+<li>App settings such as theme, language, text size, notification choices, the default settings for new alerts, your Quick access tools, Trakey AI settings and your own Gemini API key, if you enter one.</li>
+<li>Your region: Trakey checks, on your device, the SIM and network country, the phone’s region setting or its time zone, to decide, for example, which question sets to show and whether reminders are written in Hinglish. This needs no permission and is not sent anywhere.</li>
+<li>App lock settings, if you turn on App lock (see section 11).</li>
 </ul>
 <p>
-Locally stored content is not automatically uploaded merely because you
-create it. It may be transmitted if you use cloud backup, synchronization,
-AI processing, feedback, sharing or another feature that requires it.
-Files may also be accessed when you explicitly select them for import,
-processing or sharing.
+You can use these features without creating an account.
 </p>
 </section>
 
 <section>
-<h2>4. Google sign-in and account information</h2>
+<h2>4. Information from your Google account</h2>
 <p>
-If you choose to sign in with Google, Firebase Authentication may process
-your name, email address, Google account identifier and profile-photo URL,
-as provided by the sign-in process. Trakey uses account information to
-identify your account, display your profile and provide account-dependent
-features. Trakey does not receive your Google password.
-</p>
-<p>
-Some features may create an anonymous Firebase Authentication account
-when you are not signed in. Such an account may have a unique identifier
-without a name or email address. It can be used to identify requests and
-apply usage limits.
+If you choose Continue with Google, Trakey receives your name, email address, a unique account ID and a link to your profile photo through Firebase Authentication, a service of Google. We use them to show your profile, to identify your backup, to keep your account index entry (section 5), to let you send feedback and to link Trakey Pro to your account. We do not receive your Google password.
 </p>
 </section>
 
 <section>
-<h2>5. Cloud backups, synchronization and account records</h2>
+<h2>5. Cloud backup, Trakey Web sync and your account entry</h2>
 <p>
-If you sign in and use cloud backup, Trakey may upload selected information
-to Google Firebase Cloud Firestore. Backups may be created automatically
-or when you select a backup action, depending on the App version and
-settings. Restoring a backup is initiated through the available restore
-controls.
-</p>
-<p>A backup may include:</p>
-<ul>
-<li>Profile information, such as name, email, bio and location information
-you entered, where supported.</li>
-<li>Notes, goals, tasks, habits, learning content and challenge statistics.</li>
-<li>Game statistics, settings and other supported application data.</li>
-<li>A custom Gemini API key, if the version you use includes that key
-in the backup payload.</li>
-</ul>
-<p>
-The exact contents depend on the version of Trakey. Review the information
-shown in the backup controls before using them.
+If you are signed in, Trakey can back up your data to your account automatically about every 3 hours and when you leave the App, and you can use Back up now at any time. Restores happen only when you choose Restore or accept the restore offer after signing in.
 </p>
 <p>
-When signed in, supported notes, goals, tasks, question folders and learning
-cards may synchronize with Trakey Web at
-<a href="https://maniaxe.in/trakey">maniaxe.in/trakey</a>.
+A backup can include your profile details (name, email, bio and location if you filled them in), notes, goals, habits, tasks, calendar, checklists, expenses, Learn and Challenge content and statistics, game statistics, settings and your Gemini API key. It never includes your profile photo, music, recordings or temporary history (calculator, currency and focus history). It does not include your App lock PIN or settings.
 </p>
 <p>
-The administrative database may contain account identifiers, contact
-details, join dates, last-active information, app version, ratings or
-feedback status, where those fields are implemented. Access should be
-limited to authorised people who need the information to operate or support
-the service.
+If you allow it, backups are stored in your own Google Drive, in a hidden folder that only Trakey can open and that uses your Drive storage (Trakey requests only the Google Drive app-data permission and cannot see your other Drive files). Your most important data (profile, settings, notes, goals, tasks, habits, calendar, alerts and achievements) and a small backup information record are always stored in Google Firebase (Cloud Firestore) under your account ID, compressed, so they can be restored even without Google Drive. Google protects data in transit and at rest. The App does not add a separate encryption layer of its own, so do not store anything in Trakey that you would not want held in a cloud database.
 </p>
 <p>
-Firebase provides infrastructure protections, including encryption in
-transit and at rest for supported services. Trakey does not claim that
-every backup has additional end-to-end or application-level encryption.
-Do not back up information you are unwilling to store with a cloud provider.
+While you are signed in, your notes, goals, tasks, habits, calendar events, alerts, question folders and the Learn cards you add are also kept in sync across your devices (and, for some of them, with Trakey Web at <a href="https://maniaxe.in/trakey">maniaxe.in/trakey</a>), so an edit made on one device appears on the others. This happens continuously, not only when you back up. You can turn it off in Account, Backup &amp; data.
+</p>
+<p>
+When you back up, the App also saves an account entry in our admin database: your account ID, name, email, bio, location, the date you joined, when you were last active and your app version. We use it to run the service, answer support requests and understand how many people use the App. Access is limited to the Trakey team. Your rating and feedback status is saved to your account automatically.
+</p>
+<p>
+Separately from Trakey’s own backup, Android’s device backup (Google backup and device-to-device transfer) may copy some of the App’s data. Trakey excludes the App lock PIN, recordings and some temporary data from it.
 </p>
 </section>
 
 <section>
-<h2>6. AI, translation, scanning and voice features</h2>
+<h2>6. Trakey AI, translation and voice</h2>
 <p>
-When you use Trakey AI, translation, image translation, document scanning,
-learning scans or question-import recovery, the text, images, documents
-or other content you submit may be transmitted to the service required
-for that feature.
+Trakey AI, the translator, image translation, Learn scan and Scan with AI (photos, PDF pages or text files you pick to turn into cards, text or summaries) and question import recovery work through Trakey’s AI server, which runs on Cloudflare. When you use these features, the text, images, documents or voice-transcribed text you submit, together with the instructions needed for the feature, are sent to that server and forwarded to an AI provider to generate a response: Groq for most text requests, and Google (Gemini API) for photos, documents, scans and as a backup when the first provider is busy. These providers process your content under their own terms and privacy policies. Do not submit anything you do not want to be processed by them.
 </p>
 <p>
-Trakey's AI service uses Cloudflare infrastructure to handle supported
-requests. Groq processes most text requests, while the Google Gemini API
-may process images, documents, scans or certain fallback requests. The
-specific provider depends on the feature and current implementation.
-These providers may process submitted content and associated technical
-request information under their applicable terms and privacy policies.
+Some Scan tools run only on your device and send nothing: Save as PDF, Extract text with the On phone option (which uses Google ML Kit text recognition on your device), and copying the text of PDFs that already contain text. Choosing AI in Extract text, or using Summary, sends your pages, or the text read from your PDF, as described above.
 </p>
 <p>
-The service may use a Firebase account identifier to enforce daily usage
-limits. A short-lived or one-way network-address fingerprint may be used
-for guest abuse prevention if that mechanism is enabled. We do not claim
-that all infrastructure providers immediately erase all request metadata;
-their own retention rules may apply.
+To recognise the App and apply daily limits, the server checks a sign-in token. If you are not signed in, the App automatically creates an anonymous guest account in Firebase Authentication, with no name or email. The server keeps daily request counters linked to your account ID and, for guest accounts, a short one-way fingerprint of your network address to prevent abuse. Trakey’s server does not store the content of your AI requests or the answers. Cloudflare, Groq and Google may process technical request data such as your IP address under their own policies.
 </p>
 <p>
-If you supply your own Gemini API key, supported requests may be sent
-directly from your device to Google using that key. The key is sensitive
-and may be included in cloud backup if the relevant backup implementation
-includes it. Protect the key and review the backup contents.
+You can add your own Gemini API key in Settings &gt; Customise. If you do, your Trakey AI requests are sent directly from your device to Google with your key and do not go through our server. Your own key is stored on your device and, if you back up, in your backup. Anyone with access to your key can use your quota, so keep it private.
 </p>
 <p>
-Voice recognition may use an Android or Google speech-recognition service.
-Text-to-speech may use your device's speech engine. Audio processing and
-retention depend on the selected implementation and provider.
+Voice input (including holding the AI button to speak) uses the speech recognition service of your device or Google, and text-to-speech uses your device’s speech engine. Their handling of audio is governed by the provider of that service.
 </p>
 <p>
-AI-generated responses can be inaccurate or incomplete. Avoid submitting
-sensitive information unless you understand and accept the processing
-required by the feature.
+AI output can be wrong, incomplete or out of date. See the Terms and Conditions.
 </p>
 </section>
 
 <section>
-<h2>7. Third-party services, analytics and advertising</h2>
+<h2>7. Third-party services the App connects to</h2>
 <p>
-Trakey uses third-party services to provide selected features. Depending
-on the service, its SDK configuration and your choices, those providers
-may receive technical information, device information, identifiers,
-network information or content required to provide the requested feature.
+To work, the App connects to the services below. Each service receives at least your IP address and technical request data, as with any internet request.
 </p>
 <ul>
-<li><strong>Google Firebase Authentication:</strong> Google sign-in,
-anonymous accounts and account identification.</li>
-<li><strong>Google Firebase Cloud Firestore:</strong> cloud backups,
-account records, social features and supported synchronized content.</li>
-<li><strong>Google Firebase Cloud Messaging:</strong> push notifications
-and announcements. An installation may receive an FCM token.</li>
-<li><strong>Google Firebase Analytics:</strong> app usage events and
-related analytics data, where analytics collection is enabled.</li>
-<li><strong>Google Firebase Crashlytics:</strong> crash reports, diagnostic
-information, app version and related technical details, where enabled.</li>
-<li><strong>Google AdMob:</strong> optional rewarded advertisements.
-Ad requests, impressions and interactions may involve IP address,
-device or advertising identifiers, diagnostics, fraud-prevention signals
-and advertising measurement information. Personalised advertising,
-where available, depends on configuration, consent, device settings
-and applicable law.</li>
-<li><strong>Microsoft Clarity:</strong> product usage analysis and
-diagnostics where the relevant SDK is integrated and enabled. The
-information collected depends on the SDK configuration and the features
-supported by the mobile implementation.</li>
-<li><strong>Cloudflare Workers and D1:</strong> AI request handling,
-usage limits and request metadata where those services are used.</li>
-<li><strong>Groq:</strong> supported text-based AI and related requests.</li>
-<li><strong>Google Gemini API:</strong> supported image, document, scan,
-text and fallback AI requests.</li>
-<li><strong>Google speech services:</strong> speech recognition where used.</li>
-<li><strong>Web3Forms:</strong> delivery of feedback and support submissions.</li>
-<li><strong>Currency-rate providers:</strong> Frankfurter, open.er-api.com
-and a jsDelivr-hosted currency API, where used by the current version.</li>
-<li><strong>GitHub:</strong> release information and update downloads
-when the App uses the GitHub release mechanism.</li>
-<li><strong>Google profile-photo services:</strong> retrieval of a
-profile photo when you use Google sign-in.</li>
-<li><strong>External websites and applications:</strong> linked services
-such as YouTube, Telegram, Google Maps and Google AI Studio when you
-choose to open them.</li>
+<li>Google Firebase Authentication, Cloud Firestore and Cloud Messaging: sign-in, backup, sync, Friends, Trakey Pro records, announcements and update notes, and push notifications.</li>
+<li>Google Drive (app-data folder): backups, only if you allow it (section 5).</li>
+<li>Cloudflare (Workers and D1 database): runs Trakey’s AI server, which checks your sign-in token, applies daily limits and forwards AI requests (section 6), and the payment server used when you pay through a payment provider (section 22).</li>
+<li>Groq: writes the answers for most Trakey AI, alert and task, and translation text requests (section 6).</li>
+<li>Google Gemini API: photos, documents, Learn scan, Scan (Extract text with AI and Summary), question import and backup for the services above (section 6).</li>
+<li>Google ML Kit text recognition: runs on your device to read text from photos when you choose Extract text &gt; On phone. Your photos are not sent anywhere for this.</li>
+<li>Google speech recognition and text-to-speech: voice features.</li>
+<li>Google AdMob: its software library is part of the App. It may be contacted when you reach a free daily limit (section 22).</li>
+<li>PayU: a payment gateway that may be offered when you buy Trakey Pro (section 22).</li>
+<li>Web3Forms (api.web3forms.com): delivers your feedback and support messages to us by email.</li>
+<li>Microsoft Clarity: we use it for app growth, to understand how the App is used, such as which screens are opened and where people tap.</li>
+<li>Currency rate providers (Frankfurter, the jsDelivr-hosted currency API and open.er-api.com): the App requests public exchange rates for the currency codes you view. No personal data is sent beyond what is needed to make the request.</li>
+<li>GitHub: the App checks the latest release to tell you about updates, and downloads the update file only if you ask.</li>
+<li>Google profile photo servers: to download your Google profile photo once and keep a small copy in the App’s cache.</li>
+<li>Links you open (Telegram, YouTube, WhatsApp, our website, Google Maps and Google AI Studio) open in your browser or another app, where that service’s own policy applies. When you share a note or file to another app, that app receives what you chose to share.</li>
 </ul>
 <p>
-The list above describes integrations reported for Trakey's features.
-It is not a guarantee that every service is enabled in every release.
-Only services actually included or used by the published version should
-be represented as active integrations.
-</p>
-<p>
-Other analytics or advertising SDKs, if added in a future release, will
-be subject to the applicable disclosures and settings. Their identities
-and data practices should be added to this policy before they are enabled.
-</p>
-<p>
-We do not intentionally send private notes, goals, tasks or recordings
-to AdMob for advertising. Nevertheless, AdMob and its partners may process
-technical and advertising-related information during normal ad operation.
-</p>
-<p>
-Provider policies:
-<a href="https://policies.google.com/privacy">Google Privacy Policy</a>,
-<a href="https://policies.google.com/technologies/ads">Google advertising
-information</a>,
-<a href="https://www.microsoft.com/en-us/privacy/privacystatement">Microsoft
-Privacy Statement</a>,
-<a href="https://www.cloudflare.com/privacypolicy/">Cloudflare Privacy Policy</a>,
-<a href="https://groq.com/privacy-policy/">Groq Privacy Policy</a>.
-</p>
-</section>
-
-<section>
-<h2>8. Permissions and device access</h2>
-<p>
-Trakey requests device permissions for features that need them. Depending
-on the version and feature, these may include:
+We do not control these services and are not responsible for their privacy practices. Please read their policies:
 </p>
 <ul>
-<li><strong>Notifications:</strong> reminders, alerts and announcements.</li>
-<li><strong>Exact alarms:</strong> reminders scheduled for specific times.</li>
-<li><strong>Microphone:</strong> voice input, voice translation and recording.</li>
-<li><strong>Camera:</strong> image translation, document scanning and
-other camera-dependent features.</li>
-<li><strong>Photos and files:</strong> profile-photo selection, importing
-questions or music, and saving images.</li>
-<li><strong>Internet and network state:</strong> online services and
-connectivity checks.</li>
-<li><strong>Biometrics:</strong> optional App lock authentication through
-Android's biometric system.</li>
+<li><a href="https://policies.google.com/privacy">Google Privacy Policy</a> and <a href="https://policies.google.com/technologies/ads">Google advertising information</a></li>
+<li><a href="https://www.microsoft.com/en-us/privacy/privacystatement">Microsoft Privacy Statement</a></li>
+<li><a href="https://www.cloudflare.com/privacypolicy/">Cloudflare Privacy Policy</a></li>
+<li><a href="https://groq.com/privacy-policy/">Groq Privacy Policy</a></li>
+</ul>
+</section>
+
+<section>
+<h2>8. Permissions</h2>
+<p>
+Each permission is optional, is used only for the feature named, and can be changed at any time in your system settings.
+</p>
+<ul>
+<li>Notifications: reminders, alerts, rate alerts and announcements.</li>
+<li>Exact alarms: so that reminders and alerts fire at the exact time you set.</li>
+<li>Vibrate, wake lock, full-screen notification, foreground service and start after reboot: so that an Alert can ring like an alarm, show over the lock screen, play its sound, and be scheduled again after your phone restarts or the App updates.</li>
+<li>Microphone: voice input, Translator voice mode and the Recorder.</li>
+<li>Camera and photos or files: image translation, Learn scan, Scan, profile photo, saving images, and importing questions or music that you pick.</li>
+<li>Share menu: when you share photos or PDFs to Trakey, Android gives Trakey access only to the files you shared.</li>
+<li>Internet and network state: features in section 7.</li>
+<li>Biometrics (optional): to unlock App lock with your fingerprint or face. The App never receives or stores your fingerprint or face data. Your device handles it and only tells the App whether the check passed.</li>
+<li>Floating timer (picture-in-picture), Home screen shortcuts and the Today widget use standard Android features and need no extra permission. The widget shows your upcoming alerts and tasks on your home screen, and is drawn on your device.</li>
 </ul>
 <p>
-Android settings generally allow you to manage permissions. Disabling a
-permission may prevent the associated feature from working. The permissions
-actually requested by the published APK take precedence over this general
-description.
-</p>
-<p>
-Trakey is not intended to collect contacts, SMS, call logs or precise
-location through dedicated permissions. Any future change in permissions
-or data collection must be reflected in this policy.
+Trakey does not request your contacts, SMS, call log or precise location.
 </p>
 </section>
 
 <section>
-<h2>9. Notifications and announcements</h2>
+<h2>9. Push notifications and announcements</h2>
 <p>
-If enabled, Firebase Cloud Messaging may deliver announcements, app news,
-update notes and notifications to your installation. Google may generate
-and process an installation-specific messaging token for delivery.
-You can manage notifications in Trakey or Android settings where supported.
+Your device is subscribed to a Trakey announcement topic through Firebase Cloud Messaging so we can send app news, updates and notices. Google creates an FCM token for your installation for this purpose. You can turn notifications off in the App or in system settings. The App also reads announcements and update notes that we publish, and checks whether your installed version is still supported. If it is not, the App asks you to update before you continue.
 </p>
 </section>
 
 <section>
 <h2>10. Feedback, ratings and support</h2>
 <p>
-If you submit feedback, a rating or a support request, Trakey may process
-the message and the details you provide, such as your name, email address,
-rating, date and time, app version, device model and Android version.
-Information may be sent through Web3Forms and may be associated with an
-account record when the implementation supports that association.
-</p>
-<p>
-We use these details to respond, troubleshoot problems, maintain the
-service and improve the app. Do not include passwords, PINs, payment
-credentials or other authentication secrets in support messages.
+When you send feedback, a rating or a message, Trakey sends what you write, your name, your email address if available, the date and time, your rating, the app version and your device make, model and Android version to Trakey support through Web3Forms. A copy is also stored in our admin database together with your account ID, so we can find and answer it. We use it only to respond, fix problems and improve the App, and we keep it only as long as needed for those purposes. Do not include passwords, PINs or payment secrets in a message.
 </p>
 </section>
 
 <section>
 <h2>11. App lock and security</h2>
 <p>
-App lock is optional. Where implemented, the PIN may be stored as a
-salted hash or other protected verifier in private device storage and
-should not be included in cloud backups. Biometric verification is handled
-by Android, which reports the authentication result to the App.
+App lock is optional. You turn it on in Settings by creating a PIN of 4 to 6 digits. If you turn it on:
 </p>
-<p>
-The App may use Android's application sandbox and encrypted network
-connections to protect information. Cloud providers apply their own
-security controls. No method of storage or transmission guarantees
-absolute security. Rooted, compromised or shared devices may expose
-local information.
-</p>
-</section>
-
-<section>
-<h2>12. Purposes of processing</h2>
-<p>
-Information may be used to provide the requested features, manage accounts,
-back up and synchronize data, deliver notifications, respond to support
-requests, enforce usage limits, prevent abuse, diagnose crashes, understand
-app usage, improve reliability and comply with legal obligations.
-</p>
-<p>
-We do not sell personal information. We do not intentionally use private
-notes, tasks, goals or recordings for our own advertising campaigns or
-to train our own AI models. Third-party providers may process information
-as required to provide their services, subject to their applicable terms
-and privacy practices.
-</p>
-</section>
-
-<section>
-<h2>13. Consent and legal grounds</h2>
-<p>
-Depending on applicable law and the feature involved, processing may be
-based on providing a service you request, your consent, legitimate
-interests in operating and securing the App, or legal obligations.
-Where consent is required, it should be obtained before the relevant
-processing begins.
-</p>
-<p>
-You may withdraw consent for optional features through available app
-controls, Android permissions or provider settings. Withdrawal does not
-make earlier lawful processing unlawful, and it may prevent the relevant
-feature from working.
-</p>
-</section>
-
-<section>
-<h2>14. Sharing and disclosure</h2>
-<p>
-We do not sell, rent or trade personal information. Information may be
-shared with the service providers described in this policy when needed
-for cloud storage, synchronization, authentication, analytics, crash
-diagnostics, AI processing, advertising, notifications or support.
-</p>
-<p>
-Information may also be disclosed when required by law, in response to
-a lawful request, to investigate misuse, protect users or our rights,
-or in connection with a permitted transfer of the service. Disclosures
-should be limited to what is appropriate for the relevant purpose.
-</p>
-</section>
-
-<section>
-<h2>15. International processing</h2>
-<p>
-Third-party providers may process information in countries other than
-your country of residence. Applicable protections and transfer mechanisms
-depend on the provider, the service and relevant law. Review the provider's
-privacy information for details of its processing and international
-transfer practices.
-</p>
-</section>
-
-<section>
-<h2>16. Data retention and deletion</h2>
 <ul>
-<li>Local data generally remains on your device until you delete it,
-clear App data or uninstall the App, subject to Android behaviour and
-copies you have created elsewhere.</li>
-<li>Cloud backups may remain until deleted through an available control
-or by an accepted deletion request.</li>
-<li>Signing out may remove signed-in information from the device without
-deleting a cloud backup.</li>
-<li>Feedback and support records may be retained for as long as reasonably
-necessary to handle requests, maintain the service and comply with law.</li>
-<li>Analytics, crash reports, advertising information and provider logs
-may be retained under the relevant provider's settings and retention policy.</li>
-<li>AI providers and infrastructure providers may retain technical records
-under their own policies, even where Trakey is not designed to retain
-the content of AI requests.</li>
+<li>Trakey locks again after you have been away from the App for 2 minutes. If Extra secure is on, it locks after 1 minute.</li>
+<li>Extra secure hides Trakey’s preview in your phone’s recent apps list and blocks screenshots and screen recording inside Trakey. It is off until you turn it on.</li>
+<li>Your PIN is never stored as plain text. Only a salted, hashed form of it is stored in the App’s private storage on your device. It is not uploaded, backed up by Trakey or shared.</li>
+<li>Fingerprint or face unlock, if you enable it, is handled entirely by Android.</li>
+<li>After several wrong PIN attempts the App makes you wait before trying again.</li>
+<li>Your PIN cannot be recovered by us. If you forget it, tap Forgot PIN on the lock screen and confirm with your phone’s own screen lock to reset it. If your phone has no screen lock, the only way to reset it is to clear the App’s data in Android settings, which erases local data that has not been backed up.</li>
+<li>To change your PIN or turn App lock off, you must enter your current PIN.</li>
 </ul>
 <p>
-The "Delete all data" control, where available, is intended to delete
-the categories described in its confirmation screen. Do not assume that
-it deletes every copy held by independent third-party providers, backups
-or previously submitted support messages.
-</p>
-<p>
-For deletion requests or questions about information held by Trakey,
-email <a href="mailto:support.trakey@gmail.com">support.trakey@gmail.com</a>.
-We may need to verify your identity and may retain information where
-required by law or necessary for legitimate security purposes.
+We use reasonable technical and organisational measures: data in the App’s private storage is protected by Android’s app sandbox, and connections to our services use encryption in transit. No method of storage or transmission is completely secure, and we cannot guarantee absolute security. Keep your device updated and protected with a screen lock. If the device is rooted or compromised, local data may be exposed.
 </p>
 </section>
 
 <section>
-<h2>17. Your privacy rights</h2>
+<h2>12. How we use information</h2>
 <p>
-Depending on your location and applicable law, you may have rights to
-access, correct, update, delete or obtain a copy of your personal
-information, withdraw consent, object to certain processing or lodge
-a complaint with an appropriate authority.
-</p>
-<p>
-You may manage some information directly in the App. For other requests,
-contact support.trakey@gmail.com. Requests will be handled in accordance
-with applicable law and the capabilities of the relevant service providers.
+We use information only to: provide and operate the features you use; back up, restore and sync your data; send reminders and notifications you asked for; verify payments and manage Trakey Pro access; respond to your messages; keep the App secure, prevent abuse and fix bugs; improve the App; and comply with law. We do not use your notes, goals, tasks, recordings or other content for advertising, profiling or to train our own models. We do not make decisions about you by automated means that have legal or similarly significant effects.
 </p>
 </section>
 
 <section>
-<h2>18. Children and age requirements</h2>
+<h2>13. Legal bases and consent</h2>
 <p>
-Trakey is not directed to children under 13, and we do not knowingly
-seek personal information from children under 13. If you believe a
-child under 13 has provided information to us, contact support.trakey@gmail.com.
-We will review the request and take appropriate action where required.
-</p>
-<p>
-Users who are minors under applicable law should obtain any parent or
-guardian involvement or permission required by that law.
+Where the law requires a legal basis, we rely on: your consent (for example, signing in, enabling permissions, using AI features, sending feedback); performance of the service you asked for; our legitimate interest in running and securing the App; and legal obligations. You can withdraw consent at any time by stopping the feature, turning off the permission, signing out or deleting your data. Withdrawing consent does not affect processing that already happened.
 </p>
 </section>
 
 <section>
-<h2>19. Third-party intellectual property</h2>
+<h2>14. Data sharing and disclosure</h2>
 <p>
-Google, Firebase, Android, AdMob, Gemini, Microsoft, Clarity, Cloudflare,
-Groq and other referenced names are the property or trademarks of their
-respective owners. Trakey is an independent application and is not
-affiliated with, sponsored by or endorsed by these providers unless
-expressly stated.
+We do not sell, rent or trade your personal information. We share data only: with the service providers in section 7 to run the features you use; where required by law, court order or a lawful government request; to protect the rights, safety or property of users, us or others, and to investigate misuse; and with a successor if Trakey is transferred, merged or sold, in which case this policy will continue to apply to your data until you are notified of a change.
 </p>
 </section>
 
 <section>
-<h2>20. Policy updates</h2>
+<h2>15. International transfers</h2>
 <p>
-This policy may change when the App, its SDKs, its features or applicable
-law changes. The latest version will be published at:
-<a href="https://maniaxe.in/trakey/privacy-policy.html">Privacy Policy</a>.
-The effective date at the top identifies the published version.
-Where required, we will provide notice or request consent for material
-changes.
+Google and other providers may process data in countries other than yours, including countries whose data protection laws differ. By using the connected features you understand your data may be transferred and processed there, subject to those providers’ safeguards.
+</p>
+</section>
+
+<section>
+<h2>16. Retention and deletion</h2>
+<ul>
+<li>Local data stays on your device until you delete it, clear it from Account &gt; Backup &amp; data, or uninstall the App.</li>
+<li>Photos and PDFs shared to Trakey are copied to the App’s cache and removed automatically after about a day. Files you save yourself, such as a PDF in Downloads, stay until you delete them.</li>
+<li>Cloud backups stay until you delete them from the App or ask us to.</li>
+<li>Delete all data in Account &gt; Backup &amp; data removes your cloud backup, the synced copies of notes, goals, tasks, questions and Learn cards, your rating status and your account entry, and clears local data on the device. Feedback and support messages you already sent stay in our records until you ask us to delete them.</li>
+<li>Payment records (section 22) may be kept for as long as needed for accounting, tax, fraud-prevention and dispute purposes, even after you delete your other data.</li>
+<li>Signing out removes the signed-in account’s data from the device and keeps your cloud backup for your next sign-in.</li>
+<li>Feedback and support emails are kept as long as needed to help you and improve the App.</li>
+<li>Analytics, advertising and provider logs are kept under the relevant provider’s own settings and retention policy.</li>
+<li>To ask for deletion of anything else we hold about you, email <a href="mailto:support.trakey@gmail.com">support.trakey@gmail.com</a> from the address linked to your account. We will act on verified requests within a reasonable time and in any case within the time the law requires. Some records may be kept where the law requires or for legitimate security reasons.</li>
+</ul>
+</section>
+
+<section>
+<h2>17. Your rights</h2>
+<p>
+Depending on where you live, you may have the right to access, correct, update, delete or export your information, to withdraw consent, to object to or restrict processing, to nominate someone to act for you, and to complain to your data protection authority. Most of these you can do yourself inside the App. For anything else, contact us at <a href="mailto:support.trakey@gmail.com">support.trakey@gmail.com</a>. We do not discriminate against people who exercise their rights.
+</p>
+</section>
+
+<section>
+<h2>18. Children</h2>
+<p>
+Trakey is not directed to children under 13 and we do not knowingly collect personal information from them. If you are under the age of majority where you live, please use the App only with the permission and supervision of a parent or guardian. If you believe a child under 13 has given us personal information, write to us and we will delete it.
+</p>
+</section>
+
+<section>
+<h2>19. Trademarks and third-party names</h2>
+<p>
+Google, Gemini, Firebase, AdMob, Cloudflare, Groq, Microsoft, Clarity, PayU, Android and other names mentioned in the App are trademarks of their respective owners. Trakey is independent. It is not affiliated with, sponsored by or endorsed by them. Trakey AI is powered by third-party AI services such as Groq and the Google Gemini API.
+</p>
+</section>
+
+<section>
+<h2>20. Changes to this policy</h2>
+<p>
+We may update this policy as Trakey evolves or the law changes. The effective date at the top shows the current version, and the latest version is always available at <a href="https://maniaxe.in/trakey/privacy-policy.html">maniaxe.in/trakey/privacy-policy.html</a>. If a change is material, we will tell you in the App. Using the App after a change means you accept the updated policy.
 </p>
 </section>
 
 <section>
 <h2>21. Friends and challenges</h2>
 <p>
-Friends is optional and requires sign-in where implemented. You may
-choose a username, display name and avatar for your profile. Username
-and profile details may be stored in Firebase Cloud Firestore so other
-users can find your profile or send friend requests.
+Friends is optional and needs a Google sign-in.
+</p>
+<ul>
+<li>Username: you choose a username of 3 to 20 letters, numbers or underscores. Anyone who knows it exactly can find you, see your name, photo or avatar and send you a friend request. Your username, display name, avatar number and Google photo link are stored in Google Cloud Firestore and are visible to people who search for your username and to your friends. If you have not chosen a built-in avatar, your Google profile photo (its link is stored with your Friends profile) is also shown to them; if you choose an avatar, that is shown instead. Photos from your gallery, your email address, notes, goals, tasks and your own questions are never shown to other users.</li>
+<li>Friend requests and friendships are stored until the request is accepted, declined or cancelled, or the friend is removed.</li>
+<li>Share my stats (Settings &gt; Friends) is off by default. When it is on, your EXP, challenges taken and accuracy are stored so your friends can see them in their friend view and leaderboard. Turning it off deletes that card.</li>
+<li>Challenges: when you challenge a friend, the title, level and questions (taken from Trakey’s built-in sets only) and each player’s score, time and finish status are stored for both of you for about 7 days.</li>
+<li>You can change your username, remove a friend, cancel a request or turn sharing off at any time. To ask us to delete your username, profile and Friends data, email <a href="mailto:support.trakey@gmail.com">support.trakey@gmail.com</a> from the address linked to your account.</li>
+</ul>
+</section>
+
+<section>
+<h2>22. Trakey Pro, payments and advertising software</h2>
+<p>
+<strong>Trakey Pro.</strong> Trakey Pro is optional. Your Pro status (free trial, free month, plan and expiry date) is stored in Google Cloud Firestore under your account ID, so that a trial cannot be repeated by reinstalling the App and so that Pro follows your account. Free accounts have daily limits on some AI features; the Free vs Pro screen in the App shows the current limits.
 </p>
 <p>
-If you enable statistics sharing, selected experience points, challenge
-participation, accuracy or similar statistics may be visible to friends
-or in a leaderboard. Friend requests and friendships may be stored until
-they are accepted, declined, cancelled or removed. Challenge titles,
-questions, scores, completion times and status may be stored for
-participating users.
+<strong>Paying for Pro.</strong> Depending on your region and the App version, you can pay by UPI (QR code or UPI ID) or through a payment gateway such as PayU.
+</p>
+<ul>
+<li>UPI: after you pay in your own payment app, you enter the UTR (transaction reference) and may attach a screenshot of the payment. We store your account ID, name, email, plan, amount, UTR, screenshot, status, time and app version so that we can verify the payment and activate Pro. A screenshot may show details from your payment app, so crop or hide anything you do not want us to see. A UTR can be used for one order only.</li>
+<li>Payment gateway: the payment page is provided by PayU. Trakey’s payment server (on Cloudflare) prepares the signed payment request and checks the result with PayU, then records the order and your Pro access. PayU collects and processes your payment details under its own terms and privacy policy. Trakey does not receive or store your card number, UPI PIN, bank password or OTP.</li>
+</ul>
+<p>
+Never send us a UPI PIN, card details, password or OTP. Payment records are kept as described in section 16.
 </p>
 <p>
-Private notes, tasks, email addresses and personal question folders are
-not intended to be publicly displayed through Friends. You should verify
-the current implementation and database access rules before relying
-on this statement. Use the available controls to manage sharing and
-contact us for deletion requests.
+<strong>Advertising software.</strong> The App contains Google AdMob software. Trakey does not currently run advertising, but when you reach a free daily limit the App may contact Google AdMob, which may process your IP address, device and advertising identifiers and diagnostics under Google’s own policies. You can reset or limit your advertising ID in your Android settings. We do not send your notes, goals, tasks, recordings or other content to AdMob. If rewarded ads are offered in a future version, this policy will be updated first.
 </p>
 </section>
 
 <section>
-<h2>22. Trakey Pro and payments</h2>
+<h2>23. Feature guide</h2>
 <p>
-Trakey may offer optional premium features under the name Trakey Pro.
-Payment and purchase procedures may differ by app version and
-distribution platform.
-</p>
-<p>
-Where a version offers QR-code or payment-ID instructions, payments
-may be processed by a separate payment application or provider rather
-than a payment gateway operated by Trakey. We may process information
-needed to verify a payment and manage access to the relevant feature.
-Payment providers apply their own privacy policies and terms.
-</p>
-<p>
-Never send us a UPI PIN, payment password, card security code or other
-authentication secret. Purchases, billing and refunds remain subject
-to applicable law and the rules of the relevant distribution platform.
+Some Trakey features are gestures that are easy to miss, such as holding a tool tile on Home to add it to Quick access or to your phone’s home screen, or holding Quick 5 and the question card in Learn to choose what they show. They are explained in the <a href="https://maniaxe.in/trakey/features.html">Trakey Feature Guide</a>. The guide is for information only and does not change this policy.
 </p>
 </section>
 
 <section>
-<h2>23. Contact and privacy complaints</h2>
+<h2>24. Contact and grievance</h2>
 <p>
-For questions, privacy requests or complaints, contact:
-<a href="mailto:support.trakey@gmail.com">support.trakey@gmail.com</a>.
-Please provide enough information to identify the request, but do not
-send passwords, PINs or payment authentication secrets.
+For questions, requests or complaints about this policy or your data, write to <a href="mailto:support.trakey@gmail.com">support.trakey@gmail.com</a>. This address is also our contact for privacy grievances. Please include your name and the email linked to your account so we can verify and help you.
 </p>
 </section>
 
 <footer>
 <strong>© 2026 Trakey Labs. All rights reserved.</strong><br>
-Trakey Labs is the development brand used by the individual developer
-of Trakey. Website hosting, support resources and release publication:
+Trakey is developed and managed by Trakey Labs and powered by
 <a href="https://maniaxe.in/">Maniaxe.in</a>.<br>
 Third-party trademarks belong to their respective owners.
 </footer>
