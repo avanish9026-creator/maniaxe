@@ -19,8 +19,8 @@ export const APP_LIMITS = { [F_SCAN]: 5, [F_IMPORT]: 3, ai_action: 5 };   // for
 
 // ---------------------------------------------------------------- prices (keep the same as TrakeyPro.kt)
 export const PRICE_MONTHLY = 19;     // rupees
-export const PRICE_YEARLY = 179;     // rupees
-export const PRICE_LIFETIME = 999;   // rupees, one time
+export const PRICE_YEARLY = 149;     // rupees
+export const PRICE_LIFETIME = 699;   // rupees, one time
 const LIFETIME_COMPARE_YEARS = 10;
 
 export const amountFor = (plan) => plan === "monthly" ? PRICE_MONTHLY : plan === "lifetime" ? PRICE_LIFETIME : PRICE_YEARLY;
