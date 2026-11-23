@@ -1,144 +1,154 @@
-import { useCallback, useEffect, useState } from "react";
-import { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp } from "firebase/firestore";
-import { db, useAdmin } from "../store";
-import { Badge, Empty, Field, Seg } from "../ui";
-import { fmtTime, ms } from "../lib/util";
+import { useMemo, useState } from "react";
+import { Badge, Button, Card, Empty, Field, Icon, IconButton, Loading, Notice, PageHead, Segmented, useBusy, useUI } from "../lib/ui";
+import { useStore } from "../lib/store";
+import { useCollection } from "../lib/useCollection";
+import { fmtDateTime, tsMs } from "../lib/format";
+import { leftover } from "../lib/templates";
+import TemplatePicker from "../components/TemplatePicker";
 
-function useList(name) {
-  const [items, setItems] = useState([]);
-  const load = useCallback(async () => {
-    const snap = await getDocs(collection(db, name));
-    setItems(snap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)));
-  }, [name]);
-  useEffect(() => { load().catch(() => {}); }, [load]);
-  return [items, load];
+const TYPES = ["General", "Update", "Feature", "Maintenance", "Important"];
+const TYPE_TONE = { General: "muted", Update: "accent", Feature: "ok", Maintenance: "warn", Important: "bad" };
+
+function PushPreview({ title, message }) {
+  const now = new Date();
+  return (
+    <div className="phone">
+      <div className="phone-time">{now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Kolkata" })}</div>
+      <div className="phone-date">{now.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Kolkata" })}</div>
+      <div className="push">
+        <img src={import.meta.env.BASE_URL + "trakey-logo.png"} alt="" />
+        <div><small>Trakey · now</small><b>{title || "Notification title"}</b><p>{message || "Your message appears here."}</p></div>
+      </div>
+    </div>
+  );
 }
 
 export default function Broadcast() {
-  const [tab, setTab] = useState("push");
+  const { actions } = useStore();
+  const { confirm } = useUI();
+  const [busy, run] = useBusy();
+  const [kind, setKind] = useState("push");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("General");
+  const [actionText, setActionText] = useState("");
+  const [actionUrl, setActionUrl] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [showTpl, setShowTpl] = useState(false);
+  const [error, setError] = useState("");
+
+  const notes = useCollection("adminNotifications", ["createdAt"]);
+  const anns = useCollection("adminAnnouncements", ["createdAt"]);
+
+  const sent = useMemo(() => [
+    ...notes.items.map((n) => ({ ...n, _kind: "push", _at: tsMs(n.createdAt) })),
+    ...anns.items.map((a) => ({ ...a, _kind: "announcement", _at: tsMs(a.createdAt) })),
+  ].sort((a, b) => b._at - a._at), [notes.items, anns.items]);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setError("");
+    const t = title.trim();
+    const m = message.trim();
+    if (!t || !m) return setError("Title and message are required.");
+    const left = leftover(t, m, actionText);
+    if (left) return setError("Fill in " + left + " before sending.");
+    if (kind === "push" && imageUrl.trim() && !/^https:\/\//i.test(imageUrl.trim())) return setError("The picture link must start with https://");
+    if (kind === "announcement" && actionText.trim() && !actionUrl.trim()) return setError("Enter an action URL when an action button is provided.");
+    if (kind === "announcement" && actionUrl.trim() && !/^https?:\/\//i.test(actionUrl.trim())) return setError("The action URL must start with http:// or https://");
+
+    const ok = await confirm({
+      title: kind === "push" ? "Send to every Trakey user?" : "Publish this announcement?",
+      body: kind === "push" ? "Everyone with the app gets this push notification on their phone right away. It cannot be taken back." : "It appears inside the app for all users.",
+      confirmLabel: kind === "push" ? "Send to everyone" : "Publish",
+    });
+    if (!ok) return;
+
+    const done = await run("send", async () => {
+      if (kind === "push") await actions.sendBroadcast(t, m, imageUrl.trim());
+      else await actions.publishAnnouncement({ title: t, message: m, type, actionText: actionText.trim(), actionUrl: actionUrl.trim() });
+      return true;
+    }, kind === "push" ? "Notification sent to everyone." : "Announcement published.");
+    if (done) { setTitle(""); setMessage(""); setActionText(""); setActionUrl(""); setImageUrl(""); }
+  };
+
+  const remove = async (item) => {
+    const ok = await confirm({ title: "Delete this " + (item._kind === "push" ? "notification record" : "announcement") + "?",
+      body: item._kind === "push" ? "This only removes it from the history. Phones that already received it keep it." : "It disappears from the app for everyone.", confirmLabel: "Delete", danger: true });
+    if (ok) run("del" + item.id, () => (item._kind === "push" ? actions.deleteNotification(item.id) : actions.deleteAnnouncement(item.id)), "Deleted.");
+  };
+
   return (
     <>
-      <Seg value={tab} onChange={setTab} options={[["push", "Notification to everyone"], ["announce", "Announcements"], ["updates", "App updates"]]} />
-      {tab === "push" && <Push />}
-      {tab === "announce" && <Announce />}
-      {tab === "updates" && <Updates />}
+      <PageHead title="Broadcast" subtitle="Message every Trakey user at once. To message one person, open them from Users." />
+
+      <div className="cols-main">
+        <Card>
+          <form className="stack-sm" onSubmit={submit}>
+            <Segmented value={kind} onChange={setKind} options={[
+              { value: "push", label: "Push notification", icon: "bell" },
+              { value: "announcement", label: "In-app announcement", icon: "megaphone" },
+            ]} />
+            <p className="small muted">{kind === "push" ? "Shows on every phone, even when the app is closed." : "Shows inside the app, with an optional button."}</p>
+            <div className="row">
+              <Button size="sm" variant={showTpl ? "soft" : "default"} icon="file" onClick={() => setShowTpl((v) => !v)}>{showTpl ? "Hide ready-made messages" : "Ready-made messages"}</Button>
+            </div>
+            {showTpl && <TemplatePicker key={kind} kind={kind === "push" ? "push" : "announce"} onUse={(x) => {
+              setTitle(x.t); setMessage(x.m);
+              if (kind === "announcement") { if (x.type) setType(x.type); setActionText(x.btn || ""); setActionUrl(x.btn ? x.link : ""); }
+              setShowTpl(false);
+            }} />}
+            <Field label="Title"><input value={title} maxLength={kind === "push" ? 100 : 120} onChange={(e) => setTitle(e.target.value)} placeholder={kind === "push" ? "Example: Trakey 5.2 is here" : "Announcement title"} /></Field>
+            <Field label="Message">
+              <textarea rows={kind === "push" ? 5 : 7} value={message} maxLength={kind === "push" ? 500 : 2000} onChange={(e) => setMessage(e.target.value)} placeholder="Write the message" />
+              <span className="counter">{message.length}/{kind === "push" ? 500 : 2000}</span>
+            </Field>
+            {kind === "push" && (
+              <Field label="Picture (optional)" hint="A link starting with https:// to an image shown in the notification."><input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://…" /></Field>
+            )}
+            {kind === "announcement" && (
+              <div className="form-grid">
+                <Field label="Type"><select value={type} onChange={(e) => setType(e.target.value)}>{TYPES.map((t) => <option key={t}>{t}</option>)}</select></Field>
+                <Field label="Button text (optional)"><input value={actionText} maxLength={60} onChange={(e) => setActionText(e.target.value)} placeholder="Example: View update" /></Field>
+                <Field label="Button link (optional)" className="full"><input type="url" value={actionUrl} onChange={(e) => setActionUrl(e.target.value)} placeholder="https://…" /></Field>
+              </div>
+            )}
+            {error && <Notice tone="bad">{error}</Notice>}
+            <div><Button type="submit" variant="primary" size="lg" icon="send" disabled={busy === "send"}>{busy === "send" ? "Sending…" : kind === "push" ? "Send to everyone" : "Publish announcement"}</Button></div>
+          </form>
+        </Card>
+
+        <div className="stack">
+          <h3 className="sec-title" style={{ margin: "0 0 -6px" }}>Preview</h3>
+          {kind === "push" ? <PushPreview title={title} message={message} /> : (
+            <Card>
+              <div className="row" style={{ marginBottom: 8 }}><Badge tone={TYPE_TONE[type]}>{type}</Badge></div>
+              <h3 style={{ fontSize: 17, overflowWrap: "anywhere" }}>{title || "Announcement title"}</h3>
+              <p className="muted" style={{ marginTop: 6, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{message || "Your message appears here."}</p>
+              {actionText.trim() && <div style={{ marginTop: 14 }}><Button variant="primary" size="sm">{actionText.trim()}</Button></div>}
+            </Card>
+          )}
+        </div>
+      </div>
+
+      <h3 className="sec-title">Recently sent</h3>
+      <Card pad={false}>
+        {notes.loading || anns.loading ? <Loading /> : sent.length === 0 ? <Empty icon="send" title="Nothing sent yet" /> : (
+          <div className="list">
+            {sent.map((item) => (
+              <div className="list-row" key={item._kind + item.id} style={{ alignItems: "flex-start" }}>
+                <span className="tl-ic accent"><Icon name={item._kind === "push" ? "bell" : "megaphone"} size={16} /></span>
+                <div className="list-main">
+                  <b style={{ whiteSpace: "normal" }}>{item.title}</b>
+                  <span style={{ whiteSpace: "pre-wrap" }}>{item.message}</span>
+                </div>
+                <div className="list-end"><Badge tone={item._kind === "push" ? "accent" : TYPE_TONE[item.type] || "muted"}>{item._kind === "push" ? "Push" : item.type || "Announcement"}</Badge><span>{fmtDateTime(item._at)}</span></div>
+                <IconButton icon="trash" label="Delete" disabled={busy === "del" + item.id} onClick={() => remove(item)} />
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </>
-  );
-}
-
-function Remove({ coll, id, reload }) {
-  const A = useAdmin();
-  return <button className="sm danger" onClick={() => window.confirm("Delete this? This cannot be undone.") && A.run(() => deleteDoc(doc(db, coll, id)), "Deleted.").then(reload)}>Delete</button>;
-}
-
-function Push() {
-  const A = useAdmin();
-  const [items, load] = useList("adminNotifications");
-  const [t, setT] = useState(""); const [m, setM] = useState(""); const [busy, setBusy] = useState(false);
-  const send = async () => {
-    if (!window.confirm("Send this to every Trakey user?")) return;
-    setBusy(true);
-    if (await A.pushAll(t.trim(), m.trim())) { setT(""); setM(""); load(); }
-    setBusy(false);
-  };
-  return (
-    <div className="grid cols-2">
-      <section className="card stack">
-        <h2>New notification</h2>
-        <p className="muted small">Goes to every phone with Trakey. To message one person, open them in Users.</p>
-        <Field label="Title"><input maxLength={100} value={t} onChange={(e) => setT(e.target.value)} /></Field>
-        <Field label={`Message (${m.length}/1000)`}><textarea maxLength={1000} value={m} onChange={(e) => setM(e.target.value)} rows={5} /></Field>
-        <div><button className="primary" disabled={busy || !t.trim() || !m.trim()} onClick={send}>Send to everyone</button></div>
-      </section>
-      <section className="panel flush">
-        <div className="panel-head"><h2>Sent</h2></div>
-        {items.length === 0 ? <Empty title="Nothing sent yet" /> : items.map((n) => (
-          <div key={n.id} className="item" style={{ border: 0, borderBottom: "1px solid var(--line)", borderRadius: 0 }}>
-            <div className="row spread"><b>{n.title}</b><span className="faint small">{fmtTime(ms(n.createdAt))}</span></div>
-            <span className="muted">{n.message}</span>
-            <div><Remove coll="adminNotifications" id={n.id} reload={load} /></div>
-          </div>
-        ))}
-      </section>
-    </div>
-  );
-}
-
-function Announce() {
-  const A = useAdmin();
-  const [items, load] = useList("adminAnnouncements");
-  const [f, setF] = useState({ title: "", message: "", type: "General", actionText: "", actionUrl: "" });
-  const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }));
-  const publish = async () => {
-    const title = f.title.trim(), message = f.message.trim(), at = f.actionText.trim(), au = f.actionUrl.trim();
-    if (!title || !message) return A.notify("Title and message are required.", "bad");
-    if (at && !au) return A.notify("Enter an action URL when an action button is provided.", "bad");
-    const ok = await A.run(() => addDoc(collection(db, "adminAnnouncements"), {
-      title, message, type: f.type, actionText: at || null, actionUrl: au || null, active: true, published: true,
-      createdAt: serverTimestamp(), publishedAt: serverTimestamp(), publishedBy: A.who,
-    }), "Announcement published.");
-    if (ok) { setF({ title: "", message: "", type: "General", actionText: "", actionUrl: "" }); load(); }
-  };
-  return (
-    <div className="grid cols-2">
-      <section className="card stack">
-        <h2>New announcement</h2><p className="muted small">Shown inside the app until you delete it.</p>
-        <Field label="Title"><input value={f.title} onChange={set("title")} /></Field>
-        <Field label="Message"><textarea value={f.message} onChange={set("message")} rows={4} /></Field>
-        <Field label="Type"><select value={f.type} onChange={set("type")}>{["General", "Update", "Feature", "Maintenance"].map((x) => <option key={x}>{x}</option>)}</select></Field>
-        <div className="form-grid"><Field label="Button text (optional)"><input value={f.actionText} onChange={set("actionText")} /></Field><Field label="Button link"><input value={f.actionUrl} onChange={set("actionUrl")} placeholder="https://" /></Field></div>
-        <div><button className="primary" onClick={publish}>Publish</button></div>
-      </section>
-      <section className="panel flush">
-        <div className="panel-head"><h2>Published</h2></div>
-        {items.length === 0 ? <Empty title="No announcements" /> : items.map((a) => (
-          <div key={a.id} className="item" style={{ border: 0, borderBottom: "1px solid var(--line)", borderRadius: 0 }}>
-            <div className="row spread"><b>{a.title}</b><Badge>{a.type}</Badge></div>
-            <span className="muted">{a.message}</span><span className="faint small">{fmtTime(ms(a.createdAt))}</span>
-            <div><Remove coll="adminAnnouncements" id={a.id} reload={load} /></div>
-          </div>
-        ))}
-      </section>
-    </div>
-  );
-}
-
-function Updates() {
-  const A = useAdmin();
-  const [items, load] = useList("appUpdates");
-  const E = { version: "", title: "", description: "", releaseNotes: "", downloadUrl: "" };
-  const [f, setF] = useState(E);
-  const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }));
-  const publish = async () => {
-    const v = f.version.trim(), t = f.title.trim(), d = f.description.trim(), url = f.downloadUrl.trim();
-    if (!v || !t || !d) return A.notify("Version, title and description are required.", "bad");
-    if (url && !/^https?:\/\//i.test(url)) return A.notify("Download URL must start with http:// or https://.", "bad");
-    const ok = await A.run(() => addDoc(collection(db, "appUpdates"), {
-      version: v, title: t, description: d, releaseNotes: f.releaseNotes.trim(), downloadUrl: url || null, active: true,
-      createdAt: serverTimestamp(), publishedAt: serverTimestamp(), publishedBy: A.who,
-    }), "Update published.");
-    if (ok) { setF(E); load(); }
-  };
-  return (
-    <div className="grid cols-2">
-      <section className="card stack">
-        <h2>Publish an app update</h2>
-        <div className="form-grid"><Field label="Version"><input value={f.version} onChange={set("version")} placeholder="5.1.3" /></Field><Field label="Title"><input value={f.title} onChange={set("title")} /></Field></div>
-        <Field label="Short description"><textarea value={f.description} onChange={set("description")} rows={3} /></Field>
-        <Field label="Release notes"><textarea value={f.releaseNotes} onChange={set("releaseNotes")} rows={4} /></Field>
-        <Field label="Download link (optional)"><input value={f.downloadUrl} onChange={set("downloadUrl")} placeholder="https://" /></Field>
-        <div><button className="primary" onClick={publish}>Publish update</button></div>
-      </section>
-      <section className="panel flush">
-        <div className="panel-head"><h2>Published updates</h2></div>
-        {items.length === 0 ? <Empty title="No updates yet" /> : items.map((u) => (
-          <div key={u.id} className="item" style={{ border: 0, borderBottom: "1px solid var(--line)", borderRadius: 0 }}>
-            <div className="row spread"><b>{u.title}</b><Badge tone="accent">v{u.version}</Badge></div>
-            <span className="muted">{u.description}</span><span className="faint small">{fmtTime(ms(u.createdAt))}</span>
-            <div><Remove coll="appUpdates" id={u.id} reload={load} /></div>
-          </div>
-        ))}
-      </section>
-    </div>
   );
 }

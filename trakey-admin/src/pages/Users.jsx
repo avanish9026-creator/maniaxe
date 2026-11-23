@@ -1,229 +1,156 @@
 import { useMemo, useState } from "react";
-import { useAdmin } from "../store";
-import { Avatar, Badge, Drawer, Empty, Field, KV, Seg, copy } from "../ui";
-import { PLANS, PRO_TONE, ago, fmtDay, fmtTime, inr, ms } from "../lib/util";
+import { Button, Card, Empty, Icon, Loading, Modal, PageHead, Segmented, Notice, useUI } from "../lib/ui";
+import { useStore } from "../lib/store";
+import { daysLeft, plain, todayIst } from "../lib/format";
+import UserCard from "../components/UserCard";
+import Composer from "../components/Composer";
+import { GiftModal } from "../components/ProControls";
 import { buildUserRows, buildUsersCsv, buildUsersPdf } from "../userExport";
 import { downloadBlob } from "../paymentExport";
 
-const FILTERS = [["all", "All"], ["online", "Online"], ["paid", "Paid"], ["trial", "Trial"], ["free", "Free"], ["expired", "Expired"]];
-const match = (u, f) => ({
-  all: true, online: u.online, paid: u.pro.hasPaid, trial: ["trial", "reward"].includes(u.pro.key),
-  free: ["free", "ended"].includes(u.pro.key), expired: u.pro.key === "expired",
-}[f]);
+const PAGE = 60;
 
-export default function Users({ id, go }) {
-  const A = useAdmin();
-  const [q, setQ] = useState(""); const [f, setF] = useState("all");
-  const list = useMemo(() => {
+export default function Users() {
+  const { people, payments, feedback, contacts, errors, loaded, anonymous, authListError, reloadAuthList } = useStore();
+  const { toast } = useUI();
+  const [q, setQ] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [sort, setSort] = useState("seen");
+  const [limit, setLimit] = useState(PAGE);
+  const [selecting, setSelecting] = useState(false);
+  const [picked, setPicked] = useState(() => new Set());
+  const [composer, setComposer] = useState(null); // { people, mode }
+  const [gift, setGift] = useState(null);
+  const [menu, setMenu] = useState(false);
+
+  const counts = useMemo(() => ({
+    all: people.length,
+    pro: people.filter((p) => p.pro.hasPaid).length,
+    trial: people.filter((p) => p.pro.key === "trial" || p.pro.key === "reward").length,
+    free: people.filter((p) => !p.pro.hasAccess).length,
+    online: people.filter((p) => p.online).length,
+    expiring: people.filter((p) => p.pro.hasAccess && p.pro.key !== "lifetime" && p.pro.endMs && daysLeft(p.pro.endMs) <= 7).length,
+  }), [people]);
+
+  const shown = useMemo(() => {
     const s = q.trim().toLowerCase();
-    return A.people.filter((u) => match(u, f) && (!s || [u.name, u.email, u.uid, u.location].some((v) => String(v || "").toLowerCase().includes(s))));
-  }, [A.people, q, f]);
-  const counts = (k) => A.people.filter((u) => match(u, k)).length;
-  const selected = id && A.people.find((u) => u.uid === id);
+    const list = people.filter((p) => {
+      if (filter === "pro" && !p.pro.hasPaid) return false;
+      if (filter === "trial" && !(p.pro.key === "trial" || p.pro.key === "reward")) return false;
+      if (filter === "free" && p.pro.hasAccess) return false;
+      if (filter === "online" && !p.online) return false;
+      if (filter === "expiring" && !(p.pro.hasAccess && p.pro.key !== "lifetime" && p.pro.endMs && daysLeft(p.pro.endMs) <= 7)) return false;
+      return !s || [p.name, p.email, p.uid, p.location].some((v) => String(v || "").toLowerCase().includes(s));
+    });
+    if (sort === "name") list.sort((a, b) => String(a.name || a.email || "~").localeCompare(String(b.name || b.email || "~")));
+    if (sort === "ending") list.sort((a, b) => (a.pro.endMs || Infinity) - (b.pro.endMs || Infinity));
+    return list;
+  }, [people, q, filter, sort]);
 
-  const download = (kind) => {
-    const data = buildUserRows({ users: A.people, proItems: A.pro, paymentItems: A.payments, feedbackItems: A.feedback, contactItems: A.contacts, isOnline: (u) => u.online });
-    const stamp = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
-    downloadBlob(kind === "csv" ? buildUsersCsv(data) : buildUsersPdf(data), `trakey-user-data-${stamp}.${kind}`);
+  const toggle = (uid) => setPicked((prev) => { const n = new Set(prev); if (n.has(uid)) n.delete(uid); else n.add(uid); return n; });
+  const pickedPeople = people.filter((p) => picked.has(p.uid));
+  const endSelect = () => { setSelecting(false); setPicked(new Set()); };
+
+  const exportData = (format) => {
+    setMenu(false);
+    const onlineSet = new Set(people.filter((p) => p.online).map((p) => p.uid));
+    const plainUsers = people.map(({ pro, backup, lastSeenMs, online, hasProDoc, notIndexed, ...rest }) => rest); // eslint-disable-line no-unused-vars
+    const data = buildUserRows({ users: plainUsers, proItems: people.filter((p) => p.hasProDoc).map((p) => ({ id: p.uid, ...p.pro.raw })), paymentItems: payments, feedbackItems: feedback, contactItems: contacts, isOnline: (u) => onlineSet.has(u.uid) });
+    const stamp = todayIst();
+    if (format === "csv") downloadBlob(buildUsersCsv(data), "trakey-user-data-" + stamp + ".csv");
+    else if (format === "pdf") downloadBlob(buildUsersPdf(data), "trakey-user-data-" + stamp + ".pdf");
+    else {
+      const payload = { exportedAt: new Date().toISOString(), users: people.map(({ pro, backup, ...u }) => plain({ ...u, proStatus: pro.raw, online: u.online })), feedback: plain(feedback), contactMessages: plain(contacts) };
+      downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), "trakey-admin-data-" + stamp + ".json");
+    }
+    toast("Download started.");
   };
 
   return (
     <>
-      <div className="row spread">
-        <Seg value={f} onChange={setF} options={FILTERS.map(([k, l]) => [k, l, counts(k)])} />
-        <div className="row">
-          <input style={{ width: 280 }} placeholder="Search name, email, ID, location" value={q} onChange={(e) => setQ(e.target.value)} />
-          <button onClick={() => download("csv")}>Export CSV</button>
-          <button onClick={() => download("pdf")}>Export PDF</button>
-        </div>
-      </div>
-      {list.length === 0 ? <div className="card"><Empty title="No users match" hint="Try another filter or search." /></div> : (
-        <div className="user-grid">
-          {list.map((u) => (
-            <button key={u.uid} className={"ucard" + (id === u.uid ? " sel" : "")} onClick={() => go("users", u.uid)}>
-              <span className="id">
-                <Avatar u={u} />
-                <span><b className="ellip">{u.name || "Trakey User"}</b><span className="muted small ellip" style={{ display: "block" }}>{u.email || "No email"}</span></span>
-                <span className={"dot grow-0" + (u.online ? " on" : "")} style={{ marginLeft: "auto" }} title={u.online ? "Online" : "Offline"} />
-              </span>
-              <span className="row"><Badge tone={PRO_TONE[u.pro.key]}>{u.pro.label}</Badge>{u.pro.endMs > 0 && u.pro.key !== "lifetime" && <span className="faint small">till {fmtDay(u.pro.endMs)}</span>}</span>
-              <span className="meta"><span className="ellip">{u.location || "Location unknown"}</span><span>{u.online ? "Online" : ago(ms(u.lastSeenAt))}</span></span>
-            </button>
-          ))}
-        </div>
-      )}
-      {selected && <UserDrawer u={selected} onClose={() => go("users")} />}
-      {id && !selected && A.people.length > 0 && <UserMissing id={id} onClose={() => go("users")} />}
-    </>
-  );
-}
-const UserMissing = ({ id, onClose }) => <Drawer onClose={onClose} head={<h1>User not found</h1>}><p className="muted">No user with ID <span className="mono">{id}</span>.</p></Drawer>;
-
-function UserDrawer({ u, onClose }) {
-  const A = useAdmin();
-  const [tab, setTab] = useState("overview");
-  const rel = A.forUser(u);
-  return (
-    <Drawer onClose={onClose} head={
-      <>
-        <div className="row spread" style={{ alignItems: "flex-start" }}>
-          <div className="row" style={{ flexWrap: "nowrap", minWidth: 0 }}>
-            <Avatar u={u} size="lg" />
-            <div style={{ minWidth: 0 }}>
-              <h1 className="ellip">{u.name || "Trakey User"}</h1>
-              <div className="muted ellip">{u.email || "No email on record"}</div>
-              <div className="row" style={{ marginTop: 6 }}>
-                <Badge tone={PRO_TONE[u.pro.key]}>{u.pro.label}</Badge>
-                <Badge tone={u.online ? "ok" : ""}>{u.online ? "Online now" : "Seen " + ago(ms(u.lastSeenAt))}</Badge>
+      <PageHead title="Users" subtitle={people.length.toLocaleString("en-IN") + " people · live from Firestore. Open anyone to see everything about them and message them."}>
+        <Button icon={selecting ? "x" : "check"} variant={selecting ? "soft" : "default"} onClick={() => (selecting ? endSelect() : setSelecting(true))}>{selecting ? "Cancel selecting" : "Select people"}</Button>
+        <div style={{ position: "relative" }}>
+          <Button icon="download" onClick={() => setMenu((m) => !m)}>Download</Button>
+          {menu && (
+            <>
+              <div style={{ position: "fixed", inset: 0, zIndex: 40 }} onClick={() => setMenu(false)} />
+              <div className="card" style={{ position: "absolute", right: 0, top: 46, zIndex: 41, padding: 8, display: "grid", gap: 2, minWidth: 170 }}>
+                {[["pdf", "PDF table"], ["csv", "CSV spreadsheet"], ["json", "JSON (everything)"]].map(([k, l]) => (
+                  <button key={k} type="button" className="btn btn-quiet btn-sm" style={{ justifyContent: "flex-start" }} onClick={() => exportData(k)}>{l}</button>
+                ))}
               </div>
-            </div>
-          </div>
-          <button className="quiet" onClick={onClose} aria-label="Close">✕</button>
+            </>
+          )}
         </div>
-        <div className="tabs">
-          {[["overview", "Overview"], ["pro", "Pro"], ["payments", "Payments " + rel.payments.length], ["contact", "Message"], ["history", "History " + (rel.feedback.length + rel.contacts.length)], ["data", "Raw data"]].map(([k, l]) => (
-            <button key={k} className={tab === k ? "on" : ""} onClick={() => setTab(k)}>{l}</button>
-          ))}
-        </div>
-      </>
-    }>
-      {tab === "overview" && <Overview u={u} rel={rel} />}
-      {tab === "pro" && <ProTab u={u} />}
-      {tab === "payments" && <PaymentsTab rel={rel} />}
-      {tab === "contact" && <MessageTab u={u} />}
-      {tab === "history" && <HistoryTab rel={rel} />}
-      {tab === "data" && <pre className="card mono" style={{ whiteSpace: "pre-wrap", wordBreak: "break-all", margin: 0 }}>{JSON.stringify({ user: clean(u), proStatus: clean(u.pro.raw) }, null, 2)}</pre>}
-    </Drawer>
-  );
-}
-const clean = (v) => {
-  if (v?.toMillis) return new Date(v.toMillis()).toISOString();
-  if (Array.isArray(v)) return v.map(clean);
-  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).filter(([k]) => k !== "pro").map(([k, x]) => [k, clean(x)]));
-  return v;
-};
+      </PageHead>
 
-function Overview({ u, rel }) {
-  const { notify } = useAdmin();
-  const paid = rel.payments.filter((p) => p.status === "approved" && !p.gift).reduce((t, p) => t + (Number(p.amount) || 0), 0);
-  return (
-    <>
-      <div className="grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
-        <div className="card stat"><span>Paid so far</span><b>{inr(paid)}</b></div>
-        <div className="card stat"><span>Feedback</span><b>{rel.feedback.length}</b></div>
-        <div className="card stat"><span>Messages</span><b>{rel.contacts.length}</b></div>
-      </div>
-      <div className="card">
-        <KV rows={[
-          ["Account ID", <span className="row"><span className="mono">{u.uid}</span><button className="sm quiet" onClick={() => copy(u.uid, notify)}>Copy</button></span>],
-          ["Joined", u.createdAt || u.joinedAt ? fmtDay(ms(u.createdAt || u.joinedAt)) : ""],
-          ["Last active", fmtTime(ms(u.lastSeenAt))],
-          ["Location", u.location && <span>{u.location} <span className="faint small">({{ auto: "detected by the app", profile: "typed by the user", payment: "from a payment" }[u.locationSource]})</span></span>],
-          ["Bio", u.bio],
-          ["App version", u.appVersion],
-          u.notIndexed && ["Note", "Profile not indexed yet. Details fill in after the user's next backup."],
-        ]} />
-      </div>
-    </>
-  );
-}
-
-function ProTab({ u }) {
-  const A = useAdmin();
-  const [plan, setPlan] = useState("monthly"); const [both, setBoth] = useState(false); const [busy, setBusy] = useState(false);
-  const raw = u.pro.raw;
-  const act = async (fn) => { setBusy(true); await fn(); setBusy(false); };
-  return (
-    <>
-      <div className="card"><KV rows={[
-        ["Status", <Badge tone={PRO_TONE[u.pro.key]}>{u.pro.label}</Badge>],
-        ["Plan", PLANS[raw.plan]?.label],
-        ["Access ends", u.pro.key === "lifetime" ? "Never (lifetime)" : u.pro.endMs ? fmtDay(u.pro.endMs) : ""],
-        ["Trial started", ms(raw.trialStartedAt) ? fmtDay(ms(raw.trialStartedAt)) : ""],
-        ["Star reward", ms(raw.starRewardAt) ? fmtDay(ms(raw.starRewardAt)) : ""],
-        ["Paid via", raw.paidVia],
-      ]} /></div>
-      <div className="card stack">
-        <h2>Gift Pro</h2>
-        <p className="muted small">Adds time from today (or the current end date) and saves a free record in Payments.</p>
-        <div className="row">
-          <select style={{ width: 220 }} value={plan} onChange={(e) => setPlan(e.target.value)}>
-            {Object.entries(PLANS).map(([k, p]) => <option key={k} value={k}>{p.label} · worth ₹{p.price}</option>)}
-          </select>
-          <button className="primary" disabled={busy} onClick={() => act(() => A.giftPro(u, plan))}>Gift {PLANS[plan].label}</button>
-        </div>
-      </div>
-      <div className="card stack">
-        <h2>Remove Pro</h2>
-        <p className="muted small">Payment records stay as your audit trail. Refund separately if money was taken.</p>
-        <label className="row" style={{ flexDirection: "row", color: "var(--text)" }}>
-          <input type="checkbox" style={{ width: "auto" }} checked={both} onChange={(e) => setBoth(e.target.checked)} /> Also end the free trial and star reward
-        </label>
-        <div><button className="danger" disabled={busy || (!u.pro.hasPaid && !both)} onClick={() => window.confirm("Remove Pro for " + (u.name || u.email) + "?") && act(() => A.removePro(u, both))}>Remove Pro</button></div>
-      </div>
-    </>
-  );
-}
-
-function PaymentsTab({ rel }) {
-  if (!rel.payments.length) return <Empty title="No payments from this user" />;
-  return rel.payments.map((p) => (
-    <div key={p.id} className="item">
-      <div className="row spread"><b>{PLANS[p.plan]?.label || p.plan} · {inr(p.amount)}</b><Badge tone={p.status === "approved" ? "ok" : p.status === "rejected" ? "bad" : "warn"}>{p.gift ? "gift" : p.status}</Badge></div>
-      <span className="muted small">{p.id} · {fmtDay(ms(p.createdAt))}{p.utr ? " · UTR " + p.utr : ""}{p.method ? " · " + p.method : ""}</span>
-      {p.note && <span className="small">{p.note}</span>}
-    </div>
-  ));
-}
-
-function HistoryTab({ rel }) {
-  const items = [...rel.feedback.map((x) => ({ ...x, kind: "Feedback", t: ms(x.submittedAt) })), ...rel.contacts.map((x) => ({ ...x, kind: "Contact", t: ms(x.submittedAt) }))].sort((a, b) => b.t - a.t);
-  if (!items.length) return <Empty title="No feedback or messages yet" />;
-  return items.map((x) => (
-    <div key={x.id} className="item">
-      <div className="row spread"><b>{x.kind}{x.rating ? " · " + "★".repeat(x.rating) : ""}{x.topic ? " · " + x.topic : ""}</b><span className="faint small">{fmtTime(x.t)}</span></div>
-      <span>{x.message || x.feedback || x.comment || "—"}</span>
-    </div>
-  ));
-}
-
-const TEMPLATES = {
-  blank: ["", ""],
-  thanks: ["Thank you for using Trakey", "Hi {name},\n\nThank you for using Trakey and for your support. If you have any question or idea, just reply to this email.\n\nTeam Trakey"],
-  payment: ["Your Trakey Pro payment", "Hi {name},\n\nWe checked your payment. Please send us your UTR and a screenshot from your payment app so we can finish activating Pro.\n\nTeam Trakey"],
-  pro: ["Trakey Pro is active", "Hi {name},\n\nYour Trakey Pro is now active. Open the app and pull to refresh if you do not see it yet.\n\nTeam Trakey"],
-};
-function MessageTab({ u }) {
-  const A = useAdmin();
-  const [mode, setMode] = useState("mail"); const [tpl, setTpl] = useState("blank");
-  const [subject, setSubject] = useState(""); const [body, setBody] = useState(""); const [busy, setBusy] = useState(false);
-  const first = (u.name || "there").split(" ")[0];
-  const pick = (k) => { setTpl(k); setSubject(TEMPLATES[k][0]); setBody(TEMPLATES[k][1].replace("{name}", first)); };
-  const mailto = `mailto:${u.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  const gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(u.email)}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  const ready = subject.trim() && body.trim();
-  return (
-    <>
-      <Seg value={mode} onChange={setMode} options={[["mail", "Email"], ["push", "Notification"]]} />
-      {mode === "mail" && !u.email && <div className="notice">This user has no email on record.</div>}
-      <Field label="Start from">
-        <select value={tpl} onChange={(e) => pick(e.target.value)}>
-          <option value="blank">Blank</option><option value="thanks">Thank you</option><option value="payment">Payment follow-up</option><option value="pro">Pro activated</option>
-        </select>
-      </Field>
-      <Field label={mode === "mail" ? "Subject" : "Title"}><input value={subject} maxLength={100} onChange={(e) => setSubject(e.target.value)} /></Field>
-      <Field label="Message"><textarea value={body} maxLength={mode === "push" ? 1000 : 5000} onChange={(e) => setBody(e.target.value)} rows={8} /></Field>
-      {mode === "mail" ? (
-        <div className="row">
-          <a href={ready && u.email ? gmail : undefined} target="_blank" rel="noreferrer"><button className="primary" disabled={!ready || !u.email}>Open in Gmail</button></a>
-          <a href={ready && u.email ? mailto : undefined}><button disabled={!ready || !u.email}>Use default mail app</button></a>
-        </div>
-      ) : (
-        <div className="stack">
-          <p className="muted small">Goes only to {u.name || "this user"}'s phone. They must have opened Trakey on a device with notifications on.</p>
-          <div><button className="primary" disabled={!ready || busy} onClick={async () => { setBusy(true); await A.pushOne(u.uid, subject.trim(), body.trim()); setBusy(false); }}>Send notification</button></div>
+      {errors.users && <div style={{ marginBottom: 16 }}><Notice tone="bad">{errors.users}</Notice></div>}
+      {authListError && (
+        <div style={{ marginBottom: 16 }}>
+          <Notice tone="warn">
+            Could not read the sign-in list ({authListError}). Check that the Trakey Admin API Worker is deployed.{" "}
+            <button type="button" className="btn btn-soft btn-sm" onClick={reloadAuthList}>Try again</button>
+          </Notice>
         </div>
       )}
+
+      <div className="toolbar">
+        <div className="search-box">
+          <Icon name="search" size={17} />
+          <input type="search" value={q} onChange={(e) => { setQ(e.target.value); setLimit(PAGE); }} placeholder="Search name, email or account ID" />
+        </div>
+        <Segmented value={filter} onChange={(v) => { setFilter(v); setLimit(PAGE); }} options={[
+          { value: "all", label: "All", count: counts.all },
+          { value: "pro", label: "Pro", count: counts.pro },
+          { value: "trial", label: "Trial", count: counts.trial },
+          { value: "free", label: "Free", count: counts.free },
+          { value: "online", label: "Online", count: counts.online },
+          { value: "expiring", label: "Ending soon", count: counts.expiring },
+        ]} />
+        <select value={sort} onChange={(e) => setSort(e.target.value)} aria-label="Sort">
+          <option value="seen">Recently active</option>
+          <option value="name">Name A to Z</option>
+          <option value="ending">Pro ending first</option>
+        </select>
+      </div>
+
+      {anonymous > 0 && <p className="small muted" style={{ marginBottom: 12 }}>{anonymous} anonymous visitor{anonymous === 1 ? "" : "s"} not listed (they never signed in).</p>}
+      {!loaded.users && people.length === 0 ? <Loading text="Loading users…" /> : shown.length === 0 ? (
+        <Card><Empty icon="users" title={people.length === 0 ? "No users yet" : "Nobody matches"}>{people.length === 0 ? "People appear here after they sign in to the app." : "Try a different search or filter."}</Empty></Card>
+      ) : (
+        <>
+          <div className="user-grid">
+            {shown.slice(0, limit).map((p) => (
+              <UserCard key={p.uid} person={p} selecting={selecting} selected={picked.has(p.uid)} onToggle={toggle}
+                onNotify={(x) => setComposer({ people: [x], mode: "push" })}
+                onEmail={(x) => setComposer({ people: [x], mode: "email" })}
+                onGift={(x) => setGift(x)} />
+            ))}
+          </div>
+          <div className="row" style={{ justifyContent: "center", marginTop: 22 }}>
+            {shown.length > limit && <Button onClick={() => setLimit((l) => l + PAGE)}>Show {Math.min(PAGE, shown.length - limit)} more</Button>}
+            <span className="small muted">Showing {Math.min(limit, shown.length)} of {shown.length}</span>
+          </div>
+        </>
+      )}
+
+      {selecting && (
+        <div className="bulkbar">
+          <b>{picked.size} selected</b>
+          <Button size="sm" variant="quiet" onClick={() => setPicked(new Set(shown.map((p) => p.uid)))}>Select all {shown.length}</Button>
+          <Button size="sm" variant="primary" icon="bell" disabled={!picked.size} onClick={() => setComposer({ people: pickedPeople, mode: "push" })}>Notify</Button>
+          <Button size="sm" icon="mail" disabled={!picked.size} onClick={() => setComposer({ people: pickedPeople, mode: "email" })}>Email</Button>
+          <Button size="sm" variant="quiet" icon="x" onClick={endSelect}>Done</Button>
+        </div>
+      )}
+
+      {composer && (
+        <Modal title={composer.people.length === 1 ? "Message " + (composer.people[0].name || composer.people[0].email || "user") : "Message " + composer.people.length + " people"} onClose={() => setComposer(null)} width={880}>
+          <Composer recipients={composer.people} defaultMode={composer.mode} onDone={() => { if (composer.people.length > 1) endSelect(); }} />
+        </Modal>
+      )}
+      {gift && <GiftModal person={gift} onClose={() => setGift(null)} />}
     </>
   );
 }

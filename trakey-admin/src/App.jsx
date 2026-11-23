@@ -1,150 +1,172 @@
-import { useEffect, useMemo, useState } from "react";
-import { useAdmin } from "./store";
-import { Icon } from "./ui";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { GoogleAuthProvider, browserLocalPersistence, onAuthStateChanged, setPersistence, signInWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { auth } from "./firebase";
+import { ADMIN_EMAIL } from "./lib/actions";
+import { DataProvider, db, useStore } from "./lib/store";
+import { useRoute, href } from "./lib/router";
+import { Avatar, Icon, IconButton, Spinner, UIProvider } from "./lib/ui";
+import { useTheme } from "./lib/theme";
+import CommandPalette from "./components/CommandPalette";
+import Login from "./pages/Login";
 import Overview from "./pages/Overview";
 import Users from "./pages/Users";
+import UserDetail from "./pages/UserDetail";
 import Payments from "./pages/Payments";
 import Inbox from "./pages/Inbox";
 import Broadcast from "./pages/Broadcast";
+import Releases from "./pages/Releases";
+import History from "./pages/History";
 import Legal from "./pages/Legal";
-import DataExplorer from "./panels/DataExplorer";
-import TeamPanel from "./panels/TeamPanel";
-import UpdateGatePanel from "./panels/UpdateGatePanel";
-import { ADMIN_EMAIL } from "./lib/util";
+import Explorer from "./pages/Explorer";
+import Team from "./pages/Team";
 
-// [id, label, icon, ownerOnly]
+// key, label, icon, hint, owner-only
 const NAV = [
-  ["", [["overview", "Overview", "home"]]],
-  ["People", [["users", "Users", "users", true], ["inbox", "Inbox", "inbox"]]],
-  ["Money", [["payments", "Payments", "money", true]]],
-  ["Content", [["broadcast", "Broadcast", "send"], ["gate", "Update gate", "gate"], ["legal", "Legal documents", "file"]]],
-  ["Advanced", [["explorer", "Data explorer", "db", true], ["team", "Team access", "team", true]]],
+  ["", [["overview", "Overview", "home", "Today at a glance"]]],
+  ["People", [["users", "Users", "users", "Every user and their controls", true], ["inbox", "Inbox", "inbox", "Support messages and reviews"]]],
+  ["Money", [["payments", "Payments", "card", "Approve orders, gifts and tax downloads", true]]],
+  ["Engage", [["broadcast", "Broadcast", "megaphone", "Message everyone"], ["releases", "Releases", "rocket", "App updates and update gate"], ["history", "History", "clock", "Everything sent so far"]]],
+  ["System", [["legal", "Legal documents", "file", "Terms and Privacy Policy PDFs"], ["explorer", "Data explorer", "database", "Browse and edit Firestore", true], ["team", "Team access", "shield", "Add editors", true]]],
 ];
-const TITLES = Object.fromEntries(NAV.flatMap(([, items]) => items.map(([id, label]) => [id, label])));
-const readHash = () => {
-  const [page, id] = window.location.hash.replace(/^#\/?/, "").split("/");
-  return { page: TITLES[page] ? page : "overview", id: id ? decodeURIComponent(id) : "" };
-};
 
-function Login() {
-  const { loginGoogle, loginEmail, authError } = useAdmin();
-  const [email, setEmail] = useState(""); const [pw, setPw] = useState(""); const [busy, setBusy] = useState(false);
-  const submit = async (e) => { e.preventDefault(); setBusy(true); await loginEmail(email, pw); setBusy(false); };
+function Shell({ user, role, onLogout }) {
+  const route = useRoute();
+  const { people, feedback, contacts, payments, isOwner } = useStore();
+  const [navOpen, setNavOpen] = useState(false);
+  const [palette, setPalette] = useState(false);
+  const [dark, toggleTheme] = useTheme();
+
+  const page = route[0] || "overview";
+  useEffect(() => { setNavOpen(false); window.scrollTo(0, 0); }, [route.join("/")]);
+
+  useEffect(() => {
+    const on = (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setPalette((p) => !p); } };
+    window.addEventListener("keydown", on);
+    return () => window.removeEventListener("keydown", on);
+  }, []);
+
+  const badge = {
+    payments: payments.filter((p) => (p.status || "pending") === "pending").length,
+    inbox: feedback.filter((f) => !f.handled).length + contacts.filter((c) => (c.status || "new") === "new").length,
+  };
+  const groups = NAV.map(([g, items]) => [g, items.filter((i) => !i[4] || isOwner)]).filter(([, items]) => items.length);
+  const pages = useMemo(() => groups.flatMap(([, items]) => items.map(([key, label, icon, hint]) => ({ key, label, icon, hint }))), [isOwner]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const current = pages.find((p) => p.key === page);
+  const ownerOnly = NAV.flatMap(([, i]) => i).find((i) => i[0] === page && i[4]);
+  const person = page === "users" && route[1] ? people.find((p) => p.uid === route[1]) : null;
+
+  let content;
+  if (ownerOnly && !isOwner) content = <div className="card">This page is for the owner only.</div>;
+  else if (page === "overview") content = <Overview />;
+  else if (page === "users") content = route[1] ? <UserDetail uid={route[1]} key={route[1]} /> : <Users />;
+  else if (page === "payments") content = <Payments />;
+  else if (page === "inbox") content = <Inbox />;
+  else if (page === "broadcast") content = <Broadcast />;
+  else if (page === "releases") content = <Releases />;
+  else if (page === "history") content = <History />;
+  else if (page === "legal") content = <Legal />;
+  else if (page === "explorer") content = <Explorer />;
+  else if (page === "team") content = <Team />;
+  else content = <Overview />;
+
   return (
-    <div className="login">
-      <div className="card login-box">
-        <div className="brand"><img className="logo" src={import.meta.env.BASE_URL + "trakey-admin-icon.svg"} alt="" /><div><b>Trakey Admin</b><span>Sign in to continue</span></div></div>
-        {authError && <div className="notice">{authError}</div>}
-        <button className="primary" onClick={async () => { setBusy(true); await loginGoogle(); setBusy(false); }} disabled={busy}>Continue with Google</button>
-        <form className="stack" onSubmit={submit}>
-          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" />
-          <input type="password" placeholder="Password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="current-password" />
-          <button disabled={busy || !email || !pw}>Sign in</button>
-        </form>
+    <div className="app">
+      <aside className={"sidebar" + (navOpen ? " open" : "")}>
+        <div className="brand"><img src={import.meta.env.BASE_URL + "trakey-logo.png"} alt="" /><div><b>Trakey Admin</b><small>{isOwner ? "Owner" : "Editor"}</small></div></div>
+        <nav className="nav">
+          {groups.map(([g, items]) => (
+            <div key={g || "top"}>
+              {g && <div className="nav-label">{g}</div>}
+              {items.map(([key, label, icon]) => (
+                <a key={key} href={href(key)} className={page === key || (key === "overview" && !route[0]) ? "on" : ""}>
+                  <Icon name={icon} size={19} />{label}
+                  {badge[key] > 0 && <span className="count">{badge[key]}</span>}
+                </a>
+              ))}
+            </div>
+          ))}
+        </nav>
+        <div className="side-foot">
+          <Avatar name="" email={user.email} size={34} />
+          <div className="who"><b>{user.displayName || user.email}</b><small>{isOwner ? "Owner" : "Editor"}</small></div>
+          <IconButton icon="logout" label="Sign out" onClick={onLogout} />
+        </div>
+      </aside>
+      {navOpen && <div className="scrim" onClick={() => setNavOpen(false)} />}
+
+      <div className="main">
+        <header className="topbar">
+          <IconButton className="menu-btn" icon="menu" label="Menu" onClick={() => setNavOpen(true)} />
+          <div className="crumbs">
+            {page === "users" && route[1] ? (<><a href={href("users")}>Users</a><Icon name="right" size={14} /><b>{person?.name || person?.email || "User"}</b></>) : <b>{current?.label || "Overview"}</b>}
+          </div>
+          <div className="top-spacer" />
+          <button type="button" className="search-trigger" onClick={() => setPalette(true)}>
+            <Icon name="search" size={17} /><span>{isOwner ? "Search people or pages" : "Jump to…"}</span><kbd>Ctrl K</kbd>
+          </button>
+          <IconButton className="bordered" icon={dark ? "sun" : "moon"} label={dark ? "Switch to light theme" : "Switch to dark theme"} onClick={toggleTheme} />
+        </header>
+        <main className="page">{content}</main>
       </div>
+      {palette && <CommandPalette pages={pages} onClose={() => setPalette(false)} />}
     </div>
   );
 }
 
 export default function App() {
-  const A = useAdmin();
-  const [route, setRoute] = useState(readHash);
-  const [menu, setMenu] = useState(false);
-  const [q, setQ] = useState("");
+  const [user, setUser] = useState(null);
+  const [role, setRole] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [ready, setReady] = useState(false);
+
+  const checkAdmin = useCallback(async (u) => {
+    if (String(u.email || "").toLowerCase() === ADMIN_EMAIL) { setRole("owner"); setUser(u); return true; }
+    try {
+      const snap = await getDoc(doc(db, "adminStaff", u.uid));
+      const d = snap.exists() ? snap.data() : null;
+      if (d && d.role === "editor" && d.active !== false) { setRole("editor"); setUser(u); return true; }
+    } catch (err) { console.warn("Team access check failed:", err); }
+    setError("This account is not authorized yet. To get access, send this Account ID to the Trakey owner: " + u.uid);
+    signOut(auth);
+    return false;
+  }, []);
 
   useEffect(() => {
-    const on = () => { setRoute(readHash()); setMenu(false); };
-    window.addEventListener("hashchange", on);
-    return () => window.removeEventListener("hashchange", on);
-  }, []);
-  useEffect(() => {
-    const k = (e) => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); document.getElementById("gsearch")?.focus(); } };
-    window.addEventListener("keydown", k);
-    return () => window.removeEventListener("keydown", k);
-  }, []);
+    let cancelled = false;
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      if (cancelled) return;
+      if (u) await checkAdmin(u); else { setUser(null); setRole(""); }
+      if (!cancelled) setReady(true);
+    });
+    setPersistence(auth, browserLocalPersistence).catch((e) => console.warn("Auth persistence warning:", e));
+    const t = setTimeout(() => !cancelled && setReady(true), 8000); // never get stuck on the loading screen
+    return () => { cancelled = true; unsub(); clearTimeout(t); };
+  }, [checkAdmin]);
 
-  const go = (page, id) => { window.location.hash = "/" + page + (id ? "/" + encodeURIComponent(id) : ""); };
-  const counts = useMemo(() => ({
-    inbox: A.feedback.filter((f) => !f.handled).length + A.contacts.filter((c) => (c.status || "new") === "new").length,
-    payments: A.payments.filter((p) => (p.status || "pending") === "pending").length,
-  }), [A.feedback, A.contacts, A.payments]);
-
-  // Global search: jump to a person.
-  const hits = useMemo(() => {
-    const s = q.trim().toLowerCase();
-    if (!s || !A.isOwner) return [];
-    return A.people.filter((u) => [u.name, u.email, u.uid].some((v) => String(v || "").toLowerCase().includes(s))).slice(0, 6);
-  }, [q, A.people, A.isOwner]);
-
-  if (!A.authReady) return <div className="login"><span className="muted">Restoring your session…</span></div>;
-  if (!A.user) return <Login />;
-
-  const { page, id } = route;
-  const owner = A.isOwner;
-  const common = { go, id };
-  const view = {
-    overview: <Overview {...common} counts={counts} />,
-    users: <Users {...common} />,
-    inbox: <Inbox {...common} />,
-    payments: <Payments {...common} />,
-    broadcast: <Broadcast />,
-    gate: <div className="card"><UpdateGatePanel userEmail={A.user.email} /></div>,
-    legal: <Legal />,
-    explorer: <div className="card"><DataExplorer /></div>,
-    team: <div className="card"><TeamPanel ownerEmail={ADMIN_EMAIL} /></div>,
-  }[page];
-  const ownerOnly = NAV.flatMap(([, i]) => i).find(([k]) => k === page)?.[3];
+  const google = async () => {
+    setError(""); setLoading(true);
+    try { const r = await signInWithPopup(auth, new GoogleAuthProvider()); await checkAdmin(r.user); }
+    catch (err) { setError(err.message || "Google sign-in failed."); } finally { setLoading(false); }
+  };
+  const emailLogin = async (email, password) => {
+    setError(""); setLoading(true);
+    try { const r = await signInWithEmailAndPassword(auth, email, password); await checkAdmin(r.user); }
+    catch { setError("Invalid email or password."); } finally { setLoading(false); }
+  };
+  const logout = async () => { await signOut(auth); setUser(null); setRole(""); window.location.hash = ""; };
 
   return (
-    <div className="app">
-      <nav className={"side" + (menu ? " open" : "")}>
-        <div className="brand"><img className="logo" src={import.meta.env.BASE_URL + "trakey-admin-icon.svg"} alt="" /><div><b>Trakey</b><span>Admin</span></div></div>
-        {NAV.map(([group, items]) => {
-          const shown = items.filter((i) => !i[3] || owner);
-          return shown.length > 0 && (
-            <div key={group}>
-              {group && <div className="nav-group">{group}</div>}
-              {shown.map(([k, label, icon]) => (
-                <button key={k} className={"nav" + (page === k ? " on" : "")} onClick={() => go(k)}>
-                  <Icon n={icon} />{label}
-                  {counts[k] > 0 && <span className="count">{counts[k]}</span>}
-                </button>
-              ))}
-            </div>
-          );
-        })}
-        <div className="side-foot">
-          <div className="me"><div><b>{A.user.displayName || "Admin"}</b><span>{owner ? "Owner" : "Editor"} · {A.user.email}</span></div></div>
-          <button className="quiet" onClick={A.logout}><Icon n="out" /> Sign out</button>
-        </div>
-      </nav>
-      <div className="main">
-        <header className="top">
-          <button className="quiet menu-btn" onClick={() => setMenu((m) => !m)} aria-label="Menu"><Icon n="menu" /></button>
-          <h1>{TITLES[page]}</h1>
-          {owner && (
-            <div className="search">
-              <Icon n="search" />
-              <input id="gsearch" placeholder="Find a user by name, email or ID" value={q} onChange={(e) => setQ(e.target.value)} />
-              <kbd>Ctrl K</kbd>
-              {hits.length > 0 && (
-                <div className="card" style={{ position: "absolute", top: 44, left: 0, right: 0, padding: 6, zIndex: 30 }}>
-                  {hits.map((u) => (
-                    <button key={u.uid} className="quiet" style={{ width: "100%", textAlign: "left" }} onClick={() => { setQ(""); go("users", u.uid); }}>
-                      {u.name || "Trakey User"} <span className="faint">{u.email}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </header>
-        <main className="page">
-          {A.loadError && <div className="notice">{A.loadError}</div>}
-          {ownerOnly && !owner ? <div className="notice">This page is for the owner only.</div> : view}
-        </main>
-      </div>
-      {A.toast && <div className={"toast " + (A.toast.tone === "bad" ? "bad" : "")} role="status">{A.toast.text}</div>}
-    </div>
+    <UIProvider>
+      {!ready ? (
+        <div className="centered"><div><Spinner /><p style={{ marginTop: 12 }}>Restoring your admin session…</p></div></div>
+      ) : user ? (
+        <DataProvider user={user} role={role}><Shell user={user} role={role} onLogout={logout} /></DataProvider>
+      ) : (
+        <Login onGoogle={google} onEmail={emailLogin} loading={loading} error={error} />
+      )}
+    </UIProvider>
   );
 }

@@ -1,21 +1,35 @@
+import { Button, Card, Icon, PageHead, useBusy } from "../lib/ui";
+
 const DOCS = [
-  ["Terms and Conditions", "Effective November 15, 2026", "legal/Trakey-Terms-and-Conditions.pdf", "Trakey-Terms-and-Conditions.pdf"],
-  ["Privacy Policy", "Effective November 15, 2026", "legal/Trakey-Privacy-Policy.pdf", "Trakey-Privacy-Policy.pdf"],
+  { k: "terms", t: "Terms and Conditions", n: "Same text as maniaxe.in/trakey/terms.html", f: "Trakey-Terms-and-Conditions.pdf" },
+  { k: "privacy", t: "Privacy Policy", n: "Same text as maniaxe.in/trakey/privacy-policy.html", f: "Trakey-Privacy-Policy.pdf" },
 ];
-const base = import.meta.env.BASE_URL;
+
 export default function Legal() {
+  const [busy, run] = useBusy();
+  const download = (d) => run(d.k, async () => {
+    const r = await fetch(import.meta.env.BASE_URL + "legal/" + d.f);
+    if (!r.ok) throw new Error("The file could not be loaded (" + r.status + ").");
+    const href = URL.createObjectURL(new Blob([await r.blob()], { type: "application/pdf" }));
+    const a = document.createElement("a");
+    a.href = href; a.download = d.f; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 2000);
+  });
   return (
-    <div className="grid cols-2">
-      {DOCS.map(([title, hint, path, file]) => (
-        <section key={title} className="card stack">
-          <div><h2>{title}</h2><span className="muted small">{hint}</span></div>
-          <div className="row">
-            <a href={base + path} download={file}><button className="primary">Download PDF</button></a>
-            <a href={base + path} target="_blank" rel="noreferrer"><button>Open</button></a>
-          </div>
-        </section>
-      ))}
-      <p className="muted small">To update a document, replace the PDF in <span className="mono">public/legal/</span> and deploy again.</p>
-    </div>
+    <>
+      <PageHead title="Legal documents" subtitle="Download the Terms and the Privacy Policy as clean PDFs." />
+      <div className="cols-2">
+        {DOCS.map((d) => (
+          <Card key={d.k}>
+            <div className="row" style={{ flexWrap: "nowrap" }}>
+              <span className="tl-ic accent" style={{ width: 44, height: 44, borderRadius: 14 }}><Icon name="file" size={20} /></span>
+              <div className="grow"><h3 style={{ fontSize: 16 }}>{d.t}</h3><p className="small muted">{d.n}</p></div>
+              <Button variant="primary" icon="download" disabled={busy === d.k} onClick={() => download(d)}>{busy === d.k ? "Preparing…" : "PDF"}</Button>
+            </div>
+          </Card>
+        ))}
+      </div>
+      <p className="small muted" style={{ marginTop: 18 }}>These are saved copies. If the Terms or Privacy Policy change on the website, replace the two PDFs in <span className="mono">public/legal</span> and deploy again.</p>
+    </>
   );
 }

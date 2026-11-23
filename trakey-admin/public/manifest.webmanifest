@@ -1,20 +1,14 @@
 {
   "name": "Trakey Admin",
   "short_name": "Trakey Admin",
-  "description": "Trakey administration panel",
+  "description": "Trakey administration portal",
   "start_url": "/trakey-admin/",
   "scope": "/trakey-admin/",
   "display": "standalone",
-  "background_color": "#0b0f14",
-  "theme_color": "#0b0f14",
+  "background_color": "#0A0C10",
+  "theme_color": "#0A0C10",
   "icons": [
-    { "src": "/trakey-admin/trakey-admin-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/trakey-admin/trakey-admin-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    {
-      "src": "/trakey-admin/trakey-admin-icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
+    { "src": "/trakey-admin/logo-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/trakey-admin/logo-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
   ]
 }

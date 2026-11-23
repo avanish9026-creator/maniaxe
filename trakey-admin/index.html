@@ -2,15 +2,21 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/trakey-admin/trakey-admin-icon.svg?v=3" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/trakey-admin/trakey-admin-icon-192.png?v=3" />
+    <link rel="icon" type="image/png" href="/trakey-admin/favicon-32x32.png" />
+    <link rel="apple-touch-icon" href="/trakey-admin/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0A0C10" />
-    <link rel="apple-touch-icon" href="/trakey-admin/trakey-admin-apple-icon.png?v=3" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Trakey Admin" />
     <link rel="manifest" href="/trakey-admin/manifest.webmanifest" />
     <title>Trakey Admin</title>
-    <script type="module" crossorigin src="/trakey-admin/assets/index-DvB_egCr.js"></script>
-    <link rel="stylesheet" crossorigin href="/trakey-admin/assets/index-BGJAfEbf.css">
+    <script>
+      // Apply the saved theme before first paint (no flash).
+      try { var t = localStorage.getItem("trakey-admin-theme"); if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+    </script>
+    <script type="module" crossorigin src="/trakey-admin/assets/index-H9DMxF4O.js"></script>
+    <link rel="stylesheet" crossorigin href="/trakey-admin/assets/index-CERRndFt.css">
   </head>
   <body>
     <div id="root"></div>

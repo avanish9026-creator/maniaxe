@@ -1,50 +1,79 @@
-import { useState } from "react";
-import { useAdmin } from "../store";
-import { Badge, Empty, Seg } from "../ui";
-import { fmtTime, ms } from "../lib/util";
+import { useMemo, useState } from "react";
+import { Avatar, Badge, Card, Empty, Icon, PageHead, Segmented, Tabs, Notice } from "../lib/ui";
+import { useStore } from "../lib/store";
+import { fmtDateTime, timeAgo, tsMs } from "../lib/format";
+import { CONTACT_STATUS, ContactDetail, FeedbackDetail, stars } from "../components/InboxParts";
 
-export default function Inbox({ go }) {
-  const A = useAdmin();
-  const [tab, setTab] = useState("contact"); const [f, setF] = useState("open");
-  const isContact = tab === "contact";
-  const all = isContact ? A.contacts : A.feedback;
-  const done = (x) => (isContact ? (x.status || "new") === "done" : !!x.handled);
-  const list = all.filter((x) => f === "all" || (f === "open" ? !done(x) : done(x)));
-  const toggle = (x) => (isContact ? A.setContactStatus(x.id, done(x) ? "new" : "done") : A.setFeedbackHandled(x.id, !done(x)));
-  const userOf = (x) => A.people.find((u) => (x.uid && u.uid === x.uid) || (x.email && u.email?.toLowerCase() === x.email.toLowerCase()));
+export default function Inbox() {
+  const { feedback, contacts, errors } = useStore();
+  const [tab, setTab] = useState("contact");
+  const [fbFilter, setFbFilter] = useState("new");
+  const [ctFilter, setCtFilter] = useState("new");
+  const [picked, setPicked] = useState({ contact: "", feedback: "" });
+
+  const newFb = feedback.filter((f) => !f.handled).length;
+  const newCt = contacts.filter((c) => (c.status || "new") === "new").length;
+
+  const list = useMemo(() => {
+    if (tab === "feedback") return feedback.filter((f) => fbFilter === "all" || (fbFilter === "handled" ? f.handled : !f.handled));
+    return contacts.filter((c) => ctFilter === "all" || (c.status || "new") === ctFilter);
+  }, [tab, feedback, contacts, fbFilter, ctFilter]);
+
+  const selected = list.find((x) => x.id === picked[tab]) || list[0];
+
   return (
     <>
-      <div className="row spread">
-        <Seg value={tab} onChange={setTab} options={[["contact", "Contact messages", A.contacts.filter((x) => !done0(x)).length], ["feedback", "Feedback", A.feedback.filter((x) => !x.handled).length]]} />
-        <Seg value={f} onChange={setF} options={[["open", "Open"], ["done", "Handled"], ["all", "All"]]} />
+      <PageHead title="Inbox" subtitle="Support messages and reviews from the app, live." />
+      {(errors.feedback || errors.contacts) && <div style={{ marginBottom: 16 }}><Notice tone="bad">{errors.feedback || errors.contacts}</Notice></div>}
+
+      <Tabs value={tab} onChange={setTab} tabs={[
+        { value: "contact", label: "Support messages", icon: "chat", count: newCt },
+        { value: "feedback", label: "Reviews & feedback", icon: "star", count: newFb },
+      ]} />
+
+      <div className="split">
+        <Card pad={false}>
+          <div style={{ padding: 14, borderBottom: "1px solid var(--line)" }}>
+            {tab === "contact" ? (
+              <Segmented value={ctFilter} onChange={setCtFilter} options={[
+                { value: "new", label: "New", count: newCt },
+                { value: "in_progress", label: "In progress" },
+                { value: "resolved", label: "Resolved" },
+                { value: "all", label: "All" },
+              ]} />
+            ) : (
+              <Segmented value={fbFilter} onChange={setFbFilter} options={[
+                { value: "new", label: "Needs attention", count: newFb },
+                { value: "handled", label: "Handled" },
+                { value: "all", label: "All" },
+              ]} />
+            )}
+          </div>
+          <div className="msg-list">
+            {list.length === 0 && <Empty icon="inbox" title="Nothing here">Messages that match this filter appear here.</Empty>}
+            {list.map((item) => {
+              const when = tsMs(item.submittedAt);
+              return (
+                <button key={item.id} type="button" className={"msg-item" + (selected?.id === item.id ? " on" : "")} onClick={() => setPicked({ ...picked, [tab]: item.id })}>
+                  <div className="mi-top">
+                    <div className="row" style={{ gap: 10, flexWrap: "nowrap", minWidth: 0 }}>
+                      <Avatar name={item.name} email={item.email} size={30} />
+                      <b>{item.name || "Trakey User"}</b>
+                    </div>
+                    <time title={fmtDateTime(when)}>{timeAgo(when)}</time>
+                  </div>
+                  {tab === "feedback" ? <span className="stars" style={{ fontSize: 13 }}>{stars(item.rating)}</span> : <Badge tone={CONTACT_STATUS[item.status || "new"]?.[1]}>{item.topic || "Support"}</Badge>}
+                  <p>{tab === "feedback" ? item.additionalFeedback || item.type || "Rating only" : item.message}</p>
+                </button>
+              );
+            })}
+          </div>
+        </Card>
+
+        <Card>
+          {selected ? (tab === "feedback" ? <FeedbackDetail item={selected} /> : <ContactDetail item={selected} />) : <Empty icon="inbox" title="Pick a message" />}
+        </Card>
       </div>
-      {list.length === 0 ? <div className="card"><Empty title="Nothing here" hint="New messages show up live." /></div> : (
-        <div className="grid cols-2">
-          {list.map((x) => {
-            const u = userOf(x);
-            return (
-              <article key={x.id} className="card stack">
-                <div className="row spread">
-                  <div><b>{x.name || "Anonymous"}</b> <span className="muted small">{x.email}</span></div>
-                  <span className="faint small">{fmtTime(ms(x.submittedAt))}</span>
-                </div>
-                <div className="row">
-                  {isContact ? <Badge>{x.topic || "General"}</Badge> : <Badge tone="gold">{"★".repeat(x.rating || 0) || "No rating"}</Badge>}
-                  {x.appVersion && <Badge>v{x.appVersion}</Badge>}{x.device && <Badge>{x.device}</Badge>}
-                  <Badge tone={done(x) ? "ok" : "warn"}>{done(x) ? "Handled" : "Open"}</Badge>
-                </div>
-                <p style={{ whiteSpace: "pre-wrap" }}>{x.message || x.feedback || x.comment || "—"}</p>
-                <div className="row">
-                  <button className="sm" onClick={() => toggle(x)}>{done(x) ? "Reopen" : "Mark handled"}</button>
-                  {x.email && <a href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(x.email)}&su=${encodeURIComponent("Re: Trakey " + (x.topic || "feedback"))}`} target="_blank" rel="noreferrer"><button className="sm">Reply by email</button></a>}
-                  {u && A.isOwner && <button className="sm quiet" onClick={() => go("users", u.uid)}>Open user</button>}
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      )}
     </>
   );
 }
-const done0 = (x) => (x.status || "new") === "done";
