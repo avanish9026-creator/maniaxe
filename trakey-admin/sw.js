@@ -1,7 +1,7 @@
-const CACHE_NAME = "trakey-admin-shell-v2";
+const CACHE_NAME = "trakey-admin-shell-v3";
 const APP_SHELL = [
   "/trakey-admin/",
-  "/trakey-admin/favicon.svg",
+  "/trakey-admin/trakey-admin-icon.svg",
   "/trakey-admin/icons.svg"
 ];
 
