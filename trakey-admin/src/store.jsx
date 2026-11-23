@@ -117,11 +117,17 @@ export function AdminProvider({ children }) {
     payments.forEach((p) => {
       const c = p.uid ? m.get(p.uid) : null; if (!c) return;
       if (!c.email && p.email) c.email = p.email;
+      if (!c.payCountry && p.country) c.payCountry = p.country;
       if ((!c.name || c.name === "Trakey User") && p.name) c.name = p.name;
     });
     const proBy = new Map(pro.map((p) => [p.id, p]));
     return [...m.values()]
-      .map((u) => ({ ...u, pro: proInfo(proBy.get(u.uid) || {}), online: isOnline(u) }))
+      .map((u) => ({
+        ...u, pro: proInfo(proBy.get(u.uid) || {}), online: isOnline(u),
+        // City, region, country when the app has reported them; otherwise what the user typed; otherwise the country on a payment.
+        location: [u.city, u.region, u.country].filter(Boolean).join(", ") || u.location || u.payCountry || "",
+        locationSource: u.city || u.country ? "auto" : u.location ? "profile" : u.payCountry ? "payment" : "",
+      }))
       .sort((a, b) => ms(b.lastSeenAt) - ms(a.lastSeenAt));
   }, [users, backups, pro, payments]);
 
@@ -228,13 +234,31 @@ export function AdminProvider({ children }) {
     }, "Record saved.");
   };
 
-  const loadShot = async (id) => { const s = await getDoc(doc(db, "paymentShots", id)); return s.exists() ? s.data().data || "" : ""; };
+  // Returns a ready-to-show image source, "" when no screenshot was attached. Throws with the real reason on failure.
+  const loadShot = async (id) => {
+    const s = await getDoc(doc(db, "paymentShots", id));
+    const d = s.exists() ? String(s.data().data || "") : "";
+    if (!d) return "";
+    return d.startsWith("data:") ? d : "data:image/jpeg;base64," + d;
+  };
   const setFeedbackHandled = (id, handled) => run(() => updateDoc(doc(db, "feedbackSubmissions", id), { handled }));
   const setContactStatus = (id, status) => run(() => updateDoc(doc(db, "contactMessages", id), { status }));
 
   // Notification to everyone (topic) or one person (their saved device token). Both run on Cloud Functions.
   const pushAll = (title, message) => run(async () => { await httpsCallable(functions, "sendTrakeyNotification")({ title, message }); }, "Notification sent to everyone.");
-  const pushOne = (uid, title, message) => run(async () => { await httpsCallable(functions, "sendUserNotification")({ uid, title, message }); }, "Notification sent.");
+  const pushOne = async (uid, title, message) => {
+    try {
+      await httpsCallable(functions, "sendUserNotification")({ uid, title, message });
+      notify("Notification sent."); return true;
+    } catch (e) {
+      const raw = String(e.message || "");
+      const missing = /^(not[_-]?found|internal)$/i.test(raw.trim()) || e.code === "functions/internal";
+      notify(missing
+        ? "The one-user notification function is not deployed yet. In the project folder run: firebase deploy --only functions:sendUserNotification"
+        : raw || "Could not send the notification.", "bad");
+      return false;
+    }
+  };
 
   const value = {
     user, role, isOwner: role === "owner", authReady, authError, loginGoogle, loginEmail, logout,

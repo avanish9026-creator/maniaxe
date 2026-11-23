@@ -33,7 +33,7 @@ function Login() {
   return (
     <div className="login">
       <div className="card login-box">
-        <div className="brand"><img className="logo" src={import.meta.env.BASE_URL + "favicon.svg"} alt="" /><div><b>Trakey Admin</b><span>Sign in to continue</span></div></div>
+        <div className="brand"><img className="logo" src={import.meta.env.BASE_URL + "trakey-admin-icon.svg"} alt="" /><div><b>Trakey Admin</b><span>Sign in to continue</span></div></div>
         {authError && <div className="notice">{authError}</div>}
         <button className="primary" onClick={async () => { setBusy(true); await loginGoogle(); setBusy(false); }} disabled={busy}>Continue with Google</button>
         <form className="stack" onSubmit={submit}>
@@ -98,7 +98,7 @@ export default function App() {
   return (
     <div className="app">
       <nav className={"side" + (menu ? " open" : "")}>
-        <div className="brand"><img className="logo" src={import.meta.env.BASE_URL + "favicon.svg"} alt="" /><div><b>Trakey</b><span>Admin</span></div></div>
+        <div className="brand"><img className="logo" src={import.meta.env.BASE_URL + "trakey-admin-icon.svg"} alt="" /><div><b>Trakey</b><span>Admin</span></div></div>
         {NAV.map(([group, items]) => {
           const shown = items.filter((i) => !i[3] || owner);
           return shown.length > 0 && (
