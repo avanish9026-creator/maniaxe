@@ -186,3 +186,51 @@ exports.sendTrakeyNotification = onCall(async (request) => {
     );
   }
 });
+
+// ---------------------------------------------------------------------------
+// One-person notification. Used by Trakey Admin > Users > (user) > Message.
+// The app saves each device token to fcmTokens/{uid} (TrakeyPush.kt).
+// ---------------------------------------------------------------------------
+exports.sendUserNotification = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "You must be signed in.");
+
+  let allowed = request.auth.uid === ADMIN_UID;
+  if (!allowed) {
+    const staff = await getFirestore().collection("adminStaff").doc(request.auth.uid).get();
+    allowed = staff.exists && staff.data().role === "editor" && staff.data().active !== false;
+  }
+  if (!allowed) throw new HttpsError("permission-denied", "Admin access required.");
+
+  const uid = String(request.data?.uid || "").trim();
+  const title = String(request.data?.title || "").trim();
+  const message = String(request.data?.message || "").trim();
+  if (!uid) throw new HttpsError("invalid-argument", "User is required.");
+  if (!title || !message) throw new HttpsError("invalid-argument", "Title and message are required.");
+  if (title.length > 100) throw new HttpsError("invalid-argument", "Title is too long.");
+  if (message.length > 1000) throw new HttpsError("invalid-argument", "Message is too long.");
+
+  const snap = await getFirestore().collection("fcmTokens").doc(uid).get();
+  const d = snap.exists ? snap.data() : {};
+  const raw = d.token || d.fcmToken || d.tokens || [];
+  const tokens = (Array.isArray(raw) ? raw : [raw]).filter((t) => typeof t === "string" && t);
+  if (tokens.length === 0) {
+    throw new HttpsError("not-found", "This user has no saved device. They need to open Trakey (latest version) while signed in.");
+  }
+
+  const res = await getMessaging().sendEachForMulticast({
+    tokens,
+    notification: { title, body: message },
+    android: {
+      priority: "high",
+      notification: { channelId: "trakey_admin_push", visibility: "public", defaultSound: true, defaultVibrateTimings: true },
+    },
+  });
+  if (res.successCount === 0) {
+    throw new HttpsError("failed-precondition", "Google could not deliver to this device. The token may be old.");
+  }
+  await getFirestore().collection("messageHistory").add({
+    kind: "user-push", uid, title, message, sentBy: request.auth.token.email || "",
+    createdAt: FieldValue.serverTimestamp(),
+  });
+  return { success: true, delivered: res.successCount };
+});
