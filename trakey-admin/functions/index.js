@@ -211,8 +211,15 @@ exports.sendUserNotification = onCall(async (request) => {
 
   const snap = await getFirestore().collection("fcmTokens").doc(uid).get();
   const d = snap.exists ? snap.data() : {};
-  const raw = d.token || d.fcmToken || d.tokens || [];
-  const tokens = (Array.isArray(raw) ? raw : [raw]).filter((t) => typeof t === "string" && t);
+  // Accept any field layout: a string, a list, or a map of tokens. FCM tokens are long strings containing a colon.
+  const found = new Set();
+  const walk = (v) => {
+    if (typeof v === "string") { if (v.length > 100 && v.includes(":") && !/\s/.test(v)) found.add(v); }
+    else if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === "object" && typeof v.toMillis !== "function") Object.entries(v).forEach(([k, x]) => { walk(k); walk(x); });
+  };
+  walk(d);
+  const tokens = [...found];
   if (tokens.length === 0) {
     throw new HttpsError("not-found", "This user has no saved device. They need to open Trakey (latest version) while signed in.");
   }
@@ -233,4 +240,25 @@ exports.sendUserNotification = onCall(async (request) => {
     createdAt: FieldValue.serverTimestamp(),
   });
   return { success: true, delivered: res.successCount };
+});
+
+// ---------------------------------------------------------------------------
+// OPTIONAL: approximate location (city, region, country) for Trakey Admin.
+// The app calls this once a day while signed in. We read the caller's IP on the
+// server, look up only the city/region/country, and store those three fields.
+// The IP address itself is NOT stored. Update the Privacy Policy before using it.
+// ---------------------------------------------------------------------------
+exports.recordLocation = onCall(async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "You must be signed in.");
+  const fwd = String(request.rawRequest?.headers?.["x-forwarded-for"] || "").split(",")[0].trim();
+  const ip = fwd || request.rawRequest?.ip || "";
+  if (!ip) return { success: false };
+  const res = await fetch("https://ipwho.is/" + encodeURIComponent(ip) + "?fields=success,city,region,country,country_code");
+  const g = await res.json().catch(() => ({}));
+  if (!g.success) return { success: false };
+  await getFirestore().collection("users").doc(request.auth.uid).set(
+    { city: g.city || "", region: g.region || "", country: g.country || "", locationUpdatedAt: FieldValue.serverTimestamp() },
+    { merge: true }
+  );
+  return { success: true };
 });
