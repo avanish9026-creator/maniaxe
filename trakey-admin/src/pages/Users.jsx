@@ -47,7 +47,7 @@ export default function Users({ id, go }) {
                 <span className={"dot grow-0" + (u.online ? " on" : "")} style={{ marginLeft: "auto" }} title={u.online ? "Online" : "Offline"} />
               </span>
               <span className="row"><Badge tone={PRO_TONE[u.pro.key]}>{u.pro.label}</Badge>{u.pro.endMs > 0 && u.pro.key !== "lifetime" && <span className="faint small">till {fmtDay(u.pro.endMs)}</span>}</span>
-              <span className="meta"><span>{u.location || "Location not set"}</span><span>{u.online ? "Online" : ago(ms(u.lastSeenAt))}</span></span>
+              <span className="meta"><span className="ellip">{u.location || "Location unknown"}</span><span>{u.online ? "Online" : ago(ms(u.lastSeenAt))}</span></span>
             </button>
           ))}
         </div>
@@ -118,7 +118,7 @@ function Overview({ u, rel }) {
           ["Account ID", <span className="row"><span className="mono">{u.uid}</span><button className="sm quiet" onClick={() => copy(u.uid, notify)}>Copy</button></span>],
           ["Joined", u.createdAt || u.joinedAt ? fmtDay(ms(u.createdAt || u.joinedAt)) : ""],
           ["Last active", fmtTime(ms(u.lastSeenAt))],
-          ["Location", u.location],
+          ["Location", u.location && <span>{u.location} <span className="faint small">({{ auto: "detected by the app", profile: "typed by the user", payment: "from a payment" }[u.locationSource]})</span></span>],
           ["Bio", u.bio],
           ["App version", u.appVersion],
           u.notIndexed && ["Note", "Profile not indexed yet. Details fill in after the user's next backup."],

@@ -45,7 +45,12 @@ function Row({ p, expanded, toggle, go }) {
   const [reason, setReason] = useState("");
   const [shot, setShot] = useState(null);
   const pending = (p.status || "pending") === "pending";
-  const showShot = async () => { if (shot === null) setShot(await A.loadShot(p.id).catch(() => "")); };
+  const showShot = async () => {
+    if (shot !== null && shot.state !== "error") return;
+    setShot({ state: "loading" });
+    try { const src = await A.loadShot(p.id); setShot(src ? { state: "ok", src } : { state: "none" }); }
+    catch (e) { setShot({ state: "error", msg: e.message || "Could not load the screenshot." }); }
+  };
   return (
     <>
       <tr className="click" onClick={() => { toggle(); if (!expanded) showShot(); }}>
@@ -65,7 +70,10 @@ function Row({ p, expanded, toggle, go }) {
               {p.note && <div className="note">{p.note}</div>}
               {Array.isArray(p.amountHistory) && p.amountHistory.map((h, i) => <span key={i} className="faint small">₹{h.from} → ₹{h.to} by {h.by}: {h.why}</span>)}
               {p.uid && <div><button className="sm" onClick={() => go("users", p.uid)}>Open user</button></div>}
-              {shot ? <img className="shot" src={shot} alt="Payment screenshot" /> : shot === "" ? <span className="faint small">No screenshot attached.</span> : null}
+              {shot?.state === "loading" && <span className="faint small">Loading screenshot…</span>}
+              {shot?.state === "ok" && <a href={shot.src} target="_blank" rel="noreferrer"><img className="shot" src={shot.src} alt={"Payment screenshot " + p.id} /></a>}
+              {shot?.state === "none" && <span className="faint small">The user did not attach a screenshot to this order.</span>}
+              {shot?.state === "error" && <div className="notice">{shot.msg} <button className="sm" onClick={showShot}>Try again</button></div>}
             </div>
             <div className="stack">
               {pending ? (
