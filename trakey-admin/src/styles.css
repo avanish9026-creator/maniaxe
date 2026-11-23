@@ -142,6 +142,7 @@ kbd {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid var(--line-2); background: var(--card); color: var(--text);
   border-radius: 999px; font-weight: 700; cursor: pointer; white-space: nowrap; transition: background .12s, border-color .12s, transform .08s, opacity .12s;
 }
+a.btn { text-decoration: none; }
 .btn-md { height: 40px; padding: 0 18px; font-size: 14px; }
 .btn-sm { height: 32px; padding: 0 13px; font-size: 13px; }
 .btn-lg { height: 48px; padding: 0 24px; font-size: 15px; }

@@ -196,18 +196,31 @@ export function makeActions(db, actorEmail) {
     });
   const deleteAnnouncement = (id) => deleteDoc(doc(db, "adminAnnouncements", id));
 
+  // Shared by publish and edit. releaseDate (YYYY-MM-DD, optional) lets an older version be added with its real date.
+  // historyOnly saves it as inactive, so it stays in this list but the app does not show it as a new update.
+  const updateFields = (u) => {
+    const fields = {
+      version: u.version, title: u.title, description: u.description, releaseNotes: u.releaseNotes,
+      downloadUrl: u.downloadUrl || null, pdfUrl: u.pdfUrl || null, active: !u.historyOnly,
+    };
+    if (u.releaseDate) {
+      fields.releaseDate = u.releaseDate;
+      fields.publishedAt = Timestamp.fromDate(new Date(u.releaseDate + "T12:00:00+05:30"));
+    }
+    return fields;
+  };
   const publishUpdate = (u) =>
     addDoc(collection(db, "appUpdates"), {
-      version: u.version, title: u.title, description: u.description, releaseNotes: u.releaseNotes,
-      downloadUrl: u.downloadUrl || null, active: true,
-      createdAt: serverTimestamp(), publishedAt: serverTimestamp(), publishedBy: by,
+      ...updateFields(u), createdAt: serverTimestamp(), ...(u.releaseDate ? {} : { publishedAt: serverTimestamp() }), publishedBy: by,
     });
+  const editUpdate = (id, u) =>
+    updateDoc(doc(db, "appUpdates", id), { ...updateFields(u), updatedAt: serverTimestamp(), updatedBy: by });
   const deleteUpdate = (id) => deleteDoc(doc(db, "appUpdates", id));
   const deleteNotification = (id) => deleteDoc(doc(db, "adminNotifications", id));
 
   return {
     giftPro, removePro, approvePayment, saveAmount, rejectPayment, addManualPayment, deleteManualPayment, paymentShot,
     setFeedbackHandled, setContactStatus, logMessage, sendBroadcast, sendUserPush,
-    publishAnnouncement, deleteAnnouncement, publishUpdate, deleteUpdate, deleteNotification,
+    publishAnnouncement, deleteAnnouncement, publishUpdate, editUpdate, deleteUpdate, deleteNotification,
   };
 }

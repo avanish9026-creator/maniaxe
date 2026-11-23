@@ -8,6 +8,7 @@ import PaymentsList from "../components/PaymentsList";
 import { ContactDetail, FeedbackDetail } from "../components/InboxParts";
 import { GiftPlans, RemovePro } from "../components/ProControls";
 import { downloadBlob } from "../paymentExport";
+import { buildPersonPdf } from "../personExport";
 
 // Turns one Firestore value into short readable text for the Data tab.
 const show = (v) => {
@@ -72,6 +73,48 @@ export default function UserDetail({ uid }) {
   const download = () => {
     const payload = plain({ user: { ...person, pro: undefined, backup: undefined }, proStatus: pro.raw, backupInfo: person.backup, payments: mine.pay, feedback: mine.fb, contactMessages: mine.ct, messagesSent: mine.msg });
     downloadBlob(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }), "trakey-user-" + person.uid + ".json");
+    toast("Download started.");
+  };
+
+  const downloadPdf = () => {
+    const money2 = (p) => money(p.amount, p.currency).replace("₹", "Rs ");
+    const dt = (v) => (tsMs(v) ? fmtDateTime(tsMs(v)) + " IST" : "");
+    const skip = ["id", "uid", "pro", "backup", "lastSeenMs", "online", "hasProDoc", "notIndexed"];
+    const kv = (obj, sk) => rowsOf(obj, sk).map(([k, v]) => [k, v]);
+    const sections = [
+      { heading: "Profile", kv: [
+        ["Name", person.name || "Trakey User"], ["Email", person.email || "-"], ["Account ID", person.uid],
+        ["Status", person.online ? "Online now" : person.lastSeenMs ? "Last seen " + fmtDateTime(person.lastSeenMs) + " IST" : "Offline"],
+        ["First signed in", person.createdMs ? fmtDateTime(person.createdMs) + " IST" : "-"],
+        ["Location", person.location || "-"],
+        ...kv(person, [...skip, "name", "email", "location", "createdAt"]),
+      ] },
+      { heading: "Trakey Pro", kv: [
+        ["Status", pro.label || pro.key || "Free"],
+        ["Pro until", pro.key === "lifetime" ? "Forever" : pro.endMs ? fmtDateTime(pro.endMs) + " IST" : "-"],
+        ...kv(pro.raw, ["id"]),
+      ] },
+      { heading: "Payments (" + mine.pay.length + ")", note: mine.pay.length ? "" : "No payments.",
+        items: mine.pay.slice().sort((a, b) => tsMs(b.createdAt) - tsMs(a.createdAt)).map((p) => ({
+          head: (p.gift ? "Free gift" : "Payment") + " - " + money2(p) + " - " + (p.plan || "plan"),
+          meta: dt(p.createdAt),
+          body: "Status: " + (p.status || "pending") + (p.utr ? "   Ref: " + p.utr : "") + (p.note ? "\nNote: " + p.note : ""),
+        })) },
+      { heading: "Reviews (" + mine.fb.length + ")", note: mine.fb.length ? "" : "No reviews.",
+        items: mine.fb.slice().sort((a, b) => tsMs(b.submittedAt) - tsMs(a.submittedAt)).map((f) => ({
+          head: (f.rating || 0) + " / 5 stars" + (f.type ? " - " + f.type : ""), meta: dt(f.submittedAt), body: f.additionalFeedback || "",
+        })) },
+      { heading: "Support messages (" + mine.ct.length + ")", note: mine.ct.length ? "" : "No support messages.",
+        items: mine.ct.slice().sort((a, b) => tsMs(b.submittedAt) - tsMs(a.submittedAt)).map((c) => ({
+          head: c.topic || "Support", meta: dt(c.submittedAt), body: c.message || "",
+        })) },
+      { heading: "Sent by you (" + mine.msg.length + ")", note: mine.msg.length ? "" : "Nothing sent yet.",
+        items: mine.msg.slice().sort((a, b) => tsMs(b.createdAt) - tsMs(a.createdAt)).map((m) => ({
+          head: (m.kind?.startsWith("email") ? "Email" : "Notification") + (m.title ? " - " + m.title : ""), meta: dt(m.createdAt), body: m.message || "",
+        })) },
+      { heading: "Cloud backup info", kv: person.backup ? kv(person.backup) : [["Backup", "This person has not backed up yet."]] },
+    ];
+    downloadBlob(buildPersonPdf({ title: person.name || "Trakey User", subtitle: "Trakey user data - " + (person.email || person.uid), sections }), "trakey-user-" + person.uid + ".pdf");
     toast("Download started.");
   };
 
@@ -205,6 +248,7 @@ export default function UserDetail({ uid }) {
           {tab === "data" && (
             <div className="stack">
               <div className="row">
+                <Button icon="download" onClick={downloadPdf}>Download this person's data (PDF)</Button>
                 <Button icon="download" onClick={download}>Download this person's data (JSON)</Button>
                 <Button variant="quiet" icon="copy" onClick={() => copy(person.uid, "Account ID copied")}>Copy account ID</Button>
               </div>

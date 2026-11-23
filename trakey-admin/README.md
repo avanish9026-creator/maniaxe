@@ -16,3 +16,9 @@ Full-width admin portal. Same Firebase project, same data, same sign-in rules as
 - Email opens your own Gmail / mail app with the message filled in, and keeps a note in `messageHistory`.
 - Legal PDFs live in `public/legal/`. Replace them there when the Terms or Privacy Policy change.
 - Theme (dark or light) is remembered per browser. Ctrl/Cmd + K searches people and pages.
+- Legal page: **Live** opens the website page (maniaxe.in/trakey), **View PDF** opens the saved copy, **Download PDF** saves it.
+- Releases > "Versions & updates": add older versions with a release date, tick "History only" so the app does not show them,
+  and paste a PDF link (a GitHub file link, or a path like `releases/file.pdf`) to get View PDF / Download PDF buttons.
+  Use the pencil icon on any entry to add a PDF or fix details. The 5.1.2 changelog PDF is in `public/releases/`;
+  the "Fill 5.1.2 from changelog" button fills the form for it.
+- Users > open a person > Data: download that person's data as **PDF** or JSON.
