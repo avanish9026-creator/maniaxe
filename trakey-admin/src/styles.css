@@ -518,8 +518,10 @@ hr.sep { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
 /* Downloads page: one slim row per file, buttons side by side */
 .dl-row { padding: 8px 16px; gap: 12px; }
 .dl-actions { display: flex; flex: none; align-items: center; gap: 6px; }
+.dl-size { flex: none; min-width: 74px; text-align: right; color: var(--sub); font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 @media (max-width: 640px) {
   .dl-row { flex-wrap: wrap; }
   .dl-row .list-main { flex: 1 1 calc(100% - 50px); }
-  .dl-actions { flex: 1 1 100%; justify-content: flex-start; }
+  .dl-actions { order: 2; flex: 1 1 auto; justify-content: flex-start; }
+  .dl-size { order: 3; min-width: 0; margin-left: auto; }
 }
