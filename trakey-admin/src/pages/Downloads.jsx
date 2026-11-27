@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Badge, Button, Card, Empty, Icon, PageHead, useCopy } from "../lib/ui";
+import { Button, Card, Empty, Icon, PageHead, useCopy } from "../lib/ui";
 
 // Dropbox links for every build, source and asset file. To add or change one, edit this list and rebuild.
 // g = group heading, f = file name, u = Dropbox share link.
@@ -68,13 +68,12 @@ export default function Downloads() {
           <Card key={g} title={g} subtitle={rows.length + (rows.length === 1 ? " file" : " files")} className="mb">
             <div className="list">
               {rows.map((f) => (
-                <div className="list-row" key={f.f}>
+                <div className="list-row dl-row" key={f.f}>
                   <span className="tl-ic accent"><Icon name="file" size={16} /></span>
                   <div className="list-main">
-                    <b className="mono" style={{ overflowWrap: "anywhere" }}>{f.f}</b>
+                    <b className="mono">{f.f}</b>
                   </div>
-                  <div className="list-end" style={{ flexDirection: "row", gap: 8, alignItems: "center" }}>
-                    {f.f.endsWith(".apk") && <Badge tone="ok">APK</Badge>}
+                  <div className="dl-actions">
                     <a className="btn btn-soft btn-sm" href={f.u} target="_blank" rel="noopener noreferrer"><Icon name="link" size={15} /><span>Open</span></a>
                     <a className="btn btn-default btn-sm" href={direct(f.u)} rel="noopener noreferrer"><Icon name="download" size={15} /><span>Download</span></a>
                     <Button size="sm" icon="copy" onClick={() => copy(f.u, "Link copied")}>Copy</Button>
