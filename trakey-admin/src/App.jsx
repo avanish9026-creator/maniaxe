@@ -20,14 +20,16 @@ import History from "./pages/History";
 import Legal from "./pages/Legal";
 import Explorer from "./pages/Explorer";
 import Team from "./pages/Team";
+import Downloads from "./pages/Downloads";
+import Paywall from "./pages/Paywall";
 
 // key, label, icon, hint, owner-only
 const NAV = [
   ["", [["overview", "Overview", "home", "Today at a glance"]]],
   ["People", [["users", "Users", "users", "Every user and their controls", true], ["inbox", "Inbox", "inbox", "Support messages and reviews"]]],
-  ["Money", [["payments", "Payments", "card", "Approve orders, gifts and tax downloads", true]]],
+  ["Money", [["payments", "Payments", "card", "Approve orders, gifts and tax downloads", true], ["paywall", "Paywall", "crown", "Free trial, payment method and Pro on/off", true]]],
   ["Engage", [["broadcast", "Broadcast", "megaphone", "Message everyone"], ["releases", "Releases", "rocket", "App updates and update gate"], ["history", "History", "clock", "Everything sent so far"]]],
-  ["System", [["legal", "Legal documents", "file", "Terms and Privacy Policy PDFs"], ["explorer", "Data explorer", "database", "Browse and edit Firestore", true], ["team", "Team access", "shield", "Add editors", true]]],
+  ["System", [["downloads", "Downloads", "download", "Dropbox links for builds, source and assets", true], ["legal", "Legal documents", "file", "Terms and Privacy Policy PDFs"], ["explorer", "Data explorer", "database", "Browse and edit Firestore", true], ["team", "Team access", "shield", "Add editors", true]]],
 ];
 
 function Shell({ user, role, onLogout }) {
@@ -62,11 +64,13 @@ function Shell({ user, role, onLogout }) {
   else if (page === "overview") content = <Overview />;
   else if (page === "users") content = route[1] ? <UserDetail uid={route[1]} key={route[1]} /> : <Users />;
   else if (page === "payments") content = <Payments />;
+  else if (page === "paywall") content = <Paywall />;
   else if (page === "inbox") content = <Inbox />;
   else if (page === "broadcast") content = <Broadcast />;
   else if (page === "releases") content = <Releases />;
   else if (page === "history") content = <History />;
   else if (page === "legal") content = <Legal />;
+  else if (page === "downloads") content = <Downloads />;
   else if (page === "explorer") content = <Explorer />;
   else if (page === "team") content = <Team />;
   else content = <Overview />;
